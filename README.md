@@ -1,13 +1,23 @@
-# dma2026 — cod adnotat / annotated code
+# dma2026 — cod adnotat
 
 Proiectul **DMA2026** de la curs, cu **53 de fișiere adnotate** — codul comentat linie cu linie, ca să poți citi și înțelege orice fișier direct în Android Studio.
-
-The **DMA2026** course project with **53 annotated files** — the code commented line by line, so you can read and understand any file directly in Android Studio.
 
 > **Sursa:** [`mihaidoinea/dma2026`](https://github.com/mihaidoinea/dma2026), commitul `d719ffc`.
 > Codul este **identic, byte cu byte**. Singura diferență față de repo-ul original sunt liniile de comentariu.
 
----
+## Două limbi, două branch-uri
+
+| Branch | Comentariile |
+|---|---|
+| **`main`** (default) | în **română** |
+| **`english`** | în **engleză** |
+
+Aceleași fișiere, același cod, doar comentariile diferă. Schimbi branch-ul și Android Studio reîncarcă:
+
+```bash
+git checkout english     # comentarii în engleză
+git checkout main        # comentarii în română
+```
 
 ## Ce conține
 
@@ -26,49 +36,32 @@ Opt module, exact ca în repo-ul profesorului. În fiecare, fișierele principal
 
 Fișierele care nu sunt adnotate (resursele secundare, testele, configurațiile) sunt **identice cu repo-ul original**.
 
----
-
 ## Cum îl deschizi
 
-### Varianta 1 — clonezi din Android Studio
+**Din Android Studio:** *File → New → Project from Version Control* → `https://github.com/FiredMosquito831/dma2026-adnotat.git`
 
-1. Android Studio → **File → New → Project from Version Control**
-2. URL: `https://github.com/FiredMosquito831/dma2026-adnotat.git`
-3. **Clone**
-
-### Varianta 2 — din terminal
-
+**Din terminal:**
 ```bash
 git clone https://github.com/FiredMosquito831/dma2026-adnotat.git
 ```
 
-Apoi **File → Open** pe folderul clonat.
-
----
-
 ## Cum rulezi un modul
 
-Repo-ul are **8 module** într-un singur proiect Gradle. Nu trebuie să deschizi câte un proiect pentru fiecare — alegi modulul din configurația de run:
+Repo-ul are **8 module** într-un singur proiect Gradle. Nu deschizi câte un proiect pentru fiecare — alegi modulul din configurația de run:
 
-1. Sus, în bara Android Studio, în stânga butonului **Run ▶**, e un dropdown cu configurații.
-2. Dacă nu apare nimic, dă click pe **Add Configuration** (sau `Edit Configurations…`).
+1. În bara de sus, în stânga butonului **Run ▶**, e un dropdown cu configurații.
+2. Dacă nu apare nimic: **Add Configuration** (sau `Edit Configurations…`).
 3. **+** → **Android App** → la **Module** alegi, de exemplu, `dma2026.G1097.main`.
 4. **Apply**, apoi **Run ▶**.
 
 Repetă pentru fiecare modul pe care vrei să îl rulezi. Android Studio ține minte configurațiile.
 
-> **Alternativă:** în panoul **Build Variants** (stânga jos) alegi modulul activ, iar Run pornește modulul selectat.
-
----
-
 ## Ce îți trebuie
 
 - **Android Studio** — orice versiune recentă
 - **JDK 17+** — vine cu Android Studio
-- **Android SDK 37** — se instalează din *SDK Manager* dacă lipsește
+- **Android SDK 37** — din *SDK Manager* dacă lipsește
 - Un **emulator cu API 33+** sau un telefon conectat
-
----
 
 ## De unde vin comentariile
 
@@ -87,11 +80,9 @@ Fiecare fișier adnotat corespunde unui capitol din site-ul de pregătire, unde 
 | `DMA05` | [27 — Codul DMA05 adnotat](https://firedmosquito831.github.io/g1097-movies-walkthrough/cap-27.html) |
 | `DMA06` | [28 — Codul DMA06 adnotat](https://firedmosquito831.github.io/g1097-movies-walkthrough/cap-28.html) |
 
----
-
 ## Licență și sursă
 
-Codul aparține cursului **Dezvoltare aplicații mobile** (ASE). Acest repo doar adaugă comentarii peste el, pentru studiu. Dacă vrei versiunea fără comentarii, folosește repo-ul original: [`mihaidoinea/dma2026`](https://github.com/mihaidoinea/dma2026).
+Codul aparține cursului **Dezvoltare aplicații mobile** (ASE). Acest repo doar adaugă comentarii peste el, pentru studiu. Versiunea fără comentarii: [`mihaidoinea/dma2026`](https://github.com/mihaidoinea/dma2026).
 
 ---
 
