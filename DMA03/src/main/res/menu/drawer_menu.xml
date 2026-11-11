@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   ======================================================================================
-  FIȘIER: drawer_menu.xml
+  FILE: drawer_menu.xml
   ======================================================================================
-  ROL:
-    Conținutul sertarului: trei destinații de navigare + o setare separată.
-    `NavigationView` îl umflă singur, prin `app:menu="@menu/drawer_menu"`.
+  ROLE:
+    The drawer contents: three navigation destinations + a separate setting.
+    `NavigationView` inflates it itself, through `app:menu="@menu/drawer_menu"`.
 
-  CE DEMONSTREAZĂ:
-    1. `checkableBehavior="single"` — grup exclusiv, ca un radio group.
-    2. `item` fără id, cu `menu` imbricat — subtitlu de secțiune.
-    3. Id-urile `nav_*` — exact cele verificate în `MainActivity`.
+  WHAT IT DEMONSTRATES:
+    1. `checkableBehavior="single"` — an exclusive group, like a radio group.
+    2. an `item` without an id, with a nested `menu` — a section subtitle.
+    3. the `nav_*` ids — exactly the ones checked in `MainActivity`.
 
-  REF: cap. 14 (secțiunea despre meniuri), documentația `Menu`, `MenuItem`, `SubMenu`.
+  REF: ch. 14 (the section on menus), the documentation of `Menu`, `MenuItem`, `SubMenu`.
   ======================================================================================
 -->
 
@@ -20,29 +20,29 @@
   ======================================================================================
   ELEMENT: <menu>
   ======================================================================================
-  Rădăcina oricărui fișier de meniu. Conține `<group>` și `<item>`.
+  The root of any menu file. It contains `<group>` and `<item>`.
   ======================================================================================
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- checkableBehavior="single" = radio group: un singur element bifat -->
+    <!-- checkableBehavior="single" = radio group: a single checked item -->
     <!--
       ================================================================================
       ELEMENT: <group android:checkableBehavior="single">
       ================================================================================
-      Grupul se comportă ca un radio group: când selectezi „Sent", „Inbox" se
-      debifează automat. Valorile posibile:
+      The group behaves like a radio group: when you select "Sent", "Inbox" is
+      unchecked automatically. The possible values:
 
-        single → un singur element bifat per grup (radio);
-        all    → fiecare element se poate bifa independent (checkbox);
-        none   → niciun element nu e bifabil.
+        single → a single checked item per group (radio);
+        all    → every item can be checked independently (checkbox);
+        none   → no item can be checked.
 
-      `android:checked="true"` pe `nav_inbox` — starea inițială. Fără ea, la prima
-      deschidere niciun element nu e bifat, deși toolbar-ul afișează „Inbox".
-      `android:icon` — fiecare element are o iconiță vectorială din `res/drawable/`.
-      `NavigationView` le afișează la stânga titlului.
-      `android:title` e text literal, nu `@string/...` — funcționează, dar nu se
-      traduce. Pentru o aplicație reală, toate titlurile ar trebui să fie în
+      `android:checked="true"` on `nav_inbox` — the initial state. Without it, on the first
+      open no item is checked, although the toolbar displays "Inbox".
+      `android:icon` — every item has a vector icon from `res/drawable/`.
+      `NavigationView` displays them to the left of the title.
+      `android:title` is literal text, not `@string/...` — it works, but it is not
+      translated. For a real application, all the titles should be in
       `strings.xml`.
       ================================================================================
     -->
@@ -64,20 +64,20 @@
 
     <!--
       ================================================================================
-      ELEMENT: <item android:title="Other"> cu <menu> imbricat
+      ELEMENT: <item android:title="Other"> with a nested <menu>
       ================================================================================
-      Un `<item>` FĂRĂ id, care conține un `<menu>` — trucul pentru un SUBTITLU DE
-      SECȚIUNE. „Other" apare ca etichetă gri, iar „Settings" dedesubt, separat de
-      grupul principal.
+      An `<item>` WITHOUT an id, which contains a `<menu>` — the trick for a SECTION
+      SUBTITLE. "Other" appears as a grey label, and "Settings" below it, separate from
+      the main group.
 
-      DE CE `nav_settings` E ÎN AFARA GRUPULUI: nu face parte din navigarea
-      principală (Inbox/Sent/Trash), ci e o setare. Separarea vizuală sugerează
-      diferența.
-      CONSECINȚA ÎN COD: `nav_settings` nu e checkable, deci `item.setChecked(true)`
-      nu are efect vizual pe el. Ramura lui afișează un `Toast`.
-      CE SE ÎNTÂMPLĂ DACĂ PUI `nav_settings` ÎN ACELAȘI GRUP: ar deveni al patrulea
-      radio button. La click, „Inbox" s-ar debifa și „Settings" ar rămâne bifat —
-      deși nu e o destinație de navigare. Separarea nu e doar vizuală, e semantică.
+      WHY `nav_settings` IS OUTSIDE THE GROUP: it is not part of the main navigation
+      (Inbox/Sent/Trash), but a setting. The visual separation suggests
+      the difference.
+      THE CONSEQUENCE IN THE CODE: `nav_settings` is not checkable, so `item.setChecked(true)`
+      has no visual effect on it. Its branch displays a `Toast`.
+      WHAT HAPPENS IF YOU PUT `nav_settings` IN THE SAME GROUP: it would become the fourth
+      radio button. On click, "Inbox" would be unchecked and "Settings" would stay checked —
+      although it is not a navigation destination. The separation is not only visual, it is semantic.
       ================================================================================
     -->
     <item android:title="Other">

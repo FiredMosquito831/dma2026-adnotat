@@ -1,155 +1,155 @@
 /*
  * ======================================================================================
- * DMA02App.java — CLASA `Application` A PROIECTULUI DMA02
+ * DMA02App.java — THE `Application` CLASS OF THE DMA02 PROJECT
  * ======================================================================================
- * CE ESTE:
- *   Clasa care devine obiectul unic al procesului Android. Framework-ul o instanțiază
- *   o singură dată, la pornirea procesului, ÎNAINTE de orice activitate.
+ * WHAT IT IS:
+ *   The class that becomes the single object of the Android process. The framework
+ *   instantiates it once, at process start, BEFORE any activity.
  *
- * DE CE EXISTĂ:
- *   1. Abonează un observator la ciclul de viață al TUTUROR activităților
+ * WHY IT EXISTS:
+ *   1. It subscribes an observer to the lifecycle of ALL activities
  *      (`registerActivityLifecycleCallbacks`).
- *   2. Activează global Material You (`DynamicColors.applyToActivitiesIfAvailable`).
- *   3. Scrie primul mesaj din Logcat, ca dovadă că inițializarea globală a rulat.
+ *   2. It enables Material You globally (`DynamicColors.applyToActivitiesIfAvailable`).
+ *   3. It writes the first Logcat message, as proof that global initialization ran.
  *
- * CE SE STRICĂ FĂRĂ EL:
- *   - fără `android:name=".DMA02App"` în manifest, clasa NU este instanțiată:
- *     nicio eroare, niciun mesaj — doar tăcere în Logcat;
- *   - fără `implements ActivityLifecycleCallbacks`, nu primești niciun eveniment;
- *   - fără `DynamicColors`, aplicația rămâne pe paleta fixă din `themes.xml`.
+ * WHAT BREAKS WITHOUT IT:
+ *   - without `android:name=".DMA02App"` in the manifest, the class is NOT instantiated:
+ *     no error, no message — just silence in Logcat;
+ *   - without `implements ActivityLifecycleCallbacks`, you receive no event at all;
+ *   - without `DynamicColors`, the app stays on the fixed palette from `themes.xml`.
  *
- * ORDINEA PE SCURT:
- *   proces nou → Application.attachBaseContext() → ContentProvider.onCreate()
+ * THE ORDER, IN SHORT:
+ *   new process → Application.attachBaseContext() → ContentProvider.onCreate()
  *              → DMA02App.onCreate() → MainActivity.onCreate() → onStart() → onResume()
  *
- * REF: android.app.Application (Android 36), documentația clasei:
- *      „The Application class, or your subclass of the Application class, is
+ * REF: android.app.Application (Android 36), the class documentation:
+ *      "The Application class, or your subclass of the Application class, is
  *       instantiated before any other class when the process for your
  *       application/package is created."
  * ======================================================================================
  */
 
-package ro.ase.ie.dma02;                    // pachetul aplicației; identic cu `namespace` din build.gradle.kts
+package ro.ase.ie.dma02;                    // the application package; identical to `namespace` in build.gradle.kts
 
-import android.app.Activity;                // tipul primit de fiecare callback: activitatea observată
-import android.app.Application;             // clasa de bază — obiectul unic al procesului
-import android.os.Bundle;                   // starea salvată, primită de două dintre callback-uri
-import android.util.Log;                    // scrierea în Logcat
+import android.app.Activity;                // the type received by every callback: the observed activity
+import android.app.Application;             // the base class — the single object of the process
+import android.os.Bundle;                   // the saved state, received by two of the callbacks
+import android.util.Log;                    // writing to Logcat
 
-import androidx.annotation.NonNull;         // contract pentru lint: parametrul nu are voie să fie null
-import androidx.annotation.Nullable;        // contract pentru lint: parametrul poate fi null
+import androidx.annotation.NonNull;         // lint contract: the parameter must not be null
+import androidx.annotation.Nullable;        // lint contract: the parameter may be null
 
-import com.google.android.material.color.DynamicColors;   // Material You: culori extrase din wallpaper
+import com.google.android.material.color.DynamicColors;   // Material You: colors extracted from the wallpaper
 
 /*
  * ======================================================================================
- * THEORY BLOCK: `Application` — obiectul unic al procesului
+ * THEORY BLOCK: `Application` — the single object of the process
  * ======================================================================================
- * 1. UN PROCES = UN `Application`
- *    Android pornește aplicația într-un proces nou (implicit). La începutul procesului,
- *    `ActivityThread` creează EXACT UN obiect `Application`. Toate activitățile,
- *    serviciile și receiver-ele din acel proces îl împart.
- *    Consecință: câmpurile din `Application` sunt „globale" pentru proces, nu pentru o
- *    activitate. Nu se resetează la rotire și nu se recreează la navigare.
+ * 1. ONE PROCESS = ONE `Application`
+ *    Android starts the app in a new process (by default). At the start of the process,
+ *    `ActivityThread` creates EXACTLY ONE `Application` object. All activities,
+ *    services and receivers in that process share it.
+ *    Consequence: the fields of `Application` are "global" to the process, not to an
+ *    activity. They are not reset on rotation and not recreated on navigation.
  *
- * 2. `Application` NU ESTE O ACTIVITATE
- *    Nu are fereastră, nu are layout, nu apare pe ecran. Este doar un punct de
- *    inițializare și un loc de stat global. De aceea `onCreate()` lui nu are
- *    `setContentView` și nu primește `Bundle`: nu are stare de restaurat.
+ * 2. `Application` IS NOT AN ACTIVITY
+ *    It has no window, no layout, it does not appear on screen. It is only an
+ *    initialization point and a place for global state. That is why its `onCreate()`
+ *    has no `setContentView` and receives no `Bundle`: it has no state to restore.
  *
- * 3. `onCreate()` — UN SINGUR APEL, ÎNAINTE DE ORICE ACTIVITATE
- *    Documentația framework-ului: „Called when the application is starting, before any
+ * 3. `onCreate()` — A SINGLE CALL, BEFORE ANY ACTIVITY
+ *    The framework documentation: "Called when the application is starting, before any
  *    activity, service, or receiver objects (excluding content providers) have been
- *    created." Deci: providerii de conținut se pot crea înaintea lui, restul nu.
+ *    created." So: content providers may be created before it, nothing else.
  *
- * 4. `ActivityLifecycleCallbacks` — ȘABLONUL OBSERVATOR
- *    `Application` ține o listă de observatori. Fiecare metodă de ciclu de viață a
- *    unei activități apelează, în interiorul ei, `Application.dispatchActivityX(...)`,
- *    care iterează lista. Înregistrând `this`, `DMA02App` primește evenimente de la
- *    TOATE activitățile, fără să scrie nimic în ele.
+ * 4. `ActivityLifecycleCallbacks` — THE OBSERVER PATTERN
+ *    `Application` keeps a list of observers. Every lifecycle method of an activity
+ *    calls, inside itself, `Application.dispatchActivityX(...)`, which iterates the
+ *    list. By registering `this`, `DMA02App` receives events from ALL activities,
+ *    without writing anything in them.
  *
- * 5. `DynamicColors` — MATERIAL YOU GLOBAL
- *    `applyToActivitiesIfAvailable(this)` înregistrează propriul observator și aplică
- *    un theme overlay fiecărei activități, înainte de `onCreate`. Un singur apel,
- *    efect în toată aplicația.
+ * 5. `DynamicColors` — MATERIAL YOU, GLOBAL
+ *    `applyToActivitiesIfAvailable(this)` registers its own observer and applies a
+ *    theme overlay to every activity, before `onCreate`. One single call, an effect
+ *    across the whole app.
  *
- * ASCII: CINE SE CREEAZĂ PRIMUL
+ * ASCII: WHO IS CREATED FIRST
  *
- *   Zygote ──fork()──► proces nou
+ *   Zygote ──fork()──► new process
  *                         │
- *                         ├─ 1. Application.attachBaseContext()   (nu apare în cod)
- *                         ├─ 2. ContentProvider.onCreate()        (dacă există)
- *                         ├─ 3. DMA02App.onCreate()               ◄── AICI
+ *                         ├─ 1. Application.attachBaseContext()   (not in the code)
+ *                         ├─ 2. ContentProvider.onCreate()        (if any)
+ *                         ├─ 3. DMA02App.onCreate()               ◄── HERE
  *                         │       ├─ super.onCreate()
  *                         │       ├─ registerActivityLifecycleCallbacks(this)
  *                         │       ├─ DynamicColors.applyToActivitiesIfAvailable(this)
  *                         │       └─ Log.w(TAG, "onCreate")
- *                         └─ 4. MainActivity.onCreate()           ◄── abia acum
+ *                         └─ 4. MainActivity.onCreate()           ◄── only now
  * ======================================================================================
  */
 public class DMA02App
-        extends Application                                       // (1) DMA02App ESTE un Application
-        implements Application.ActivityLifecycleCallbacks {       // (2) și ESTE observatorul de ciclu de viață
+        extends Application                                       // (1) DMA02App IS an Application
+        implements Application.ActivityLifecycleCallbacks {       // (2) and IS the lifecycle observer
 
-    // TAG-ul din Logcat. `getSimpleName()` întoarce "DMA02App", fără pachet.
-    // `getName()` ar fi dat "ro.ase.ie.dma02.DMA02App" — prea lung pentru o coloană.
-    // Nu e `static`: Application are o singură instanță per proces, deci un câmp de
-    // instanță e suficient. În MainActivity e `static final`, pentru că acolo pot
-    // exista mai multe instanțe (la rotire) și tag-ul trebuie să fie al clasei.
+    // The Logcat tag. `getSimpleName()` returns "DMA02App", without the package.
+    // `getName()` would have given "ro.ase.ie.dma02.DMA02App" — too long for a column.
+    // It is not `static`: Application has a single instance per process, so an
+    // instance field is enough. In MainActivity it is `static final`, because there
+    // several instances may exist (on rotation) and the tag must belong to the class.
     private final String TAG = DMA02App.class.getSimpleName();
 
     // ==================================================================================
-    // METODA 1/8: onCreate() — PUNCTUL DE INTRARE AL PROCESULUI
+    // METHOD 1/8: onCreate() — THE ENTRY POINT OF THE PROCESS
     // ==================================================================================
-    // THEORY: `Application.onCreate()` e chemat o singură dată, la pornirea procesului,
-    //         înaintea oricărei activități. Este locul corect pentru inițializări
-    //         globale: abonări, teme, biblioteci, DI.
+    // THEORY: `Application.onCreate()` is called once, at process start, before any
+    //         activity. It is the right place for global initializations:
+    //         subscriptions, themes, libraries, DI.
     // LOGIC:
-    //   1. `super.onCreate()` — contractul clasei de bază.
-    //   2. `registerActivityLifecycleCallbacks(this)` — abonarea observatorului.
-    //   3. `DynamicColors.applyToActivitiesIfAvailable(this)` — tema globală.
-    //   4. `Log.w(...)` — dovada că inițializarea s-a terminat.
-    // REF: android.app.Application#onCreate (Android 36); javadoc-ul clasei.
-    // RISK: ordinea 2 → 3 → 4 nu e întâmplătoare. Abonarea și tema trebuie făcute
-    //       ÎNAINTE ca prima activitate să fie creată; dacă le muți în MainActivity,
-    //       rulează prea târziu pentru prima activitate.
+    //   1. `super.onCreate()` — the base class contract.
+    //   2. `registerActivityLifecycleCallbacks(this)` — subscribing the observer.
+    //   3. `DynamicColors.applyToActivitiesIfAvailable(this)` — the global theme.
+    //   4. `Log.w(...)` — the proof that initialization has finished.
+    // REF: android.app.Application#onCreate (Android 36); the class javadoc.
+    // RISK: the order 2 → 3 → 4 is not accidental. The subscription and the theme must
+    //       be done BEFORE the first activity is created; if you move them into
+    //       MainActivity, they run too late for the first activity.
     @Override
     public void onCreate() {
-        super.onCreate();                                  // pas 0: contractul clasei de bază (aici e gol, dar se păstrează)
-        registerActivityLifecycleCallbacks(this);          // pas 1: „this" devine observatorul tuturor activităților
-        DynamicColors.applyToActivitiesIfAvailable(this);  // pas 2: Material You, global, dacă e disponibil
+        super.onCreate();                                  // step 0: the base class contract (empty here, but kept)
+        registerActivityLifecycleCallbacks(this);          // step 1: "this" becomes the observer of all activities
+        DynamicColors.applyToActivitiesIfAvailable(this);  // step 2: Material You, global, if available
 
-        Log.w(TAG, "onCreate");                            // pas 3: primul rând din Logcat — înaintea oricărei activități
+        Log.w(TAG, "onCreate");                            // step 3: the first line in Logcat — before any activity
     }
 
     // ==================================================================================
     // CALLBACK 1/7: onActivityCreated(Activity, Bundle)
     // ==================================================================================
-    // THEORY: se declanșează când o activitate apelează `super.onCreate(...)`.
-    //         `bundle` este exact `savedInstanceState`: `null` la prima creare,
-    //         non-null la recreare (rotire, revenire după kill).
-    // CÂND: în interiorul lui `Activity.onCreate`, după `mFragments.dispatchCreate()`
-    //       și înainte de `mCalled = true`.
-    // LOGIC: scrie un singur rând în Logcat, cu numele clasei activității.
-    // REF: Activity.java (android-36), linia 1883 — `dispatchActivityCreated(...)`.
-    // RISK: în acest moment `setContentView` NU a rulat încă (dacă activitatea apelează
-    //       `super` prima, cum face MainActivity). Deci `findViewById` ar întoarce null:
-    //       nu atinge view-urile aici.
+    // THEORY: it fires when an activity calls `super.onCreate(...)`.
+    //         `bundle` is exactly `savedInstanceState`: `null` on first creation,
+    //         non-null on recreation (rotation, return after a kill).
+    // WHEN: inside `Activity.onCreate`, after `mFragments.dispatchCreate()`
+    //       and before `mCalled = true`.
+    // LOGIC: writes a single line in Logcat, with the activity's class name.
+    // REF: Activity.java (android-36), line 1883 — `dispatchActivityCreated(...)`.
+    // RISK: at this moment `setContentView` has NOT run yet (if the activity calls
+    //       `super` first, as MainActivity does). So `findViewById` would return null:
+    //       do not touch the views here.
     @Override
     public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
-        Log.w(TAG, "onActivityCreated" + activity.getClass().getSimpleName());   // ex.: "onActivityCreatedMainActivity"
-    }                                                                            // lipsește spațiul dintre text și nume
+        Log.w(TAG, "onActivityCreated" + activity.getClass().getSimpleName());   // e.g. "onActivityCreatedMainActivity"
+    }                                                                            // the space between text and name is missing
 
     // ==================================================================================
-    // CALLBACK 2/7: onActivityDestroyed(Activity) — poziția 2 în fișier, nu în viață
+    // CALLBACK 2/7: onActivityDestroyed(Activity) — position 2 in the file, not in life
     // ==================================================================================
-    // THEORY: se declanșează când activitatea este distrusă definitiv: Back, rotire,
-    //         `finish()`. Este perechea lui `onDestroy`.
-    // CÂND: în interiorul lui `Activity.onDestroy`, după curățenia framework-ului.
-    // LOGIC: scrie un singur rând în Logcat.
-    // REF: Activity.java (android-36), linia 2971 — `dispatchActivityDestroyed()`.
-    // RISK: NU e garantat. Dacă sistemul omoară procesul din lipsă de memorie,
-    //       `onDestroy` nu rulează și callback-ul nu vine. Nu pune aici salvarea de date.
+    // THEORY: it fires when the activity is definitively destroyed: Back, rotation,
+    //         `finish()`. It is the counterpart of `onDestroy`.
+    // WHEN: inside `Activity.onDestroy`, after the framework's cleanup.
+    // LOGIC: writes a single line in Logcat.
+    // REF: Activity.java (android-36), line 2971 — `dispatchActivityDestroyed()`.
+    // RISK: it is NOT guaranteed. If the system kills the process for lack of memory,
+    //       `onDestroy` does not run and the callback never comes. Do not save data here.
     @Override
     public void onActivityDestroyed(@NonNull Activity activity) {
         Log.w(TAG, "onActivityDestroyed" + activity.getClass().getSimpleName());
@@ -158,13 +158,13 @@ public class DMA02App
     // ==================================================================================
     // CALLBACK 3/7: onActivityPaused(Activity)
     // ==================================================================================
-    // THEORY: se declanșează când activitatea își pierde focusul: altă activitate vine
-    //         peste ea, dialog, share sheet, Home. Activitatea poate fi încă vizibilă.
-    // CÂND: la începutul lui `Activity.onPause`, ÎNAINTE de restul corpului metodei.
-    // LOGIC: scrie un singur rând în Logcat.
-    // REF: Activity.java (android-36), linia 2662 — `dispatchActivityPaused()`.
-    // RISK: `onPause` blochează tranziția către activitatea următoare. Orice lucrezi
-    //       aici întârzie ecranul următor: păstrează metoda scurtă.
+    // THEORY: it fires when the activity loses focus: another activity comes over it,
+    //         a dialog, the share sheet, Home. The activity may still be visible.
+    // WHEN: at the start of `Activity.onPause`, BEFORE the rest of the method body.
+    // LOGIC: writes a single line in Logcat.
+    // REF: Activity.java (android-36), line 2662 — `dispatchActivityPaused()`.
+    // RISK: `onPause` blocks the transition to the next activity. Whatever you do here
+    //       delays the next screen: keep the method short.
     @Override
     public void onActivityPaused(@NonNull Activity activity) {
         Log.w(TAG, "onActivityPaused" + activity.getClass().getSimpleName());
@@ -173,13 +173,13 @@ public class DMA02App
     // ==================================================================================
     // CALLBACK 4/7: onActivityResumed(Activity)
     // ==================================================================================
-    // THEORY: se declanșează când activitatea devine interactivă: e în prim-plan și
-    //         primește input. Este perechea lui `onResume`.
-    // CÂND: la începutul lui `Activity.onResume`, înainte de restul corpului.
-    // LOGIC: scrie un singur rând în Logcat.
-    // REF: Activity.java (android-36), linia 2228 — `dispatchActivityResumed()`.
-    // RISK: aici poți porni animații și listeners; nu face treabă grea, pentru că
-    //       întârzie primul frame interactiv.
+    // THEORY: it fires when the activity becomes interactive: it is in the foreground
+    //         and receives input. It is the counterpart of `onResume`.
+    // WHEN: at the start of `Activity.onResume`, before the rest of the body.
+    // LOGIC: writes a single line in Logcat.
+    // REF: Activity.java (android-36), line 2228 — `dispatchActivityResumed()`.
+    // RISK: here you may start animations and listeners; do not do heavy work, because
+    //       it delays the first interactive frame.
     @Override
     public void onActivityResumed(@NonNull Activity activity) {
         Log.w(TAG, "onActivityResumed" + activity.getClass().getSimpleName());
@@ -188,15 +188,15 @@ public class DMA02App
     // ==================================================================================
     // CALLBACK 5/7: onActivitySaveInstanceState(Activity, Bundle)
     // ==================================================================================
-    // THEORY: se declanșează când sistemul cere activității să-și salveze starea, ca
-    //         să o poată reconstrui după ce procesul e omorât. `bundle` este exact
-    //         obiectul care va ajunge în `onCreate` la revenire.
-    // CÂND: în interiorul lui `Activity.onSaveInstanceState`. Din Android 9 (API 28),
-    //       după `onStop`; înainte, putea fi înainte de `onStop`.
-    // LOGIC: niciunul — metoda e goală intenționat.
-    // REF: Activity.java (android-36), linia 2565 — `dispatchActivitySaveInstanceState(...)`.
-    // RISK: Bundle-ul trece prin Binder; datele mari dau `TransactionTooLargeException`.
-    //       DMA02 nu are stare de salvat, deci metoda rămâne goală.
+    // THEORY: it fires when the system asks the activity to save its state, so that it
+    //         can rebuild it after the process is killed. `bundle` is exactly the
+    //         object that will reach `onCreate` on return.
+    // WHEN: inside `Activity.onSaveInstanceState`. From Android 9 (API 28), after
+    //       `onStop`; before that, it could come before `onStop`.
+    // LOGIC: none — the method is empty on purpose.
+    // REF: Activity.java (android-36), line 2565 — `dispatchActivitySaveInstanceState(...)`.
+    // RISK: the Bundle travels through Binder; large data gives `TransactionTooLargeException`.
+    //       DMA02 has no state to save, so the method stays empty.
     @Override
     public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle bundle) {
 
@@ -205,13 +205,13 @@ public class DMA02App
     // ==================================================================================
     // CALLBACK 6/7: onActivityStarted(Activity)
     // ==================================================================================
-    // THEORY: se declanșează când activitatea devine vizibilă, dar nu neapărat
-    //         interactivă. Este perechea lui `onStart`.
-    // CÂND: în interiorul lui `Activity.onStart`, după `mFragments.doLoaderStart()`.
-    // LOGIC: scrie un singur rând în Logcat.
-    // REF: Activity.java (android-36), linia 2154 — `dispatchActivityStarted()`.
-    // RISK: aici activitatea e vizibilă, dar nu primește încă input. Nu porni
-    //       animații care depind de focus.
+    // THEORY: it fires when the activity becomes visible, but not necessarily
+    //         interactive. It is the counterpart of `onStart`.
+    // WHEN: inside `Activity.onStart`, after `mFragments.doLoaderStart()`.
+    // LOGIC: writes a single line in Logcat.
+    // REF: Activity.java (android-36), line 2154 — `dispatchActivityStarted()`.
+    // RISK: here the activity is visible, but does not receive input yet. Do not start
+    //       animations that depend on focus.
     @Override
     public void onActivityStarted(@NonNull Activity activity) {
         Log.w(TAG, "onActivityStarted" + activity.getClass().getSimpleName());
@@ -220,15 +220,15 @@ public class DMA02App
     // ==================================================================================
     // CALLBACK 7/7: onActivityStopped(Activity)
     // ==================================================================================
-    // THEORY: se declanșează când activitatea nu mai este vizibilă: Home, altă
-    //         activitate full-screen, ecran stins. Este perechea lui `onStop`.
-    // CÂND: în interiorul lui `Activity.onStop`, după `mActivityTransitionState.onStop`.
-    // LOGIC: scrie un singur rând în Logcat.
-    // REF: Activity.java (android-36), linia 2893 — `dispatchActivityStopped()`.
-    // RISK: activitatea poate fi distrusă imediat după, fără `onDestroy` garantat.
-    //       Nu păstra aici resurse care trebuie eliberate neapărat.
+    // THEORY: it fires when the activity is no longer visible: Home, another
+    //         full-screen activity, screen off. It is the counterpart of `onStop`.
+    // WHEN: inside `Activity.onStop`, after `mActivityTransitionState.onStop`.
+    // LOGIC: writes a single line in Logcat.
+    // REF: Activity.java (android-36), line 2893 — `dispatchActivityStopped()`.
+    // RISK: the activity may be destroyed right after, without a guaranteed `onDestroy`.
+    //       Do not keep here resources that must be released no matter what.
     @Override
     public void onActivityStopped(@NonNull Activity activity) {
         Log.w(TAG, "onActivityStopped" + activity.getClass().getSimpleName());
     }
-}   // închide clasa DMA02App
+}   // closes the DMA02App class

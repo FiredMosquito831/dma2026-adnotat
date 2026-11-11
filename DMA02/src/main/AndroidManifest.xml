@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- ↑ declarația XML: prima linie obligatorie. Un comentariu ÎNAINTEA ei ar face
-     documentul invalid, de aceea antetul stă după ea. -->
+<!-- ↑ the XML declaration: the mandatory first line. A comment BEFORE it would make
+     the document invalid, that is why the header sits after it. -->
 
 <!--
   ======================================================================================
-  AndroidManifest.xml — CONTRACTUL APLICAȚIEI CU SISTEMUL ANDROID
+  AndroidManifest.xml — THE APP'S CONTRACT WITH THE ANDROID SYSTEM
   ======================================================================================
-  CE ESTE:
-    Fișierul care spune sistemului ce componente are aplicația, ce permisiuni cere și
-    ce `Intent`-uri acceptă. Fără el, APK-ul nu se poate instala.
+  WHAT IT IS:
+    The file that tells the system which components the app has, which permissions it
+    asks for and which `Intent`s it accepts. Without it, the APK cannot be installed.
 
-  DE CE EXISTĂ:
-    1. leagă `DMA02App` de runtime (`android:name=".DMA02App"`);
-    2. declară `MainActivity` și filtrul care o face vizibilă în launcher;
-    3. declară filtrul care face aplicația vizibilă în share sheet.
+  WHY IT EXISTS:
+    1. it binds `DMA02App` to the runtime (`android:name=".DMA02App"`);
+    2. it declares `MainActivity` and the filter that makes it visible in the launcher;
+    3. it declares the filter that makes the app visible in the share sheet.
 
-  CE SE STRICĂ FĂRĂ EL:
-    - fără `<application android:name>`, `DMA02App` nu e instanțiat: tăcere;
-    - fără `MAIN` + `LAUNCHER`, aplicația nu apare în launcher;
-    - fără `exported="true"`, build-ul eșuează pe targetSdk ≥ 31.
+  WHAT BREAKS WITHOUT IT:
+    - without `<application android:name>`, `DMA02App` is not instantiated: silence;
+    - without `MAIN` + `LAUNCHER`, the app does not appear in the launcher;
+    - without `exported="true"`, the build fails on targetSdk ≥ 31.
 
   REF: AndroidManifest.xml (Android 36); build.gradle.kts, `namespace`.
   ======================================================================================
@@ -26,37 +26,37 @@
 
 <!--
   ======================================================================================
-  THEORY BLOCK: manifestul ca registru de componente
+  THEORY BLOCK: the manifest as a registry of components
   ======================================================================================
-  1. `<manifest>` — rădăcina. Conține `package` (sau `namespace` în build.gradle.kts)
-     și namespace-urile XML.
-  2. `<application>` — un singur nod per APK. Atributele lui se aplică întregii
-     aplicații: nume, icon, temă, backup.
-  3. `<activity>` — o componentă cu fereastră. Fiecare are `android:name` și, dacă
-     are `<intent-filter>`, `android:exported`.
-  4. `<intent-filter>` — ce `Intent`-uri acceptă componenta. `MAIN` + `LAUNCHER` =
-     punct de intrare; `SEND` + `DEFAULT` + `text/plain` = receptor de share.
+  1. `<manifest>` — the root. It contains `package` (or `namespace` in build.gradle.kts)
+     and the XML namespaces.
+  2. `<application>` — a single node per APK. Its attributes apply to the whole
+     app: name, icon, theme, backup.
+  3. `<activity>` — a component with a window. Each one has `android:name` and, if it
+     has an `<intent-filter>`, `android:exported`.
+  4. `<intent-filter>` — which `Intent`s the component accepts. `MAIN` + `LAUNCHER` =
+     entry point; `SEND` + `DEFAULT` + `text/plain` = share receiver.
   ======================================================================================
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    <!-- ↑ xmlns:android = prefixul tuturor atributelor android:.
-         xmlns:tools = prefixul tools:; aici e declarat, dar niciun atribut tools:
-         nu apare în fișier — rămășiță din șablon. -->
+    <!-- ↑ xmlns:android = the prefix of all the android: attributes.
+         xmlns:tools = the tools: prefix; here it is declared, but no tools:
+         attribute appears in the file — a leftover from the template. -->
 
     <!--
       ==================================================================================
-      NODUL <application> — atributele globale ale aplicației
+      THE <application> NODE — the global attributes of the app
       ==================================================================================
-      android:name=".DMA02App"              ← LEGĂTURA cu DMA02App.java
-      android:allowBackup="true"            ← backup automat al datelor
-      android:dataExtractionRules="..."     ← reguli de backup pentru Android 12+
-      android:fullBackupContent="..."       ← reguli de backup pentru Android 11 și mai jos
-      android:icon / roundIcon              ← iconul din launcher
-      android:label="@string/app_name"      ← numele afișat: „DMA02"
-      android:supportsRtl="true"            ← oglindire pentru limbi RTL
-      android:theme="@style/Theme.DMA02"    ← tema aplicației
+      android:name=".DMA02App"              ← THE LINK to DMA02App.java
+      android:allowBackup="true"            ← automatic backup of the data
+      android:dataExtractionRules="..."     ← backup rules for Android 12+
+      android:fullBackupContent="..."       ← backup rules for Android 11 and below
+      android:icon / roundIcon              ← the launcher icon
+      android:label="@string/app_name"      ← the displayed name: "DMA02"
+      android:supportsRtl="true"            ← mirroring for RTL languages
+      android:theme="@style/Theme.DMA02"    ← the app theme
       ==================================================================================
     -->
     <application
@@ -69,50 +69,50 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.DMA02">
-        <!-- ↑ după `>` putem pune comentarii: sunt între elemente, nu în interiorul
-             tag-ului. În interiorul unui tag XML, între atribute, un comentariu ar
-             face documentul invalid. -->
+        <!-- ↑ after the `>` we can put comments: they are between elements, not inside
+             the tag. Inside an XML tag, between attributes, a comment would make the
+             document invalid. -->
 
         <!--
           ==================================================================================
-          ACTIVITATEA PRINCIPALĂ
+          THE MAIN ACTIVITY
           ==================================================================================
-          android:name=".MainActivity"        ← clasa care se instanțiază
-          android:exported="true"             ← obligatoriu: launcher-ul e altă aplicație
-          android:windowSoftInputMode="..."   ← comportamentul la tastatură (inert aici)
+          android:name=".MainActivity"        ← the class that is instantiated
+          android:exported="true"             ← mandatory: the launcher is another app
+          android:windowSoftInputMode="..."   ← the keyboard behavior (inert here)
           ==================================================================================
         -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
-            <!-- ↑ activitatea care apare în launcher și care are layout-ul din 25.4. -->
+            <!-- ↑ the activity that appears in the launcher and has the layout from 25.4. -->
 
             <!--
-              FILTRUL 1: MAIN + LAUNCHER
-              MAIN      = „acesta e punctul de intrare"
-              LAUNCHER  = „arată-mă în launcher"
+              FILTER 1: MAIN + LAUNCHER
+              MAIN      = "this is the entry point"
+              LAUNCHER  = "show me in the launcher"
             -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!-- ↑ fără acest filtru, aplicația nu apare în launcher. -->
+            <!-- ↑ without this filter, the app does not appear in the launcher. -->
 
             <!--
-              FILTRUL 2: SEND + DEFAULT + text/plain
-              SEND       = „primesc conținut trimis de alte aplicații"
-              DEFAULT    = obligatoriu pentru rezolvarea implicită
-              text/plain = doar text simplu
-              → aplicația apare în share sheet-ul propriu și al altora.
+              FILTER 2: SEND + DEFAULT + text/plain
+              SEND       = "I receive content sent by other apps"
+              DEFAULT    = mandatory for implicit resolution
+              text/plain = plain text only
+              → the app appears in its own share sheet and in those of others.
             -->
                 <intent-filter>
                     <action android:name="android.intent.action.SEND" />
                     <category android:name="android.intent.category.DEFAULT" />
                     <data android:mimeType="text/plain" />
                 </intent-filter>
-            <!-- ↑ indentarea inconsistentă (16 spații) e în repo; nu schimbă nimic. -->
+            <!-- ↑ the inconsistent indentation (16 spaces) is in the repo; it changes nothing. -->
 
 
         </activity>

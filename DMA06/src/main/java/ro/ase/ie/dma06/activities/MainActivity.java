@@ -1,23 +1,23 @@
 /*
  * ======================================================================================
- * FIȘIER: MainActivity.java
+ * FILE: MainActivity.java
  * ======================================================================================
- * LOCAȚIE:  DMA06/src/main/java/ro/ase/ie/dma06/activities/MainActivity.java
- * PACHET:   ro.ase.ie.dma06.activities
- * ROL:      meniul aplicației. Trei butoane, trei activități. Nu atinge nicio listă,
- *           niciun adapter, nicio dată. Tot ce face e să pornească ecranul potrivit.
+ * LOCATION: DMA06/src/main/java/ro/ase/ie/dma06/activities/MainActivity.java
+ * PACKAGE:  ro.ase.ie.dma06.activities
+ * ROLE:     the app menu. Three buttons, three activities. It touches no list,
+ *           no adapter, no data. All it does is start the right screen.
  *
- * STRUCTURA FIȘIERULUI (3 părți):
- *   1. importuri        — 6 linii
- *   2. onCreate         — 8 linii: umflă layout-ul, apoi trei apeluri identice
- *   3. openOnClick      — 4 linii: findViewById + listener
+ * FILE STRUCTURE (3 parts):
+ *   1. imports          — 6 lines
+ *   2. onCreate         — 8 lines: inflates the layout, then three identical calls
+ *   3. openOnClick      — 4 lines: findViewById + listener
  *
- * CE TREBUIE SĂ ȘTII ÎNAINTE:
- *   - `startActivity` nu întoarce nimic; ecranele nu trimit rezultat înapoi.
- *   - `Class<?>` e un tip de clasă, nu o instanță. `SingleColumnActivity.class` e obiectul.
- *   - `this` dintr-o lambda e MainActivity, nu lambda. De aceea `new Intent(this, ...)` merge.
+ * WHAT YOU NEED TO KNOW BEFOREHAND:
+ *   - `startActivity` returns nothing; the screens do not send a result back.
+ *   - `Class<?>` is a class type, not an instance. `SingleColumnActivity.class` is the object.
+ *   - `this` inside a lambda is MainActivity, not the lambda. That is why `new Intent(this, ...)` works.
  *
- * FLUXUL:
+ * FLOW:
  *   MainActivity  ──btnStep1──▶  SingleColumnActivity    (ListView + ArrayAdapter)
  *                 ──btnStep2──▶  TwoColumnActivity      (ListView + NumberListAdapter)
  *                 ──btnStep3──▶  RecyclerViewActivity    (RecyclerView + NumberRecyclerAdapter)
@@ -25,180 +25,180 @@
  */
 
 // ======================================================================================
-// BLOCUL 1 — PACHETUL ȘI IMPORTURILE
+// BLOCK 1 — THE PACKAGE AND THE IMPORTS
 // ======================================================================================
-// Pachetul e cel care dă numele complet al clasei: ro.ase.ie.dma06.activities.MainActivity.
-// El trebuie să coincidă cu folderul aici (activities/), spre deosebire de pachetele
-// `data` și `adapters`, unde nu coincide — vezi 28.3.
+// The package is what gives the class its full name: ro.ase.ie.dma06.activities.MainActivity.
+// It must match the folder here (activities/), unlike the `data` and `adapters` packages,
+// where it does not match — see 28.3.
 // ======================================================================================
 
-package ro.ase.ie.dma06.activities;                     // pachetul ecranelor; toate cele 4 activități stau aici
+package ro.ase.ie.dma06.activities;                     // the package of the screens; all 4 activities live here
 
-import android.content.Intent;                          // obiectul care descrie „pornesc activitatea X"
-import android.os.Bundle;                               // starea salvată; aici nu e folosită
-import android.view.View;                               // tipul returnat de findViewById
-import androidx.appcompat.app.AppCompatActivity;        // activitatea de bază, cu tema AppCompat
-import ro.ase.ie.dma06.R;                               // clasa generată din resurse
+import android.content.Intent;                          // the object that describes "I am starting activity X"
+import android.os.Bundle;                               // the saved state; not used here
+import android.view.View;                               // the type returned by findViewById
+import androidx.appcompat.app.AppCompatActivity;        // the base activity, with the AppCompat theme
+import ro.ase.ie.dma06.R;                               // the class generated from resources
 
-// `import android.view.View` deși nu construiești niciun View: e tipul variabilei locale
-// din openOnClick. findViewById e generic din API 26: <T extends View> T findViewById(int).
-// Aici compilatorul nu are de unde deduce T, pentru că rezultatul se atribuie unei
-// variabile declarate explicit `View`. Deci `View` apare în cod și are nevoie de import.
+// `import android.view.View` although you build no View: it is the type of the local
+// variable in openOnClick. findViewById has been generic since API 26: <T extends View> T findViewById(int).
+// Here the compiler has nothing to infer T from, because the result is assigned to a
+// variable declared explicitly as `View`. So `View` appears in the code and needs an import.
 //
-// De ce AppCompatActivity și nu Activity: aduce AppCompatDelegate, care aplică tema
-// Material pe orice versiune de Android și înlocuiește widget-urile la inflate cu
-// variantele compatibile (AppCompatTextView, AppCompatButton).
+// Why AppCompatActivity and not Activity: it brings AppCompatDelegate, which applies the
+// Material theme on any Android version and swaps the widgets at inflate time for the
+// compatible variants (AppCompatTextView, AppCompatButton).
 //
-// `R` e generată, nu scrisă. Importul are prefixul din `namespace` (ro.ase.ie.dma06),
-// nu din folder. Dacă schimbi namespace în build.gradle.kts, importul se schimbă singur
-// la următorul build — dar tu trebuie să știi de unde vine.
+// `R` is generated, not written. The import carries the prefix from `namespace` (ro.ase.ie.dma06),
+// not from the folder. If you change the namespace in build.gradle.kts, the import changes
+// by itself on the next build — but you must know where it comes from.
 
 // ======================================================================================
-// THEORY BLOCK: TREI ECRANE, UN MENIU
+// THEORY BLOCK: THREE SCREENS, ONE MENU
 // ======================================================================================
 /*
- * 1. CE ESTE O ACTIVITATE
- *    -   O componentă cu fereastră proprie. Are propriul ciclu de viață și propriul
- *        arbore de view-uri.
- *    -   Se declară în AndroidManifest.xml. Fără declarație, startActivity aruncă
- *        ActivityNotFoundException la runtime, nu la compilare.
+ * 1. WHAT AN ACTIVITY IS
+ *    -   A component with its own window. It has its own lifecycle and its own
+ *        view tree.
+ *    -   It is declared in AndroidManifest.xml. Without the declaration, startActivity throws
+ *        ActivityNotFoundException at runtime, not at compile time.
  *
- * 2. CUM SE PORNESTE ALTA
+ * 2. HOW TO START ANOTHER ONE
  *    -   `startActivity(new Intent(context, Clasa.class))`.
- *    -   Intent-ul explicit (cu clasă) e singurul mod sigur în aceeași aplicație.
- *    -   Activitatea curentă NU e distrusă: e oprită și lăsată pe stivă (back stack).
+ *    -   The explicit Intent (with a class) is the only safe way inside the same app.
+ *    -   The current activity is NOT destroyed: it is stopped and left on the stack (back stack).
  *
- * 3. STIVA, LA FIECARE PAS
- *    [MainActivity]                       ← la lansare
- *    [MainActivity, SingleColumnActivity] ← după click pe butonul 1
- *    [MainActivity]                       ← după Back
- *    MainActivity NU se recreează la revenire: primește onRestart → onStart → onResume.
- *    De aceea onCreate-ul meniului rulează o singură dată per instanță.
+ * 3. THE STACK, AT EVERY STEP
+ *    [MainActivity]                       ← at launch
+ *    [MainActivity, SingleColumnActivity] ← after clicking button 1
+ *    [MainActivity]                       ← after Back
+ *    MainActivity is NOT recreated on return: it receives onRestart → onStart → onResume.
+ *    That is why the menu's onCreate runs only once per instance.
  *
- * 4. DE CE UN HELPER
- *    Cele trei butoane diferă prin exact două lucruri: id-ul și clasa. Restul e
- *    identic. Un helper parametrizat elimină șase linii duplicate și face evident
- *    ce variază.
+ * 4. WHY A HELPER
+ *    The three buttons differ in exactly two things: the id and the class. The rest is
+ *    identical. A parameterized helper removes six duplicated lines and makes obvious
+ *    what varies.
  *
- * DIAGRAMA:
+ * DIAGRAM:
  *
  *   click btnStep1
  *     └─ OnClickListener.onClick(v)
  *          └─ startActivity(new Intent(this, SingleColumnActivity.class))
- *               ├─ ActivityManager primește cererea
- *               ├─ PackageManager verifică: există .activities.SingleColumnActivity?
- *               ├─ MainActivity.onPause()           ← rămâne pe stivă
- *               ├─ SingleColumnActivity.onCreate()  ← instanță NOUĂ
- *               └─ SingleColumnActivity.onResume()  ← vizibilă, primește input
+ *               ├─ ActivityManager receives the request
+ *               ├─ PackageManager checks: does .activities.SingleColumnActivity exist?
+ *               ├─ MainActivity.onPause()           ← stays on the stack
+ *               ├─ SingleColumnActivity.onCreate()  ← NEW instance
+ *               └─ SingleColumnActivity.onResume()  ← visible, receives input
  */
 
 /** Opens each step of the demo. */
-public class MainActivity extends AppCompatActivity {   // singura activitate cu intent-filter LAUNCHER
+public class MainActivity extends AppCompatActivity {   // the only activity with a LAUNCHER intent-filter
 
     // ==================================================================================
-    // METODA 1 — onCreate
+    // METHOD 1 — onCreate
     // ==================================================================================
-    // Teorie:  prima metodă a ciclului de viață; rulează o dată per instanță.
-    // Logică:  1. super.onCreate  2. setContentView  3. trei apeluri openOnClick
-    // Risc:    `super.onCreate` trebuie să fie primul; delegate-ul AppCompat are nevoie
-    //          de el înainte ca fereastra să fie atinsă.
-    // Ref:     capitolul 15 (Application și ciclu de viață).
+    // Theory:  the first method of the lifecycle; it runs once per instance.
+    // Logic:   1. super.onCreate  2. setContentView  3. three openOnClick calls
+    // Risk:    `super.onCreate` must come first; the AppCompat delegate needs it
+    //          before the window is touched.
+    // Ref:     chapter 15 (Application and lifecycle).
     // ==================================================================================
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);             // 1. lansează ciclul de viață al părintelui
-        setContentView(R.layout.activity_main);         // 2. umflă activity_main.xml în fereastră
+        super.onCreate(savedInstanceState);             // 1. starts the parent's lifecycle
+        setContentView(R.layout.activity_main);         // 2. inflates activity_main.xml into the window
 
-        openOnClick(R.id.btnStep1, SingleColumnActivity.class);    // 3. buton 1 → treapta 1
-        openOnClick(R.id.btnStep2, TwoColumnActivity.class);       //    buton 2 → treapta 2
-        openOnClick(R.id.btnStep3, RecyclerViewActivity.class);    //    buton 3 → treapta 3
+        openOnClick(R.id.btnStep1, SingleColumnActivity.class);    // 3. button 1 → step 1
+        openOnClick(R.id.btnStep2, TwoColumnActivity.class);       //    button 2 → step 2
+        openOnClick(R.id.btnStep3, RecyclerViewActivity.class);    //    button 3 → step 3
     }
 
-    // `@Override` — metoda există în Activity. Adnotarea nu schimbă comportamentul, dar
-    // îi spune compilatorului să verifice semnătura. Dacă ai scrie onCreate(Bundle b, int x),
-    // fără @Override ai avea o metodă nouă, care nu e chemată niciodată.
+    // `@Override` — the method exists in Activity. The annotation does not change behaviour, but
+    // it tells the compiler to check the signature. If you wrote onCreate(Bundle b, int x),
+    // without @Override you would have a new method, which is never called.
     //
-    // `protected`, nu `public` — Activity.onCreate e protected. Metoda e chemată de
-    // framework, nu de codul tău.
+    // `protected`, not `public` — Activity.onCreate is protected. The method is called by
+    // the framework, not by your code.
     //
-    // `savedInstanceState` — null la prima pornire, un Bundle când activitatea e recreată
-    // (rotire, schimbare de temă, revenire după ce a fost distrusă în fundal). Aici nu e
-    // folosit: meniul nu are stare.
+    // `savedInstanceState` — null on the first start, a Bundle when the activity is recreated
+    // (rotation, theme change, return after it was destroyed in the background). It is not
+    // used here: the menu has no state.
     //
-    // Ordinea celor trei linii nu e negociabilă. setContentView are nevoie de fereastra
-    // creată de super.onCreate. openOnClick are nevoie de arborele construit de
-    // setContentView, pentru că findViewById caută în el. Inversate, primele două dau
-    // excepții, a treia întoarce null.
+    // The order of the three lines is not negotiable. setContentView needs the window
+    // created by super.onCreate. openOnClick needs the tree built by
+    // setContentView, because findViewById searches inside it. Reversed, the first two throw
+    // exceptions, the third returns null.
 
     // ==================================================================================
-    // METODA 2 — openOnClick
+    // METHOD 2 — openOnClick
     // ==================================================================================
-    // Teorie:  un helper care primește id-ul butonului și clasa de pornit.
-    // Logică:  1. findViewById  2. setOnClickListener  3. startActivity(new Intent(...))
-    // Risc:    `findViewById` întoarce `View`, nu `Button`; dacă id-ul nu există în layout
-    //          întoarce null și `setOnClickListener` dă NullPointerException.
-    // Ref:     capitolul 04 (MainActivity - listă).
+    // Theory:  a helper that receives the button id and the class to start.
+    // Logic:   1. findViewById  2. setOnClickListener  3. startActivity(new Intent(...))
+    // Risk:    `findViewById` returns `View`, not `Button`; if the id does not exist in the layout
+    //          it returns null and `setOnClickListener` throws NullPointerException.
+    // Ref:     chapter 04 (MainActivity - list).
     // ==================================================================================
     private void openOnClick(int buttonId, Class<?> activityClass) {
-        View button = findViewById(buttonId);           // caută butonul în arborele umflat la pasul 2
+        View button = findViewById(buttonId);           // finds the button in the tree inflated at step 2
         button.setOnClickListener(v -> startActivity(new Intent(this, activityClass)));
-        //                              ↑ lambda: `this` = MainActivity, deci e Context valid
+        //                              ↑ lambda: `this` = MainActivity, so it is a valid Context
     }
 
-    // De ce un helper și nu trei blocuri identice: singurele lucruri care diferă între
-    // cele trei butoane sunt id-ul și clasa. Restul e același cod. Dacă ai adăuga o
-    // treaptă 4, adaugi o linie, nu șapte.
+    // Why a helper and not three identical blocks: the only things that differ between
+    // the three buttons are the id and the class. The rest is the same code. If you added a
+    // step 4, you would add one line, not seven.
     //
-    // `Class<?>` — al doilea parametru al constructorului Intent(Context, Class<?>) este
-    // clasa componentei care trebuie pornită. `<?>` înseamnă „orice clasă"; aici toate
-    // trei sunt activități, dar tipul nu o impune. Ai putea scrie
-    // `Class<? extends Activity>` și ai avea o verificare în plus la compilare.
+    // `Class<?>` — the second parameter of the Intent(Context, Class<?>) constructor is
+    // the class of the component to start. `<?>` means "any class"; here all
+    // three are activities, but the type does not enforce it. You could write
+    // `Class<? extends Activity>` and you would get an extra check at compile time.
     //
-    // `this` din lambda — într-o expresie lambda, `this` rămâne instanța care înconjoară
-    // lambda, adică MainActivity. Într-o clasă anonimă (new View.OnClickListener() {...}),
-    // `this` ar fi instanța clasei anonime, care NU e Context, și ar trebui scris
-    // MainActivity.this. Aici lambda e mai scurtă exact din acest motiv.
+    // `this` inside the lambda — inside a lambda expression, `this` remains the instance that surrounds
+    // the lambda, that is MainActivity. Inside an anonymous class (new View.OnClickListener() {...}),
+    // `this` would be the instance of the anonymous class, which is NOT a Context, and you would have to write
+    // MainActivity.this. The lambda is shorter here exactly for this reason.
     //
-    // `v -> startActivity(...)` — parametrul v e view-ul care a primit click-ul, adică
-    // butonul. Nu e folosit: știm deja ce buton e, pentru că listener-ul e instalat pe el.
+    // `v -> startActivity(...)` — the parameter v is the view that received the click, that is
+    // the button. It is not used: we already know which button it is, because the listener is installed on it.
     //
-    // `startActivity` și nu `launcher`: ecranele celor trei trepte nu întorc nimic. Nu ai
-    // nevoie de registerForActivityResult, pentru că nu aștepți un rezultat.
+    // `startActivity` and not `launcher`: the screens of the three steps return nothing. You do not
+    // need registerForActivityResult, because you are not waiting for a result.
     //
-    // `View button` și nu `MaterialButton`: helper-ul lucrează cu orice view care are
-    // setOnClickListener. findViewById întoarce tipul declarat; aici e View, pentru că
-    // helper-ul nu are nevoie de nimic specific unui buton.
+    // `View button` and not `MaterialButton`: the helper works with any view that has
+    // setOnClickListener. findViewById returns the declared type; here it is View, because
+    // the helper needs nothing specific to a button.
     //
     // ==================================================================================
-    // CE SE ÎNTÂMPLĂ LA BACK
+    // WHAT HAPPENS ON BACK
     // ==================================================================================
     //
     //   SingleColumnActivity.onPause()
     //     → SingleColumnActivity.onStop()
-    //     → SingleColumnActivity.onDestroy()        ← instanța moare
+    //     → SingleColumnActivity.onDestroy()        ← the instance dies
     //     → MainActivity.onRestart()
     //     → MainActivity.onStart()
-    //     → MainActivity.onResume()                 ← meniul revine, FĂRĂ onCreate
+    //     → MainActivity.onResume()                 ← the menu returns, WITHOUT onCreate
     //
-    // De ce contează: onCreate-ul meniului nu rulează a doua oară, deci nici
-    // setContentView, nici openOnClick nu se repetă. Butoanele își păstrează
-    // listener-ii pentru că arborele de view-uri nu a fost distrus.
+    // Why it matters: the menu's onCreate does not run a second time, so neither
+    // setContentView nor openOnClick repeat. The buttons keep their
+    // listeners because the view tree was not destroyed.
     //
-    // Ce s-ar întâmpla dacă MainActivity ar fi distrusă între timp (memorie puțină):
-    // la revenire, onCreate rulează din nou, cu savedInstanceState nenull. Aici nu
-    // contează, pentru că meniul nu are stare de restaurat.
+    // What would happen if MainActivity had been destroyed in the meantime (low memory):
+    // on return, onCreate runs again, with a non-null savedInstanceState. It does not
+    // matter here, because the menu has no state to restore.
     //
     // ==================================================================================
-    // CE NU FACE FIȘIERUL ĂSTA
+    // WHAT THIS FILE DOES NOT DO
     // ==================================================================================
     //
-    //   -   Nu creează niciun adapter.
-    //   -   Nu citește nicio listă.
-    //   -   Nu știe ce e un ViewHolder.
-    //   -   Nu ține nicio referință la activitățile pe care le pornește.
+    //   -   It creates no adapter.
+    //   -   It reads no list.
+    //   -   It does not know what a ViewHolder is.
+    //   -   It keeps no reference to the activities it starts.
     //
-    // Ultima linie e importantă: după startActivity, MainActivity nu are nicio legătură
-    // cu ecranul pornit. Nu poate citi date din el, nu poate afla când se închide, nu
-    // primește nimic înapoi. Dacă ai avea nevoie de un rezultat, ai folosi
-    // registerForActivityResult — dar niciuna dintre cele trei trepte nu întoarce ceva.
+    // The last line matters: after startActivity, MainActivity has no connection
+    // with the screen it started. It cannot read data from it, cannot find out when it closes,
+    // cannot receive anything back. If you needed a result, you would use
+    // registerForActivityResult — but none of the three steps returns anything.
 }

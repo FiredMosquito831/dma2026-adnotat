@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- ==================================================================================
-     FIȘIER: activity_recycler_view.xml
+     FILE: activity_recycler_view.xml
      ==================================================================================
-     LOCAȚIE:  DMA06/src/main/res/layout/activity_recycler_view.xml
-     ROL:      layout-ul treptei 3: ACELAȘI antet, ACEEAȘI structură ca treapta 2,
-               doar widget-ul diferă.
-     CONȚINE:  1 × include (layout_number_header), 1 × RecyclerView
-     ID-URI:   rvNumbers
+     LOCATION: DMA06/src/main/res/layout/activity_recycler_view.xml
+     ROLE:     the step 3 layout: THE SAME header, THE SAME structure as step 2,
+               only the widget differs.
+     CONTAINS: 1 × include (layout_number_header), 1 × RecyclerView
+     IDS:      rvNumbers
      ================================================================================== -->
 
-<!-- Aceeași structură ca la treapta 2: antet fix sus, listă jos.
-     Diferența dintre cele două fișiere e de exact un tag. -->
+<!-- The same structure as in step 2: fixed header at the top, list below.
+     The difference between the two files is exactly one tag. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!-- Același antet, din același fișier -->
+    <!-- The same header, from the same file -->
     <include layout="@layout/layout_number_header" />
 
-    <!-- Numele complet: RecyclerView nu e în android.widget, ci în biblioteca AndroidX.
-         XML-ul nu are importuri, deci numele complet e singurul mod de a referi o clasă
-         din alt pachet. La fel se întâmplă cu MaterialButton. -->
+    <!-- The full name: RecyclerView is not in android.widget, but in the AndroidX library.
+         The XML has no imports, so the full name is the only way to refer to a class
+         from another package. The same happens with MaterialButton. -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvNumbers"
         android:layout_width="match_parent"
@@ -30,27 +30,27 @@
 </LinearLayout>
 
 <!-- ======================================================================================
-     ATRIBUTE PE CARE RECYCLERVIEW LE ARE ȘI FIȘIERUL NU LE FOLOSEȘTE
+     ATTRIBUTES THAT RECYCLERVIEW HAS AND THE FILE DOES NOT USE
      ======================================================================================
-     android:clipToPadding="false"        rândurile se desenează și sub padding
-     android:scrollbars="vertical"        bara de scroll, dacă o vrei explicită
-     android:overScrollMode="never"       fără efectul de „elastic" la capete
+     android:clipToPadding="false"        the rows are drawn under the padding too
+     android:scrollbars="vertical"        the scroll bar, if you want it explicit
+     android:overScrollMode="never"       no "elastic" effect at the edges
      app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                                          aranjarea direct din XML, fără cod
-     app:spanCount="2"                    numărul de coloane pentru GridLayoutManager
-     tools:listitem="@layout/item_number" doar în preview, nu la runtime
+                                          the arrangement straight from the XML, without code
+     app:spanCount="2"                    the number of columns for GridLayoutManager
+     tools:listitem="@layout/item_number" only in the preview, not at runtime
      ======================================================================================
-     `app:layoutManager` e singurul care chiar poate înlocui o linie de cod. Dar el
-     creează managerul cu constructorul fără argumente, deci nu poți configura
-     orientarea sau reverseLayout. În practică, se setează din cod.
+     `app:layoutManager` is the only one that can really replace a line of code. But it
+     creates the manager with the no-argument constructor, so you cannot configure
+     the orientation or reverseLayout. In practice, it is set from code.
      ====================================================================================== -->
 
 <!-- ======================================================================================
-     CE TREBUIE REȚINUT DIN FIȘIER
+     WHAT TO REMEMBER FROM THE FILE
      ======================================================================================
-     nume complet            androidx.recyclerview.widget.RecyclerView
+     full name               androidx.recyclerview.widget.RecyclerView
      rvNumbers               prefix rv = RecyclerView, lv = ListView
-     0dp + weight="1"        aceeași logică: antetul wrap_content, lista ia restul
-     fără android:divider    separatorul vine din DividerItemDecoration, în cod
-     fără dependență directă RecyclerView vine tranzitiv prin biblioteca Material
+     0dp + weight="1"        the same logic: the header wrap_content, the list takes the rest
+     no android:divider      the separator comes from DividerItemDecoration, in code
+     no direct dependency    RecyclerView arrives transitively through the Material library
      ====================================================================================== -->

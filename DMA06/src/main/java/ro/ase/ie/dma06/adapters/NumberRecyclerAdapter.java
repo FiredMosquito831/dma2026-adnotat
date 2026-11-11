@@ -1,46 +1,46 @@
 /*
  * ======================================================================================
- * FIȘIER: NumberRecyclerAdapter.java
+ * FILE: NumberRecyclerAdapter.java
  * ======================================================================================
- * LOCAȚIE:  DMA06/src/main/java/ro/ase/ie/dma06/adapters/NumberRecyclerAdapter.java
- * PACHET:   ro.ase.ie.adapters
- * ROL:      adaptează List<Integer> la ACELAȘI rând cu două coloane (item_number.xml),
- *           dar pentru un RecyclerView. ViewHolder-ul e obligatoriu, iar getView e
- *           despărțit în două metode.
+ * LOCATION: DMA06/src/main/java/ro/ase/ie/dma06/adapters/NumberRecyclerAdapter.java
+ * PACKAGE:  ro.ase.ie.adapters
+ * ROLE:     adapts List<Integer> to THE SAME two-column row (item_number.xml),
+ *           but for a RecyclerView. The ViewHolder is mandatory, and getView is
+ *           split into two methods.
  *
- * STRUCTURA FIȘIERULUI (5 părți):
- *   1. ViewHolder            — 10 linii: câmpuri final + constructor cu findViewById
- *   2. câmp + constructor    — 5 linii: doar lista, fără Context
- *   3. onCreateViewHolder    — 6 linii: creează rândul și holder-ul
- *   4. onBindViewHolder      — 6 linii: umple holder-ul
- *   5. getItemCount          — 3 linii: câte elemente sunt
+ * FILE STRUCTURE (5 parts):
+ *   1. ViewHolder            — 10 lines: final fields + constructor with findViewById
+ *   2. field + constructor   — 5 lines: only the list, no Context
+ *   3. onCreateViewHolder    — 6 lines: creates the row and the holder
+ *   4. onBindViewHolder      — 6 lines: fills the holder
+ *   5. getItemCount          — 3 lines: how many elements there are
  *
- * CE TREBUIE SĂ ȘTII ÎNAINTE:
- *   - Trei metode abstracte obligatorii: onCreateViewHolder, onBindViewHolder,
- *     getItemCount. Nu există getView.
- *   - Parametrul generic <NumberViewHolder> elimină toate cast-urile.
- *   - `super(itemView)` e obligatoriu în constructorul holder-ului.
- *   - Nu există `convertView`: RecyclerView decide singur ce holder refolosește.
+ * WHAT YOU NEED TO KNOW BEFOREHAND:
+ *   - Three mandatory abstract methods: onCreateViewHolder, onBindViewHolder,
+ *     getItemCount. There is no getView.
+ *   - The generic parameter <NumberViewHolder> removes all the casts.
+ *   - `super(itemView)` is mandatory in the holder's constructor.
+ *   - There is no `convertView`: RecyclerView decides by itself which holder to reuse.
  * ======================================================================================
  */
 
 // ======================================================================================
-// BLOCUL 1 — PACHETUL ȘI IMPORTURILE
+// BLOCK 1 — THE PACKAGE AND THE IMPORTS
 // ======================================================================================
-// Față de NumberListAdapter au dispărut Context, BaseAdapter și inflater-ul ca câmp;
-// au apărut NonNull și RecyclerView. Importul `android.view.View` rămâne: e tipul
-// parametrului din constructorul holder-ului.
+// Compared with NumberListAdapter, Context, BaseAdapter and the inflater as a field have
+// disappeared; NonNull and RecyclerView have appeared. The `android.view.View` import
+// remains: it is the type of the parameter in the holder's constructor.
 // ======================================================================================
 
-package ro.ase.ie.adapters;   // același pachet ca NumberListAdapter
+package ro.ase.ie.adapters;   // the same package as NumberListAdapter
 
-import android.view.LayoutInflater;   // pentru inflate, în onCreateViewHolder
-import android.view.View;             // itemView-ul holder-ului
-import android.view.ViewGroup;        // parent-ul din onCreateViewHolder
-import android.widget.TextView;       // cele două coloane
+import android.view.LayoutInflater;   // for inflate, in onCreateViewHolder
+import android.view.View;             // the holder's itemView
+import android.view.ViewGroup;        // the parent in onCreateViewHolder
+import android.widget.TextView;       // the two columns
 
-import androidx.annotation.NonNull;                 // contract: parametru / rezultat care nu e null
-import androidx.recyclerview.widget.RecyclerView;  // clasa de bază și ViewHolder-ul ei
+import androidx.annotation.NonNull;                 // contract: a parameter / result that is not null
+import androidx.recyclerview.widget.RecyclerView;  // the base class and its ViewHolder
 
 import java.util.List;
 
@@ -50,59 +50,59 @@ import ro.ase.ie.dma06.R;
 // THEORY BLOCK: RECYCLERVIEW.ADAPTER
 // ======================================================================================
 /*
- * 1. CE ESTE
- *    -   Clasa abstractă care leagă datele de RecyclerView.
- *    -   Are TREI metode abstracte:
+ * 1. WHAT IT IS
+ *    -   The abstract class that binds the data to RecyclerView.
+ *    -   It has THREE abstract methods:
  *          onCreateViewHolder(ViewGroup parent, int viewType) → ViewHolder
  *          onBindViewHolder(ViewHolder holder, int position) → void
  *          getItemCount()                                    → int
- *    -   Toate celelalte au implementări implicite.
+ *    -   All the others have default implementations.
  *
- * 2. DE CE NU ARE getView
- *    -   Pentru că RecyclerView nu cere niciodată un View. Cere un ViewHolder.
- *    -   Un ViewHolder e o cutie cu un View înăuntru (itemView) plus referințe la
- *        copiii lui. RecyclerView ține holder-e, nu view-uri.
- *    -   De ce: ca să poată refolosi un holder FĂRĂ să știe ce e în el. Pentru asta
- *        are nevoie de un tip stabil (holder-ul), nu de un View oarecare.
+ * 2. WHY IT HAS NO getView
+ *    -   Because RecyclerView never asks for a View. It asks for a ViewHolder.
+ *    -   A ViewHolder is a box with a View inside (itemView) plus references to
+ *        its children. RecyclerView holds holders, not views.
+ *    -   Why: so it can reuse a holder WITHOUT knowing what is in it. For that it
+ *        needs a stable type (the holder), not some View.
  *
- * 3. DE CE TREI METODE ȘI NU UNA
- *    -   Crearea (inflate + findViewById) e scumpă și rară.
- *    -   Umplerea (setText) e ieftină și frecventă.
- *    -   Separându-le, RecyclerView poate chema doar a doua, de mii de ori, fără să
- *        plătească prima.
- *    -   getItemCount e a treia pentru că RecyclerView trebuie să știe câte poziții
- *        există ÎNAINTE de a cere vreun holder.
+ * 3. WHY THREE METHODS AND NOT ONE
+ *    -   Creation (inflate + findViewById) is expensive and rare.
+ *    -   Filling (setText) is cheap and frequent.
+ *    -   By separating them, RecyclerView can call only the second, thousands of times,
+ *        without paying for the first.
+ *    -   getItemCount is the third because RecyclerView must know how many positions
+ *        exist BEFORE asking for any holder.
  *
- * 4. CE SE ÎNTÂMPLĂ CU CELELALTE METODE
- *    getItemId(int)             → NO_ID (-1) implicit; se activează cu setHasStableIds(true)
- *    getItemViewType(int)       → 0 implicit; pentru rânduri de tipuri diferite
- *    onViewRecycled(holder)     → gol; bun pentru anulat un download de imagine
- *    onViewAttachedToWindow     → gol; holder-ul intră în ecran
- *    onViewDetachedFromWindow   → gol; holder-ul iese din ecran
- *    onAttachedToRecyclerView   → gol; adapterul e legat de un RecyclerView
- *    onDetachedFromRecyclerView → gol; adapterul e dezlegat
+ * 4. WHAT HAPPENS WITH THE OTHER METHODS
+ *    getItemId(int)             → NO_ID (-1) by default; enabled with setHasStableIds(true)
+ *    getItemViewType(int)       → 0 by default; for rows of different types
+ *    onViewRecycled(holder)     → empty; good for cancelling an image download
+ *    onViewAttachedToWindow     → empty; the holder enters the screen
+ *    onViewDetachedFromWindow   → empty; the holder leaves the screen
+ *    onAttachedToRecyclerView   → empty; the adapter is bound to a RecyclerView
+ *    onDetachedFromRecyclerView → empty; the adapter is unbound
  *
- * 5. CINE CHEAMĂ CE
- *    RecyclerView + LayoutManager decid:
- *      - câți holder-e încap pe ecran
- *      - care holder se refolosește pentru ce poziție
- *      - când e nevoie de un holder nou
- *    Adapterul doar răspunde: „iată un holder nou" / „am umplut holder-ul".
+ * 5. WHO CALLS WHAT
+ *    RecyclerView + LayoutManager decide:
+ *      - how many holders fit on the screen
+ *      - which holder is reused for which position
+ *      - when a new holder is needed
+ *    The adapter only answers: "here is a new holder" / "I have filled the holder".
  *
- * 6. DE CE E CLASĂ ABSTRACTĂ ȘI NU INTERFAȚĂ
- *    Pentru că are stare: lista de observatori (AdapterDataObservable), referința la
- *    RecyclerView și implementările implicite ale metodelor opționale. O interfață nu
- *    poate ține stare.
+ * 6. WHY IT IS AN ABSTRACT CLASS AND NOT AN INTERFACE
+ *    Because it has state: the observer list (AdapterDataObservable), the reference to
+ *    RecyclerView and the default implementations of the optional methods. An interface
+ *    cannot hold state.
  *
- * DIAGRAMA CELOR TREI METODE:
+ * DIAGRAM OF THE THREE METHODS:
  *
  *   RecyclerView                         Adapter
  *   ── getItemCount() ──────────────────▶ 100
- *   ── „am nevoie de un holder" ────────▶ onCreateViewHolder(parent, 0)
+ *   ── "I need a holder" ───────────────▶ onCreateViewHolder(parent, 0)
  *                                            └─ inflate + new NumberViewHolder
- *   ── „umple-l pentru poziția 7" ──────▶ onBindViewHolder(holder, 7)
+ *   ── "fill it for position 7" ────────▶ onBindViewHolder(holder, 7)
  *                                            └─ setText × 2
- *   ── „holder-ul a ieșit din ecran" ───▶ (îl pune în pool; adapterul nu e întrebat)
+ *   ── "the holder left the screen" ────▶ (it goes into the pool; the adapter is not asked)
  */
 
 /**
@@ -111,290 +111,290 @@ import ro.ase.ie.dma06.R;
  */
 public class NumberRecyclerAdapter
         extends RecyclerView.Adapter<NumberRecyclerAdapter.NumberViewHolder> {
-        //                       ↑ tipul holder-ului, ca parametru generic
+        //                       ↑ the holder type, as a generic parameter
 
     // ==================================================================================
-    // BLOCUL 2 — CLASA INTERIOARĂ NumberViewHolder
+    // BLOCK 2 — THE INNER CLASS NumberViewHolder
     // ==================================================================================
-    // Teorie:  obligatorie; RecyclerView.Adapter e parametrizat cu ea.
-    // Logică:  constructorul primește itemView, cheamă super(itemView) și caută copiii.
-    // Risc:    fără `super(itemView)`, RecyclerView nu are ce recicla — holder-ul nu are
-    //          un View asociat.
-    // Ref:     capitolul 12.
+    // Theory:  mandatory; RecyclerView.Adapter is parameterized with it.
+    // Logic:   the constructor receives itemView, calls super(itemView) and looks up the children.
+    // Risk:    without `super(itemView)`, RecyclerView has nothing to recycle — the holder has
+    //          no associated View.
+    // Ref:     chapter 12.
     // ==================================================================================
     static class NumberViewHolder extends RecyclerView.ViewHolder {
-        final TextView tvDecimal;   // final: atribuit în constructor, nu se mai schimbă
-        final TextView tvBinary;    // final: atribuit în constructor, nu se mai schimbă
+        final TextView tvDecimal;   // final: assigned in the constructor, never changes again
+        final TextView tvBinary;    // final: assigned in the constructor, never changes again
 
         NumberViewHolder(@NonNull View itemView) {
-            super(itemView);                                        // obligatoriu: salvează rândul
-            tvDecimal = itemView.findViewById(R.id.tvDecimal);      // căutare 1, o dată per holder
-            tvBinary = itemView.findViewById(R.id.tvBinary);        // căutare 2, o dată per holder
+            super(itemView);                                        // mandatory: saves the row
+            tvDecimal = itemView.findViewById(R.id.tvDecimal);      // lookup 1, once per holder
+            tvBinary = itemView.findViewById(R.id.tvBinary);        // lookup 2, once per holder
         }
     }
 
-    // Parametrul generic — RecyclerView.Adapter<NumberRecyclerAdapter.NumberViewHolder>
-    // declară CE TIP DE HOLDER produce adapterul. De aici încolo, toate metodele
-    // lucrează cu NumberViewHolder, nu cu RecyclerView.ViewHolder: onCreateViewHolder
-    // îl returnează, onBindViewHolder îl primește. NICIO cast nicăieri — asta e
-    // câștigul față de getTag().
+    // The generic parameter — RecyclerView.Adapter<NumberRecyclerAdapter.NumberViewHolder>
+    // declares WHAT TYPE OF HOLDER the adapter produces. From here on, all the methods
+    // work with NumberViewHolder, not with RecyclerView.ViewHolder: onCreateViewHolder
+    // returns it, onBindViewHolder receives it. NO cast anywhere — that is the
+    // gain over getTag().
     //
-    // De ce NumberRecyclerAdapter.NumberViewHolder și nu doar NumberViewHolder: în
-    // declarația `extends` nu ești încă în interiorul clasei, deci numele clasei
-    // interioare trebuie calificat. În restul fișierului poți scrie doar NumberViewHolder.
+    // Why NumberRecyclerAdapter.NumberViewHolder and not just NumberViewHolder: in the
+    // `extends` declaration you are not yet inside the class, so the name of the inner
+    // class must be qualified. In the rest of the file you can write just NumberViewHolder.
     //
-    // super(itemView) — obligatoriu. RecyclerView.ViewHolder nu are constructor fără
-    // parametri, deci compilatorul te obligă să îl chemi. El salvează rândul în itemView.
+    // super(itemView) — mandatory. RecyclerView.ViewHolder has no constructor without
+    // parameters, so the compiler forces you to call it. It saves the row in itemView.
     //
-    // findViewById în constructorul holder-ului — asta e jumătatea de CREARE. Rulează
-    // o singură dată per holder, nu la fiecare afișare.
+    // findViewById in the holder's constructor — this is the CREATION half. It runs
+    // once per holder, not on every display.
     //
-    // Câmpurile final — pot fi final pentru că sunt atribuite în constructor. La
-    // NumberListAdapter nu puteau, pentru că erau atribuite după `new ViewHolder()`.
-    // Diferența asta mică e exact motivul pentru care RecyclerView a mutat căutarea
-    // în constructor.
+    // The final fields — they can be final because they are assigned in the constructor. In
+    // NumberListAdapter they could not, because they were assigned after `new ViewHolder()`.
+    // This small difference is exactly why RecyclerView moved the lookup
+    // into the constructor.
     //
-    // static class NumberViewHolder — din nou static, din aceleași două motive: fără
-    // referință implicită la adapter și fără dependență de o instanță a adapterului.
-    // Aici e `static class` fără `private`: tipul apare în semnătura publică a clasei
-    // (RecyclerView.Adapter<...NumberViewHolder>), deci nu are rost să fie ascuns.
-    // La NumberListAdapter holder-ul e `private static class`, pentru că nu apare în
-    // nicio semnătură publică.
+    // static class NumberViewHolder — static again, for the same two reasons: no
+    // implicit reference to the adapter and no dependency on an adapter instance.
+    // Here it is `static class` without `private`: the type appears in the class's public
+    // signature (RecyclerView.Adapter<...NumberViewHolder>), so there is no point hiding it.
+    // In NumberListAdapter the holder is `private static class`, because it appears in
+    // no public signature.
     //
-    // @NonNull pe itemView — contract: RecyclerView nu îți dă niciodată null. Adnotarea
-    // nu schimbă runtime-ul; e citită de lint și de Android Studio.
+    // @NonNull on itemView — contract: RecyclerView never gives you null. The annotation
+    // does not change the runtime; it is read by lint and by Android Studio.
 
     // ==================================================================================
-    // BLOCUL 3 — CÂMPUL ȘI CONSTRUCTORUL
+    // BLOCK 3 — THE FIELD AND THE CONSTRUCTOR
     // ==================================================================================
-    // Teorie:  primește doar lista; Context-ul se ia din `parent` la creare.
-    // Logică:  this.numbers = numbers.
-    // Risc:    dacă ai cere și Context, ai avea un parametru în plus care nu e folosit
-    //          nicăieri în clasă.
-    // Ref:     capitolul 12.
+    // Theory:  it receives only the list; the Context is taken from `parent` on creation.
+    // Logic:   this.numbers = numbers.
+    // Risk:    if you also asked for a Context, you would have an extra parameter that is not
+    //          used anywhere in the class.
+    // Ref:     chapter 12.
     // ==================================================================================
-    private final List<Integer> numbers;   // sursa de date, prin referință
+    private final List<Integer> numbers;   // the data source, by reference
 
     public NumberRecyclerAdapter(List<Integer> numbers) {
-        this.numbers = numbers;   // NU copiem lista
+        this.numbers = numbers;   // we do NOT copy the list
     }
 
-    // Constructorul adapterului primește doar lista — spre deosebire de
-    // NumberListAdapter, nu are nevoie de Context. Contextul se ia la nevoie din
-    // parent.getContext(), în onCreateViewHolder.
+    // The adapter's constructor receives only the list — unlike
+    // NumberListAdapter, it does not need a Context. The context is taken when needed from
+    // parent.getContext(), in onCreateViewHolder.
     //
-    // De ce nu are LayoutInflater ca câmp: pentru că îl poate lua din `parent` la
-    // fiecare creare, iar creările sunt rare. Un câmp ar fi o optimizare prematură —
-    // și ar cere Context în constructor.
+    // Why it has no LayoutInflater as a field: because it can take one from `parent` on
+    // every creation, and creations are rare. A field would be a premature optimization —
+    // and would require a Context in the constructor.
 
     // ==================================================================================
-    // BLOCUL 4 — onCreateViewHolder, JUMĂTATEA DE CREARE
+    // BLOCK 4 — onCreateViewHolder, THE CREATION HALF
     // ==================================================================================
-    // Teorie:  creează un holder NOU: umflă rândul și construiește cutia.
-    // Logică:  1. LayoutInflater.from(parent.getContext())
+    // Theory:  creates a NEW holder: inflates the row and builds the box.
+    // Logic:   1. LayoutInflater.from(parent.getContext())
     //          2. inflate(item_number, parent, false)
     //          3. new NumberViewHolder(view)
-    // Risc:    dacă uiți `false`, inflate întoarce părintele, nu rândul.
-    // Ref:     capitolul 12.
+    // Risk:    if you forget `false`, inflate returns the parent, not the row.
+    // Ref:     chapter 12.
     // ==================================================================================
     @NonNull
     @Override
     public NumberViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // Runs only when a new row is needed
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_number, parent, false);   // ACELAȘI layout ca treapta 2
-        return new NumberViewHolder(view);                       // holder-ul, nu view-ul
+                .inflate(R.layout.item_number, parent, false);   // THE SAME layout as step 2
+        return new NumberViewHolder(view);                       // the holder, not the view
     }
 
-    // Când rulează: doar când RecyclerView are nevoie de un holder NOU — pool-ul de
-    // reciclare e gol. La pornire, pentru primele rânduri vizibile; apoi din ce în ce
-    // mai rar.
+    // When it runs: only when RecyclerView needs a NEW holder — the recycling pool
+    // is empty. At startup, for the first visible rows; then less and less
+    // often.
     //
-    // `parent` — RecyclerView-ul. Din el se ia Context-ul pentru inflater și el
-    // furnizează LayoutParams-ul.
+    // `parent` — the RecyclerView. The Context for the inflater is taken from it, and it
+    // supplies the LayoutParams.
     //
-    // `viewType` — aici e mereu 0, pentru că nu suprascriem getItemViewType. Dacă ai
-    // avea două feluri de rânduri (antet + element), ai returna 0/1 din getItemViewType
-    // și ai face switch aici, ca să umfli layout-ul potrivit.
+    // `viewType` — here it is always 0, because we do not override getItemViewType. If you
+    // had two kinds of rows (header + item), you would return 0/1 from getItemViewType
+    // and switch here, to inflate the right layout.
     //
-    // LayoutInflater.from(parent.getContext()) — nu mai e nevoie de un câmp
-    // layoutInflater, pentru că `parent` cară contextul cu el.
+    // LayoutInflater.from(parent.getContext()) — a layoutInflater field is no longer
+    // needed, because `parent` carries the context with it.
     //
-    // .inflate(R.layout.item_number, parent, false) — exact același apel ca la ListView:
-    // același layout, aceiași parametri, același false.
+    // .inflate(R.layout.item_number, parent, false) — exactly the same call as with ListView:
+    // the same layout, the same parameters, the same false.
     //
-    // return new NumberViewHolder(view) — întoarce HOLDER-UL, nu view-ul. RecyclerView
-    // are nevoie de holder ca să știe ce a creat și să îl poată recicla.
+    // return new NumberViewHolder(view) — returns the HOLDER, not the view. RecyclerView
+    // needs the holder so it knows what it created and can recycle it.
     //
-    // @NonNull — contract: parent nu e null, rezultatul nu e null. Lint-ul verifică.
+    // @NonNull — contract: parent is not null, the result is not null. Lint checks it.
     //
-    // De ce metoda nu întoarce View: pentru că RecyclerView nu lucrează cu View-uri.
-    // Lucrează cu holder-e, care știu ce copii au înăuntru. Un View returnat ar trebui
-    // re-inspectat la fiecare refolosire — exact ce ViewHolder evită.
+    // Why the method does not return View: because RecyclerView does not work with Views.
+    // It works with holders, which know what children they contain. A returned View would
+    // have to be re-inspected on every reuse — exactly what ViewHolder avoids.
 
     // ==================================================================================
-    // BLOCUL 5 — onBindViewHolder ȘI getItemCount
+    // BLOCK 5 — onBindViewHolder AND getItemCount
     // ==================================================================================
-    // Teorie:  umple un holder existent cu datele de la poziția dată.
-    // Logică:  1. numbers.get(position)  2. setText × 2
-    // Risc:    dacă faci `findViewById` aici, ai pierdut tot câștigul holder-ului.
-    // Ref:     capitolul 12.
+    // Theory:  fills an existing holder with the data at the given position.
+    // Logic:   1. numbers.get(position)  2. setText × 2
+    // Risk:    if you do a `findViewById` here, you have lost the whole gain of the holder.
+    // Ref:     chapter 12.
     // ==================================================================================
     @Override
     public void onBindViewHolder(@NonNull NumberViewHolder holder, int position) {
         // Runs each time a row shows a number
         int number = numbers.get(position);                          // Integer → int
-        holder.tvDecimal.setText(String.valueOf(number));            // coloana 1
-        holder.tvBinary.setText(Integer.toBinaryString(number));     // coloana 2
+        holder.tvDecimal.setText(String.valueOf(number));            // column 1
+        holder.tvBinary.setText(Integer.toBinaryString(number));     // column 2
     }
 
     // ----------------------------------------------------------------------------------
-    // METODA 3 — getItemCount
+    // METHOD 3 — getItemCount
     // ----------------------------------------------------------------------------------
-    // Teorie:  înlocuiește getCount() din BaseAdapter.
-    // Logică:  dimensiunea listei.
-    // Risc:    dacă minte, onBindViewHolder primește o poziție invalidă.
-    // Ref:     capitolul 12.
+    // Theory:  replaces getCount() from BaseAdapter.
+    // Logic:   the size of the list.
+    // Risk:    if it lies, onBindViewHolder receives an invalid position.
+    // Ref:     chapter 12.
     // ----------------------------------------------------------------------------------
     @Override
     public int getItemCount() {
         return numbers.size();   // 100
     }
 
-    // Când rulează onBindViewHolder: de fiecare dată când un rând ARATĂ un element —
-    // la prima afișare, la fiecare refolosire după scroll, după notifyItemChanged,
-    // după o animație.
+    // When onBindViewHolder runs: every time a row SHOWS an element —
+    // on the first display, on every reuse after a scroll, after notifyItemChanged,
+    // after an animation.
     //
-    // Nu există convertView — holder-ul vine gata creat. Nu există
-    // `if (convertView == null)`, pentru că decizia a fost luată deja de RecyclerView.
+    // There is no convertView — the holder arrives already created. There is no
+    // `if (convertView == null)`, because the decision has already been made by RecyclerView.
     //
-    // Nu există findViewById — referințele sunt în holder, luate la creare.
+    // There is no findViewById — the references are in the holder, taken at creation.
     //
-    // numbers.get(position) direct — adapterul nu are getItem(position). Dacă ai nevoie
-    // de el (de exemplu pentru un click), îl adaugi ca metodă proprie.
+    // numbers.get(position) directly — the adapter has no getItem(position). If you need
+    // it (for example for a click), you add it as a method of your own.
     //
-    // getItemCount() înlocuiește getCount() — același rol: câte elemente are lista.
+    // getItemCount() replaces getCount() — the same role: how many elements the list has.
     //
-    // Dacă getItemCount() minte: dacă întoarce mai mult decât numbers.size(),
-    // onBindViewHolder ajunge la numbers.get(position) cu o poziție invalidă →
-    // IndexOutOfBoundsException. Dacă întoarce mai puțin, ultimele elemente pur și
-    // simplu nu apar.
+    // If getItemCount() lies: if it returns more than numbers.size(),
+    // onBindViewHolder reaches numbers.get(position) with an invalid position →
+    // IndexOutOfBoundsException. If it returns less, the last elements simply
+    // do not appear.
     //
-    // De ce onBindViewHolder întoarce void: pentru că holder-ul e deja la RecyclerView.
-    // Nu trebuie returnat nimic — metoda doar modifică un obiect pe care RecyclerView
-    // îl are deja. La getView, returnarea era necesară pentru că ListView nu avea altă
-    // cale să afle ce view să adauge.
+    // Why onBindViewHolder returns void: because the holder is already at RecyclerView.
+    // Nothing needs to be returned — the method only modifies an object that RecyclerView
+    // already has. In getView, the return was necessary because ListView had no other
+    // way to find out which view to add.
     //
-    // Ce se întâmplă dacă apeși pe un rând: nimic. Nu există listener. Într-o aplicație
-    // reală, ai pune un OnClickListener pe holder.itemView chiar în onBindViewHolder —
-    // și ai avea grijă să folosești holder.getAdapterPosition(), nu `position`, pentru
-    // că poziția se poate schimba între bind și click.
+    // What happens if you tap on a row: nothing. There is no listener. In a real
+    // app, you would put an OnClickListener on holder.itemView right in onBindViewHolder —
+    // and you would take care to use holder.getAdapterPosition(), not `position`, because
+    // the position can change between the bind and the click.
     //
     // ==================================================================================
-    // GETVIEW()  vs  onCreateViewHolder() + onBindViewHolder() — ACEEAȘI IMAGINE, DESPICATĂ
+    // GETVIEW()  vs  onCreateViewHolder() + onBindViewHolder() — THE SAME PICTURE, SPLIT
     // ==================================================================================
     //
     // ┌─────────────────────────────────────────────────────────────────────────────────┐
-    // │                          LISTVIEW: O SINGURĂ METODĂ                             │
+    // │                          LISTVIEW: A SINGLE METHOD                              │
     // │                                                                                 │
     // │   getView(position, convertView, parent)                                        │
     // │   ├─────────────────────────────────────────────────────────────────────────┐   │
-    // │   │ PARTEA A — CREARE                                      doar dacă null   │   │
+    // │   │ PART A — CREATION                                     only if null     │   │
     // │   │   if (convertView == null) {                                           │   │
-    // │   │       convertView = inflate(...)          ← XML → obiecte              │   │
-    // │   │       holder = new ViewHolder()            ← cutia goală               │   │
-    // │   │       holder.tvDecimal = findViewById(...) ← căutare                   │   │
-    // │   │       holder.tvBinary  = findViewById(...) ← căutare                   │   │
-    // │   │       convertView.setTag(holder)           ← lipește cutia             │   │
+    // │   │       convertView = inflate(...)          ← XML → objects              │   │
+    // │   │       holder = new ViewHolder()            ← the empty box              │   │
+    // │   │       holder.tvDecimal = findViewById(...) ← lookup                     │   │
+    // │   │       holder.tvBinary  = findViewById(...) ← lookup                     │   │
+    // │   │       convertView.setTag(holder)           ← glues the box              │   │
     // │   │   }                                                                    │   │
     // │   ├─────────────────────────────────────────────────────────────────────────┤   │
-    // │   │ PARTEA B — UMPLERE                                    la FIECARE apel  │   │
-    // │   │   else { holder = getTag() }              ← ia cutia                   │   │
+    // │   │ PART B — FILLING                                 on EVERY call          │   │
+    // │   │   else { holder = getTag() }              ← takes the box              │   │
     // │   │   holder.tvDecimal.setText(...)                                        │   │
     // │   │   holder.tvBinary.setText(...)                                         │   │
     // │   │   return convertView                                                   │   │
     // │   └─────────────────────────────────────────────────────────────────────────┘   │
     // │                                                                                 │
-    // │   ↑ cele două părți sunt în ACEEAȘI metodă, separate doar de un `if`            │
+    // │   ↑ the two parts are in the SAME method, separated only by an `if`             │
     // └─────────────────────────────────────────────────────────────────────────────────┘
     //
-    //                                     ↓  despicarea  ↓
+    //                                     ↓  the split  ↓
     //
     // ┌─────────────────────────────────────────────────────────────────────────────────┐
-    // │                       RECYCLERVIEW: DOUĂ METODE SEPARATE                        │
+    // │                       RECYCLERVIEW: TWO SEPARATE METHODS                        │
     // │                                                                                 │
     // │   onCreateViewHolder(parent, viewType)      onBindViewHolder(holder, position)  │
     // │   ├──────────────────────────────────┐      ├──────────────────────────────────┤
-    // │   │ PARTEA A — CREARE                │      │ PARTEA B — UMPLERE               │
+    // │   │ PART A — CREATION                │      │ PART B — FILLING                 │
     // │   │   View view = inflate(...)       │      │   int number = numbers.get(pos)  │
     // │   │   return new NumberViewHolder(   │      │   holder.tvDecimal.setText(...)  │
     // │   │       view)                      │      │   holder.tvBinary.setText(...)   │
-    // │   │       ├─ super(itemView)         │      │   (void — nu returnează nimic)   │
+    // │   │       ├─ super(itemView)         │      │   (void — returns nothing)       │
     // │   │       ├─ findViewById × 2        │      │                                  │
-    // │   │       └─ câmpuri final           │      │                                  │
+    // │   │       └─ final fields            │      │                                  │
     // │   └──────────────────────────────────┘      └──────────────────────────────────┘
     // │                                                                                 │
-    // │   CINE DECIDE CARE SE CHEAMĂ:                                                   │
-    // │     pool gol            → onCreateViewHolder + onBindViewHolder                 │
-    // │     pool are un holder  → doar onBindViewHolder                                 │
+    // │   WHO DECIDES WHICH ONE IS CALLED:                                              │
+    // │     empty pool          → onCreateViewHolder + onBindViewHolder                 │
+    // │     pool has a holder   → only onBindViewHolder                                 │
     // │                                                                                 │
-    // │   CINE ȚINE LOCUL LUI convertView: pool-ul intern (RecycledViewPool)            │
-    // │   CINE ȚINE LOCUL LUI setTag/getTag: tipul generic al adapterului               │
+    // │   WHO TAKES THE PLACE OF convertView: the internal pool (RecycledViewPool)      │
+    // │   WHO TAKES THE PLACE OF setTag/getTag: the adapter's generic type              │
     // └─────────────────────────────────────────────────────────────────────────────────┘
     //
-    // Citește diagrama de sus în jos, apoi de jos în sus. Sus: o metodă, două ramuri,
-    // un `if` care le desparte. Jos: două metode, fiecare cu o singură ramură, iar
-    // decizia mutată în framework. ACEEAȘI MUNCĂ, ÎMPĂRȚITĂ ALTFEL.
+    // Read the diagram from top to bottom, then from bottom to top. Top: one method, two
+    // branches, an `if` that separates them. Bottom: two methods, each with a single branch,
+    // and the decision moved into the framework. THE SAME WORK, DIVIDED DIFFERENTLY.
     //
-    // CE SE CÂȘTIGĂ CONCRET:
-    //   reumplere fără creare   pool-ul dă un holder gata făcut; doar onBindViewHolder
-    //   animații                RecyclerView știe ce holder s-a mutat
-    //   actualizări parțiale    notifyItemChanged(5) re-leagă doar poziția 5
-    //   cod tipat               holder-ul e parametru, nu Object dintr-un tag
-    //   testabilitate           poți testa onBindViewHolder cu un holder construit manual
+    // WHAT IS GAINED CONCRETELY:
+    //   refilling without creation  the pool gives a ready-made holder; only onBindViewHolder
+    //   animations                  RecyclerView knows which holder moved
+    //   partial updates             notifyItemChanged(5) rebinds only position 5
+    //   typed code                  the holder is a parameter, not an Object from a tag
+    //   testability                 you can test onBindViewHolder with a holder built by hand
     //
-    // CE SE PIERDE: două metode în loc de una, un parametru generic în plus,
-    // super(itemView) obligatoriu. Pentru o listă de 100 de numere, câștigul e mic.
-    // Pentru o listă de 10.000 de imagini, e diferența dintre 60fps și 20fps.
+    // WHAT IS LOST: two methods instead of one, one extra generic parameter,
+    // a mandatory super(itemView). For a list of 100 numbers, the gain is small.
+    // For a list of 10,000 images, it is the difference between 60fps and 20fps.
     //
     // ==================================================================================
-    // CE SE ÎNTÂMPLĂ DACĂ UIȚI super(itemView)
+    // WHAT HAPPENS IF YOU FORGET super(itemView)
     // ==================================================================================
     //
     //   NumberViewHolder(@NonNull View itemView) {
-    //       // super(itemView);   ← scos
+    //       // super(itemView);   ← removed
     //       tvDecimal = itemView.findViewById(R.id.tvDecimal);
     //   }
     //
-    // Nu compilează: RecyclerView.ViewHolder nu are constructor fără parametri, iar
-    // compilatorul încearcă să cheme super() implicit. Erora e la compilare, nu la
-    // runtime — deci o prinzi imediat:
+    // It does not compile: RecyclerView.ViewHolder has no constructor without parameters, and
+    // the compiler tries to call super() implicitly. The error is at compile time, not at
+    // runtime — so you catch it immediately:
     //
     //   error: constructor ViewHolder in class ViewHolder cannot be applied to given types;
     //     required: View
     //     found: no arguments
     //
-    // Dacă ai chema super(null), ar compila, dar itemView ar fi null și RecyclerView ar
-    // crăpa la primul layout, când încearcă să adauge holder-ul în arbore.
+    // If you called super(null), it would compile, but itemView would be null and RecyclerView
+    // would crash on the first layout, when it tries to add the holder to the tree.
     //
     // ==================================================================================
-    // RECYCLEDVIEWPOOL — CE ȚINE ȘI CÂND SE GOLEȘTE
+    // RECYCLEDVIEWPOOL — WHAT IT HOLDS AND WHEN IT EMPTIES
     // ==================================================================================
     //
     //   RecycledViewPool
-    //     ├── SparseArray<ScrapData> pe viewType
-    //     │     ├── viewType 0 → listă de holder-e (max 5 implicit)
-    //     │     └── viewType 1 → listă de holder-e
-    //     └── fiecare holder ține itemView + referințele din constructor
+    //     ├── SparseArray<ScrapData> per viewType
+    //     │     ├── viewType 0 → list of holders (max 5 by default)
+    //     │     └── viewType 1 → list of holders
+    //     └── each holder holds itemView + the references from the constructor
     //
-    // Implicit, pool-ul păstrează maximum 5 holder-e per tip. Restul sunt lăsate să
-    // fie colectate. La o listă cu 10 rânduri vizibile, 5 în pool sunt de ajuns.
+    // By default, the pool keeps a maximum of 5 holders per type. The rest are left to
+    // be collected. For a list with 10 visible rows, 5 in the pool are enough.
     //
-    // Se golește la setAdapter cu alt adapter, la setRecycledViewPool(null) și la
-    // distrugerea RecyclerView-ului. Nu se golește la scroll.
+    // It empties on setAdapter with another adapter, on setRecycledViewPool(null) and on
+    // the destruction of the RecyclerView. It does not empty on scroll.
     //
     // ==================================================================================
-    // CUM SE ADAUGĂ UN CLICK PE RÂND
+    // HOW TO ADD A CLICK ON A ROW
     // ==================================================================================
     //
     //   @Override
@@ -404,24 +404,24 @@ public class NumberRecyclerAdapter
     //       holder.tvBinary.setText(Integer.toBinaryString(number));
     //       holder.itemView.setOnClickListener(v ->
     //               Toast.makeText(v.getContext(),
-    //                       "Poziția " + holder.getAdapterPosition(),
+    //                       "Position " + holder.getAdapterPosition(),
     //                       Toast.LENGTH_SHORT).show());
     //   }
     //
-    // De ce getAdapterPosition() și nu `position`: între momentul bind-ului și momentul
-    // click-ului, lista se poate schimba (un element șters, unul adăugat). `position`
-    // e valoarea de la bind, care poate fi veche; getAdapterPosition() întoarce poziția
-    // curentă. În codul din repo nu există click, deci nu există nici problema.
+    // Why getAdapterPosition() and not `position`: between the moment of the bind and the
+    // moment of the click, the list can change (an element deleted, one added). `position`
+    // is the value from the bind, which can be stale; getAdapterPosition() returns the
+    // current position. In the repo code there is no click, so there is no problem either.
     //
     // ==================================================================================
-    // DE CE HOLDER-UL NU ARE NEVOIE DE ADAPTER
+    // WHY THE HOLDER DOES NOT NEED THE ADAPTER
     // ==================================================================================
     //
-    // Un ViewHolder ține itemView și doi copii. Nu are nevoie de listă, de poziție sau
-    // de adapter ca să existe. De aceea poate fi `static`: nu depinde de nicio instanță
-    // a clasei exterioare. Toată informația vine ca parametru în onBindViewHolder.
+    // A ViewHolder holds itemView and two children. It needs no list, no position or
+    // adapter in order to exist. That is why it can be `static`: it depends on no
+    // instance of the outer class. All the information arrives as a parameter.
     //
-    // La NumberListAdapter, holder-ul e construit în getView și umplut imediat, tot
-    // acolo. Aici e construit în onCreateViewHolder și umplut în altă metodă, cu date
-    // primite ca parametru. Diferența de design se vede în semnătura constructorului.
+    // In NumberListAdapter, the holder is built in getView and filled immediately, in the same
+    // place. Here it is built in onCreateViewHolder and filled in another method, with data
+    // received as a parameter. The design difference shows in the constructor's signature.
 }

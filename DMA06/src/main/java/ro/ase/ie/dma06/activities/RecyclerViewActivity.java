@@ -1,39 +1,39 @@
 /*
  * ======================================================================================
- * FIȘIER: RecyclerViewActivity.java
+ * FILE: RecyclerViewActivity.java
  * ======================================================================================
- * LOCAȚIE:  DMA06/src/main/java/ro/ase/ie/dma06/activities/RecyclerViewActivity.java
- * PACHET:   ro.ase.ie.dma06.activities
- * ROL:      treapta 3. Același rând, aceleași date, dar cu RecyclerView. Aici se vede
- *           ce ListView ținea înăuntru: LayoutManager, ItemDecoration, ItemAnimator.
+ * LOCATION: DMA06/src/main/java/ro/ase/ie/dma06/activities/RecyclerViewActivity.java
+ * PACKAGE:  ro.ase.ie.dma06.activities
+ * ROLE:     step 3. The same row, the same data, but with a RecyclerView. Here you see
+ *           what ListView kept inside: LayoutManager, ItemDecoration, ItemAnimator.
  *
- * STRUCTURA FIȘIERULUI (2 părți):
- *   1. importuri   — 10 linii, dintre care 3 din androidx.recyclerview
- *   2. onCreate    — 12 linii: layout, RecyclerView, LayoutManager, decoration, adapter
+ * FILE STRUCTURE (2 parts):
+ *   1. imports     — 10 lines, of which 3 from androidx.recyclerview
+ *   2. onCreate    — 12 lines: layout, RecyclerView, LayoutManager, decoration, adapter
  *
- * CE TREBUIE SĂ ȘTII ÎNAINTE:
- *   - Fără setLayoutManager, RecyclerView nu afișează NIMIC și nu dă eroare.
- *   - DividerItemDecoration ia orientarea ca `int`, nu ca obiect.
- *   - Adapterul nu primește Context: îl ia din `parent` la creare.
+ * WHAT YOU NEED TO KNOW BEFOREHAND:
+ *   - Without setLayoutManager, RecyclerView displays NOTHING and gives no error.
+ *   - DividerItemDecoration takes the orientation as an `int`, not as an object.
+ *   - The adapter does not receive a Context: it takes it from `parent` on creation.
  * ======================================================================================
  */
 
 // ======================================================================================
-// BLOCUL 1 — PACHETUL ȘI IMPORTURILE
+// BLOCK 1 — THE PACKAGE AND THE IMPORTS
 // ======================================================================================
-// Trei importuri noi față de treapta 2, toate din androidx.recyclerview:
-//   RecyclerView            widget-ul
-//   LinearLayoutManager     aranjarea
-//   DividerItemDecoration   separatorul
+// Three new imports compared with step 2, all from androidx.recyclerview:
+//   RecyclerView            the widget
+//   LinearLayoutManager     the arrangement
+//   DividerItemDecoration   the separator
 // ======================================================================================
 
-package ro.ase.ie.dma06.activities;      // pachetul ecranelor
+package ro.ase.ie.dma06.activities;      // the package of the screens
 
-import android.os.Bundle;                // parametrul lui onCreate
+import android.os.Bundle;                // the parameter of onCreate
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;   // linia dintre rânduri
-import androidx.recyclerview.widget.LinearLayoutManager;    // aranjarea pe verticală
+import androidx.recyclerview.widget.DividerItemDecoration;   // the line between rows
+import androidx.recyclerview.widget.LinearLayoutManager;    // the vertical arrangement
 import androidx.recyclerview.widget.RecyclerView;
 
 import ro.ase.ie.adapters.NumberRecyclerAdapter;
@@ -41,52 +41,52 @@ import ro.ase.ie.data.NumberData;
 import ro.ase.ie.dma06.R;
 
 // ======================================================================================
-// THEORY BLOCK: CELE PATRU PIESE ALE UNUI RECYCLERVIEW
+// THEORY BLOCK: THE FOUR PIECES OF A RECYCLERVIEW
 // ======================================================================================
 /*
- * 1. ADAPTER — CONȚINUTUL
- *    Ce se afișează. Creează holder-e și le umple. Nu știe unde stau pe ecran.
+ * 1. ADAPTER — THE CONTENT
+ *    What is displayed. It creates holders and fills them. It does not know where they sit.
  *
- * 2. LAYOUTMANAGER — ARANJAREA
- *    Unde stau. Câte rânduri încap, cât măsoară fiecare, cum se calculează scroll-ul.
- *    Fără el, RecyclerView nu are cine să îi spună ce să deseneze.
+ * 2. LAYOUTMANAGER — THE ARRANGEMENT
+ *    Where they sit. How many rows fit, how tall each one is, how the scroll is computed.
+ *    Without it, RecyclerView has nobody to tell it what to draw.
  *
- * 3. ITEMDECORATION — DECORAȚIUNEA
- *    Ce se desenează peste sau sub rânduri: separatori, margini, umbre.
- *    Spre deosebire de ListView, nu există `android:divider` în XML.
+ * 3. ITEMDECORATION — THE DECORATION
+ *    What is drawn over or under the rows: separators, margins, shadows.
+ *    Unlike ListView, there is no `android:divider` in the XML.
  *
- * 4. ITEMANIMATOR — ANIMAȚIA
- *    Cum se mișcă rândurile când datele se schimbă. Vine implicit (DefaultItemAnimator);
- *    nu îl configurezi aici.
+ * 4. ITEMANIMATOR — THE ANIMATION
+ *    How the rows move when the data changes. It comes by default (DefaultItemAnimator);
+ *    you do not configure it here.
  *
- * SEPARAREA:
+ * THE SEPARATION:
  *
  *   ┌──────────────────────────────────────────────────────────────────────────────┐
  *   │                            RecyclerView                                      │
  *   │                                                                              │
  *   │   ┌──────────────┐   ┌──────────────────┐   ┌──────────────┐   ┌──────────┐  │
  *   │   │   Adapter    │   │  LayoutManager   │   │ItemDecoration│   │ Animator │  │
- *   │   │  (conținut)  │   │   (aranjare)     │   │ (separatori) │   │(mișcare) │  │
+ *   │   │  (content)   │   │  (arrangement)   │   │(separators)  │   │(movement)│  │
  *   │   └──────┬───────┘   └────────┬─────────┘   └──────┬───────┘   └────┬─────┘  │
  *   │          │                    │                    │                │        │
- *   │   ce se vede            unde se vede          ce se vede        cum se       │
- *   │   în fiecare rând       pe ecran              între rânduri     mișcă       │
+ *   │   what is seen          where it is seen       what is seen    how it        │
+ *   │   in each row           on the screen          between rows    moves         │
  *   └──────────────────────────────────────────────────────────────────────────────┘
  *
- *   ListView avea toate patru înghesuite într-o singură clasă. De aceea nu puteai
- *   schimba aranjarea fără să schimbi widget-ul.
+ *   ListView had all four crammed into a single class. That is why you could not
+ *   change the arrangement without changing the widget.
  *
- * CONSECINȚA PRACTICĂ:
- *   -   Schimbi LinearLayoutManager cu GridLayoutManager(2) → grilă, fără nicio
- *       modificare în adapter.
- *   -   Adaugi un ItemDecoration → separatori, fără să atingi adapterul.
- *   -   Schimbi adapterul → alt conținut, fără să atingi aranjarea.
+ * THE PRACTICAL CONSEQUENCE:
+ *   -   You swap LinearLayoutManager for GridLayoutManager(2) → a grid, with no
+ *       change in the adapter.
+ *   -   You add an ItemDecoration → separators, without touching the adapter.
+ *   -   You swap the adapter → other content, without touching the arrangement.
  *
- * DE CE „PATRU” ȘI NU TREI:
- *   ItemAnimator există și lucrează, chiar dacă nu îl configurezi. Un RecyclerView fără
- *   setItemAnimator are DefaultItemAnimator, care animează adăugări, ștergeri și
- *   mutări. Dacă îl scoți cu setItemAnimator(null), animațiile dispar, dar lista
- *   funcționează.
+ * WHY "FOUR" AND NOT THREE:
+ *   ItemAnimator exists and works even if you do not configure it. A RecyclerView without
+ *   setItemAnimator has a DefaultItemAnimator, which animates additions, deletions and
+ *   moves. If you remove it with setItemAnimator(null), the animations disappear, but the
+ *   list works.
  */
 
 /**
@@ -96,138 +96,138 @@ import ro.ase.ie.dma06.R;
 public class RecyclerViewActivity extends AppCompatActivity {
 
     // ==================================================================================
-    // METODA 1 — onCreate
+    // METHOD 1 — onCreate
     // ==================================================================================
-    // Teorie:  ciclul de viață; aici se asamblează cele patru piese.
-    // Logică:  1. super  2. setContentView  3. findViewById
+    // Theory:  the lifecycle; here the four pieces are assembled.
+    // Logic:   1. super  2. setContentView  3. findViewById
     //          4. LayoutManager + setLayoutManager
     //          5. DividerItemDecoration + addItemDecoration
     //          6. adapter + setAdapter
-    // Risc:    fără setLayoutManager, ecranul rămâne gol, fără excepție.
-    // Ref:     capitolul 12 și capitolul 23 (migrarea ListView → RecyclerView).
+    // Risk:    without setLayoutManager, the screen stays empty, with no exception.
+    // Ref:     chapter 12 and chapter 23 (the ListView → RecyclerView migration).
     // ==================================================================================
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);                          // 1. ciclul de viață
-        setContentView(R.layout.activity_recycler_view);             // 2. antet + RecyclerView
+        super.onCreate(savedInstanceState);                          // 1. the lifecycle
+        setContentView(R.layout.activity_recycler_view);             // 2. header + RecyclerView
 
-        RecyclerView rvNumbers = findViewById(R.id.rvNumbers);       // 3. singurul RecyclerView
+        RecyclerView rvNumbers = findViewById(R.id.rvNumbers);       // 3. the only RecyclerView
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);   // 4. aranjare verticală
-        rvNumbers.setLayoutManager(layoutManager);                          //    ← OBLIGATORIU
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);   // 4. vertical arrangement
+        rvNumbers.setLayoutManager(layoutManager);                          //    ← MANDATORY
         rvNumbers.addItemDecoration(
                 new DividerItemDecoration(this, layoutManager.getOrientation()));  // 5. separator
-        //                                ↑ Context   ↑ orientarea, ca int
+        //                                ↑ Context   ↑ the orientation, as an int
 
         NumberRecyclerAdapter adapter = new NumberRecyclerAdapter(NumberData.getNumbers());
-        rvNumbers.setAdapter(adapter);                               // 6. conținutul
+        rvNumbers.setAdapter(adapter);                               // 6. the content
     }
 
-    // Ordinea celor trei setări: setLayoutManager → addItemDecoration → setAdapter.
-    // Ordinea nu e fatală între ele, dar setLayoutManager TREBUIE să fie înainte de
-    // orice layout. Dacă îl uiți, RecyclerView nu desenează nimic, indiferent câte
-    // decorări și adaptoare ai adăuga.
+    // The order of the three settings: setLayoutManager → addItemDecoration → setAdapter.
+    // The order is not fatal between them, but setLayoutManager MUST come before
+    // any layout. If you forget it, RecyclerView draws nothing, no matter how many
+    // decorations and adapters you add.
     //
-    // LinearLayoutManager(this) — constructorul cu un singur argument înseamnă vertical.
-    // Varianta completă: LinearLayoutManager(context, orientation, reverseLayout).
-    // Aici orientation ar fi RecyclerView.VERTICAL (1), iar reverseLayout false.
+    // LinearLayoutManager(this) — the single-argument constructor means vertical.
+    // The full variant: LinearLayoutManager(context, orientation, reverseLayout).
+    // Here orientation would be RecyclerView.VERTICAL (1), and reverseLayout false.
     //
-    // layoutManager.getOrientation() — întoarce RecyclerView.VERTICAL, adică 1.
-    // DividerItemDecoration așteaptă propria constantă, DividerItemDecoration.VERTICAL,
-    // care e tot 1. Sunt două constante diferite ca semnificație, dar cu aceleași valori
-    // (0 = orizontal, 1 = vertical în ambele clase), deci linia funcționează.
+    // layoutManager.getOrientation() — returns RecyclerView.VERTICAL, that is 1.
+    // DividerItemDecoration expects its own constant, DividerItemDecoration.VERTICAL,
+    // which is also 1. They are two constants different in meaning, but with the same values
+    // (0 = horizontal, 1 = vertical in both classes), so the line works.
     //
-    // DANGER! Compilatorul nu poate verifica: ambele sunt int. Dacă ai schimba
-    // LayoutManager-ul pe orizontală, getOrientation() ar întoarce 0, care e tot
-    // DividerItemDecoration.HORIZONTAL — deci codul rămâne corect. Potrivirea e reală,
-    // nu întâmplătoare, dar se bazează pe valori numerice, nu pe un tip comun.
+    // DANGER! The compiler cannot check it: both are int. If you switched the
+    // LayoutManager to horizontal, getOrientation() would return 0, which is also
+    // DividerItemDecoration.HORIZONTAL — so the code stays correct. The match is real,
+    // not accidental, but it relies on numeric values, not on a common type.
     //
-    // addItemDecoration înainte de setAdapter — ordinea dintre ele nu contează.
-    // Decorarea se aplică la desenare, nu la setarea datelor.
+    // addItemDecoration before setAdapter — the order between them does not matter.
+    // The decoration is applied at drawing time, not when the data is set.
     //
-    // De ce rvNumbers e declarat RecyclerView și nu View: pentru că ai nevoie de
-    // setLayoutManager, addItemDecoration și setAdapter — toate metode ale clasei.
-    // findViewById e generic, deci deduce tipul din variabilă.
+    // Why rvNumbers is declared RecyclerView and not View: because you need
+    // setLayoutManager, addItemDecoration and setAdapter — all methods of the class.
+    // findViewById is generic, so it infers the type from the variable.
     //
-    // De ce nu se cheamă notifyDataSetChanged(): datele sunt fixe, iar setAdapter
-    // declanșează singur primul layout. notifyDataSetChanged() ar fi redundant și ar
-    // cauza o reumplere inutilă.
+    // Why notifyDataSetChanged() is not called: the data is fixed, and setAdapter
+    // triggers the first layout by itself. notifyDataSetChanged() would be redundant and
+    // would cause a pointless refill.
 
     // ==================================================================================
-    // CE FACE LAYOUTMANAGER LA FIECARE CADRU
+    // WHAT THE LAYOUTMANAGER DOES ON EVERY FRAME
     // ==================================================================================
     //
     //   RecyclerView.onLayout()
     //     └─ LayoutManager.onLayoutChildren(recycler, state)
-    //          ├─ calculează câți copii încap în spațiul disponibil
-    //          ├─ cere holder-e din pool pentru pozițiile vizibile
-    //          ├─ cheamă adapter.onBindViewHolder(holder, position) pentru fiecare
-    //          ├─ măsoară și poziționează fiecare rând (layoutDecorated)
-    //          └─ aruncă în pool holder-ele care au ieșit din ecran
+    //          ├─ computes how many children fit in the available space
+    //          ├─ asks the pool for holders for the visible positions
+    //          ├─ calls adapter.onBindViewHolder(holder, position) for each one
+    //          ├─ measures and positions each row (layoutDecorated)
+    //          └─ throws the holders that left the screen into the pool
     //
-    // GridLayoutManager — new GridLayoutManager(this, 2) aranjează în două coloane.
-    // Adapterul rămâne neschimbat, item_number.xml rămâne neschimbat.
+    // GridLayoutManager — new GridLayoutManager(this, 2) arranges in two columns.
+    // The adapter stays unchanged, item_number.xml stays unchanged.
     //
-    // StaggeredGridLayoutManager — coloane cu înălțimi diferite, ca un Pinterest.
-    // La fel, fără modificări în adapter.
+    // StaggeredGridLayoutManager — columns with different heights, like a Pinterest.
+    // Likewise, with no changes in the adapter.
     //
-    // setReverseLayout(true) — lista crește de jos în sus, ca un chat. Tot din
+    // setReverseLayout(true) — the list grows from the bottom up, like a chat. Also from the
     // LayoutManager.
     //
     // ==================================================================================
-    // CE SE ÎNTÂMPLĂ FĂRĂ setLayoutManager
+    // WHAT HAPPENS WITHOUT setLayoutManager
     // ==================================================================================
     //
-    //   Nimic. Și exact asta e problema.
+    //   Nothing. And that is exactly the problem.
     //
-    //   RecyclerView fără LayoutManager
-    //     ├─ setAdapter(adapter)        → succes, fără excepție
-    //     ├─ addItemDecoration(...)     → succes, fără excepție
-    //     ├─ onMeasure()                → măsoară 0 × 0
-    //     ├─ onLayout()                 → Log.e: „No layout manager attached; skipping layout"
-    //     └─ ecranul                    → gol
+    //   RecyclerView without a LayoutManager
+    //     ├─ setAdapter(adapter)        → success, no exception
+    //     ├─ addItemDecoration(...)     → success, no exception
+    //     ├─ onMeasure()                → measures 0 × 0
+    //     ├─ onLayout()                 → Log.e: "No layout manager attached; skipping layout"
+    //     └─ the screen                 → empty
     //
-    //   Mesajul exact din Logcat:
+    //   The exact message from Logcat:
     //     E/RecyclerView: No layout manager attached; skipping layout
     //
-    //   De ce nu aruncă excepție: pentru că RecyclerView e proiectat să funcționeze și
-    //   fără conținut. Un RecyclerView gol e o stare validă (de exemplu înainte de
-    //   încărcarea datelor). Framework-ul nu poate ști dacă ai uitat să setezi managerul
-    //   sau dacă intenționat nu ai încă date.
+    //   Why it does not throw an exception: because RecyclerView is designed to work even
+    //   without content. An empty RecyclerView is a valid state (for example before the
+    //   data is loaded). The framework cannot know whether you forgot to set the manager
+    //   or whether you intentionally have no data yet.
     //
-    //   De ce e cea mai urâtă eroare din capitol: compilează, rulează, nu crapă, dar
-    //   ecranul e gol. Toate celelalte greșeli din capitol se văd imediat; asta se vede
-    //   doar dacă știi să te uiți în Logcat.
+    //   Why it is the ugliest error in the chapter: it compiles, it runs, it does not crash, but
+    //   the screen is empty. All the other mistakes in the chapter show up immediately; this one
+    //   shows up only if you know to look in Logcat.
     //
-    //   Ordinea de diagnostic pentru un RecyclerView gol:
-    //     1) ai setLayoutManager?
-    //     2) ai setAdapter?
-    //     3) getItemCount() întoarce mai mult de 0?
-    //     4) rădăcina layout-ului are înălțime nenulă?
-    //   În 90% din cazuri, răspunsul e la prima întrebare.
+    //   The diagnostic order for an empty RecyclerView:
+    //     1) do you have setLayoutManager?
+    //     2) do you have setAdapter?
+    //     3) does getItemCount() return more than 0?
+    //     4) does the layout root have a non-zero height?
+    //   In 90% of cases, the answer is to the first question.
 
     // ==================================================================================
-    // DIAGRAMA SEPARĂRII: CONȚINUT vs ARANJARE
+    // THE SEPARATION DIAGRAM: CONTENT vs ARRANGEMENT
     // ==================================================================================
     //
     // ┌─────────────────────────────────────────────────────────────────────────────────┐
-    // │              CE SE AFIȘEAZĂ          vs.        CUM SE ARANJEAZĂ                │
+    // │              WHAT IS DISPLAYED      vs.        HOW IT IS ARRANGED              │
     // │                                                                                 │
-    // │   ADAPTER (conținut)                      LAYOUTMANAGER (aranjare)               │
-    // │   ├── getItemCount() → 100                ├── câte rânduri încap                 │
-    // │   ├── onCreateViewHolder → rândul         ├── unde stă fiecare rând               │
-    // │   ├── onBindViewHolder → textul           ├── cât măsoară fiecare                 │
-    // │   └── getItemViewType → tipul             ├── cum se calculează scroll-ul         │
-    // │                                           └── ce holder se refolosește            │
+    // │   ADAPTER (content)                      LAYOUTMANAGER (arrangement)            │
+    // │   ├── getItemCount() → 100                ├── how many rows fit                 │
+    // │   ├── onCreateViewHolder → the row        ├── where each row sits               │
+    // │   ├── onBindViewHolder → the text         ├── how tall each one is              │
+    // │   └── getItemViewType → the type          ├── how the scroll is computed         │
+    // │                                           └── which holder is reused            │
     // │                                                                                 │
-    // │   Nu știe:                                Nu știe:                              │
-    // │   ├── câte rânduri încap                  ├── ce e într-un rând                   │
-    // │   ├── unde stă rândul                     ├── ce date există                      │
-    // │   └── cum se derulează                    └── câte elemente sunt                  │
+    // │   It does not know:                       It does not know:                     │
+    // │   ├── how many rows fit                   ├── what is in a row                  │
+    // │   ├── where the row sits                  ├── what data exists                   │
+    // │   └── how it scrolls                      └── how many elements there are        │
     // │                                                                                 │
     // │   ─────────────────────────────────────────────────────────────────────────     │
     // │                                                                                 │
-    // │   ACELEAȘI DATE + ACELAȘI ADAPTER:                                              │
+    // │   THE SAME DATA + THE SAME ADAPTER:                                             │
     // │                                                                                 │
     // │   LinearLayoutManager      GridLayoutManager(2)        StaggeredGrid(2)          │
     // │   ┌───┐                    ┌───┬───┐                   ┌───┬───┐                 │
@@ -238,84 +238,84 @@ public class RecyclerViewActivity extends AppCompatActivity {
     // │   │ 3 │                    │ 5 │ 6 │                   │ 5 │ 6 │                 │
     // │   └───┘                    └───┴───┘                   └───┴───┘                 │
     // │                                                                                 │
-    // │   zero modificări în adapter, zero modificări în item_number.xml                │
+    // │   zero changes in the adapter, zero changes in item_number.xml                  │
     // └─────────────────────────────────────────────────────────────────────────────────┘
     //
-    // De ce separarea e importantă la examen: întrebarea „ce trebuie să setăm la un
-    // RecyclerView ca să afișeze ceva” are răspunsul „adapter + LayoutManager”. Dacă
-    // răspunzi doar „adapter”, ai pierdut jumătate din punctaj — și, mai important,
-    // ai pierdut exact diferența față de ListView.
+    // Why the separation matters at the exam: the question "what must we set on a
+    // RecyclerView for it to display something" has the answer "adapter + LayoutManager". If
+    // you answer only "adapter", you have lost half the marks — and, more importantly,
+    // you have lost exactly the difference from ListView.
     //
-    // Ce înseamnă „conținut” și „aranjare” în practică: conținutul e ce se vede în
-    // fiecare rând (numărul zecimal și cel binar). Aranjarea e unde se vede fiecare
-    // rând (unul sub altul, în două coloane, invers). Sunt două întrebări independente,
-    // deci două obiecte independente.
+    // What "content" and "arrangement" mean in practice: the content is what is seen in
+    // each row (the decimal and the binary number). The arrangement is where each
+    // row is seen (one under another, in two columns, reversed). They are two independent
+    // questions, so two independent objects.
 
     // ==================================================================================
-    // DIVIDERITEMDECORATION — SEPARATORUL
+    // DIVIDERITEMDECORATION — THE SEPARATOR
     // ==================================================================================
     //
-    // ListView are android:divider în XML. RecyclerView nu are așa ceva. Liniile dintre
-    // rânduri sunt desenate de un ItemDecoration, iar DividerItemDecoration e decorarea
-    // gata făcută din bibliotecă.
+    // ListView has android:divider in the XML. RecyclerView has no such thing. The lines
+    // between rows are drawn by an ItemDecoration, and DividerItemDecoration is the
+    // ready-made decoration from the library.
     //
-    // Cum funcționează, în trei pași:
-    //   1. RecyclerView desenează rândurile (prin LayoutManager)
-    //   2. ItemDecoration.onDraw()      → desenează SUB conținut (înainte de copii)
-    //   3. ItemDecoration.onDrawOver()  → desenează PESTE conținut (după copii)
+    // How it works, in three steps:
+    //   1. RecyclerView draws the rows (through the LayoutManager)
+    //   2. ItemDecoration.onDraw()      → draws UNDER the content (before the children)
+    //   3. ItemDecoration.onDrawOver()  → draws OVER the content (after the children)
     //
-    // DividerItemDecoration folosește onDraw și desenează o linie la marginea de jos a
-    // fiecărui rând, cu excepția ultimului.
+    // DividerItemDecoration uses onDraw and draws a line at the bottom edge of
+    // each row, except the last one.
     //
-    // layoutManager.getOrientation() — îi spune decorării dacă liniile sunt orizontale
-    // sau verticale. Pentru o listă verticală, separatorul e o linie orizontală între
-    // rânduri. Pentru o listă orizontală, ar fi o linie verticală între coloane.
+    // layoutManager.getOrientation() — tells the decoration whether the lines are horizontal
+    // or vertical. For a vertical list, the separator is a horizontal line between the
+    // rows. For a horizontal list, it would be a vertical line between the columns.
     //
-    // Ce se întâmplă dacă pui orientarea greșită: separatorul e desenat pe cealaltă
-    // axă — adică linii verticale peste rânduri, sau linii orizontale suprapuse. Nu
-    // crapă, doar arată greșit. E genul de bug care se vede din prima.
+    // What happens if you put the wrong orientation: the separator is drawn on the other
+    // axis — that is vertical lines over the rows, or overlapping horizontal lines. It does
+    // not crash, it just looks wrong. It is the kind of bug you see at first glance.
     //
-    // De ce nu e în XML: pentru că RecyclerView nu are atribute proprii de separator.
-    // Tot ce ține de desenare se face din cod, prin ItemDecoration. E prețul separării:
-    // mai mult cod, mai mult control.
-    //
-    // ==================================================================================
-    // LISTVIEW vs RECYCLERVIEW — DIFERENȚELE DIN ACEST FIȘIER
-    // ==================================================================================
-    //
-    //   ListView (treptele 1 și 2)          RecyclerView (treapta 3)
-    //   ├── aranjare internă, fixă          ├── setLayoutManager(...) explicit
-    //   ├── android:divider în temă         ├── addItemDecoration(...) în cod
-    //   ├── animații limitate               ├── ItemAnimator implicit
-    //   ├── adapter cu getView              ├── adapter cu 3 metode
-    //   └── reciclare internă               └── RecycledViewPool, tot intern
-    //
-    // Trei linii de configurare în plus, trei capabilități în plus. Nimic din fișierul
-    // ăsta nu există în treptele 1 și 2 — și exact asta e lecția capitolului.
+    // Why it is not in the XML: because RecyclerView has no separator attributes of its own.
+    // Everything related to drawing is done from code, through ItemDecoration. That is the
+    // price of the separation: more code, more control.
     //
     // ==================================================================================
-    // CE SE ÎNTÂMPLĂ DACĂ PUI DECORAREA DUPĂ setAdapter
+    // LISTVIEW vs RECYCLERVIEW — THE DIFFERENCES IN THIS FILE
     // ==================================================================================
     //
-    //   Funcționează. addItemDecoration nu depinde de adapter; decorarea se aplică la
-    //   faza de desenare, care are loc oricum după layout. Ordinea recomandată
-    //   (manager → decoration → adapter) e o convenție de citire, nu o cerință.
+    //   ListView (steps 1 and 2)            RecyclerView (step 3)
+    //   ├── internal, fixed arrangement     ├── explicit setLayoutManager(...)
+    //   ├── android:divider in the theme    ├── addItemDecoration(...) in code
+    //   ├── limited animations              ├── default ItemAnimator
+    //   ├── adapter with getView            ├── adapter with 3 methods
+    //   └── internal recycling              └── RecycledViewPool, also internal
     //
-    // Ce ESTE o cerință: setLayoutManager înainte ca RecyclerView să primească primul
-    // layout. Dacă îl setezi după ce view-ul a fost deja măsurat, RecyclerView cere
-    // un requestLayout() — de aceea, în practică, îl setezi în onCreate, înainte de
-    // orice altceva.
+    // Three extra configuration lines, three extra capabilities. Nothing in this file
+    // exists in steps 1 and 2 — and exactly that is the lesson of the chapter.
     //
     // ==================================================================================
-    // DE CE `this` CA PRIM ARGUMENT LA LinearLayoutManager ȘI LA DividerItemDecoration
+    // WHAT HAPPENS IF YOU PUT THE DECORATION AFTER setAdapter
     // ==================================================================================
     //
-    // Ambele au nevoie de Context:
-    //   - LinearLayoutManager îl folosește pentru Resources (dimensiuni, densitate);
-    //   - DividerItemDecoration îl folosește pentru a obține drawable-ul de separator
-    //     din tema curentă.
+    //   It works. addItemDecoration does not depend on the adapter; the decoration is applied
+    //   at the drawing phase, which happens after the layout anyway. The recommended order
+    //   (manager → decoration → adapter) is a reading convention, not a requirement.
     //
-    // Nu e același Context ca la adapter: adapterul nu primește niciunul, pentru că îl
-    // ia din `parent` în onCreateViewHolder. Aici, în onCreate, nu ai încă un `parent`,
-    // deci `this` e singura sursă.
+    // What IS a requirement: setLayoutManager before RecyclerView receives the first
+    // layout. If you set it after the view has already been measured, RecyclerView calls
+    // requestLayout() — that is why, in practice, you set it in onCreate, before
+    // anything else.
+    //
+    // ==================================================================================
+    // WHY `this` AS THE FIRST ARGUMENT TO LinearLayoutManager AND TO DividerItemDecoration
+    // ==================================================================================
+    //
+    // Both need a Context:
+    //   - LinearLayoutManager uses it for Resources (dimensions, density);
+    //   - DividerItemDecoration uses it to obtain the separator drawable
+    //     from the current theme.
+    //
+    // It is not the same Context as for the adapter: the adapter receives none, because it
+    // takes it from `parent` in onCreateViewHolder. Here, in onCreate, you do not yet have a
+    // `parent`, so `this` is the only source.
 }

@@ -1,119 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   ======================================================================================
-  FIȘIER: activity_main.xml
+  FILE: activity_main.xml
   ======================================================================================
-  ROL:
-    Construiește ecranul principal din șase containere imbricate. Fiecare are o
-    singură responsabilitate; împreună produc efectul de drawer + app bar + listă.
+  ROLE:
+    Builds the main screen from six nested containers. Each has a
+    single responsibility; together they produce the drawer + app bar + list effect.
 
-  CE DEMONSTREAZĂ:
-    1. DrawerLayout cu exact doi copii: conținut + sertar.
-    2. CoordinatorLayout care coordonează AppBarLayout cu lista.
-    3. MaterialToolbar cu titlu, hamburger și meniu.
-    4. NavigationView cu `layout_gravity="start"` (RTL-safe).
+  WHAT IT DEMONSTRATES:
+    1. DrawerLayout with exactly two children: content + drawer.
+    2. CoordinatorLayout that coordinates AppBarLayout with the list.
+    3. MaterialToolbar with title, hamburger and menu.
+    4. NavigationView with `layout_gravity="start"` (RTL-safe).
 
-  REF: cap. 14 (secțiunea 14.1), documentația `DrawerLayout`, `CoordinatorLayout`,
+  REF: ch. 14 (section 14.1), the documentation of `DrawerLayout`, `CoordinatorLayout`,
        `AppBarLayout`, `NavigationView`.
   ======================================================================================
 -->
 
 <!--
   ======================================================================================
-  THEORY BLOCK: CUM SE DESENEAZĂ UN ECRAN ANDROID
+  THEORY BLOCK: HOW AN ANDROID SCREEN IS DRAWN
   ======================================================================================
-  1. ARBORELE DE VIEW-URI
-     Fiecare ecran e un arbore: un `ViewGroup` rădăcină cu copii, care pot fi la
-     rândul lor `ViewGroup`-uri.
-     `View` = ceva ce se desenează (text, imagine, buton).
-     `ViewGroup` = ceva ce conține alte view-uri și le poziționează.
+  1. THE VIEW TREE
+     Every screen is a tree: a root `ViewGroup` with children, which can in turn be
+     `ViewGroup`s.
+     `View` = something that is drawn (text, image, button).
+     `ViewGroup` = something that contains other views and positions them.
 
-  2. CELE TREI FAZE
-     MEASURE: fiecare view își calculează dimensiunea dorită, în funcție de
-       `LayoutParams` și de spațiul oferit de părinte.
-     LAYOUT: părintele decide poziția (left, top) fiecărui copil.
-     DRAW: fiecare view se desenează pe canvas.
-     Cele trei faze se repetă la fiecare `requestLayout()` — de exemplu când adaugi
-     un buton cu `addView`.
+  2. THE THREE PHASES
+     MEASURE: every view calculates its desired size, based on
+       `LayoutParams` and on the space offered by the parent.
+     LAYOUT: the parent decides the position (left, top) of every child.
+     DRAW: every view draws itself on the canvas.
+     The three phases repeat at every `requestLayout()` — for example when you add
+     a button with `addView`.
 
   3. `match_parent` vs `wrap_content`
-     `match_parent` (`-1`): „umple tot spațiul părintelui".
-     `wrap_content` (`-2`): „cât am nevoie ca să-mi arăt conținutul".
-     Sunt valori speciale, nu dimensiuni în pixeli.
+     `match_parent` (`-1`): "fill all the parent's space".
+     `wrap_content` (`-2`): "as much as I need to show my content".
+     They are special values, not dimensions in pixels.
 
-  4. DE CE CONTAINERELE SUNT IMBRICATE
-     Fiecare `ViewGroup` adaugă O SINGURĂ comportare:
-       DrawerLayout      → glisare laterală;
-       CoordinatorLayout → coordonare între copii (app bar + scroll);
-       AppBarLayout      → colaps la scroll;
-       FrameLayout       → suprapunere simplă, fără poziționare;
-       LinearLayout      → stivuire.
-     Un singur container nu poate face toate comportamentele. Le compui.
+  4. WHY THE CONTAINERS ARE NESTED
+     Each `ViewGroup` adds A SINGLE behaviour:
+       DrawerLayout      → lateral sliding;
+       CoordinatorLayout → coordination between children (app bar + scroll);
+       AppBarLayout      → collapse on scroll;
+       FrameLayout       → simple overlap, no positioning;
+       LinearLayout      → stacking.
+     A single container cannot do all the behaviours. You compose them.
 
-  5. DE CE `FrameLayout` ÎNTRE `CoordinatorLayout` ȘI `ListView`
-     `CoordinatorLayout` aplică un `Behavior` pe COPILUL DIRECT.
-     `ListView` ar putea fi el însuși copilul direct, dar `FrameLayout`-ul izolează
-     comportamentul și lasă loc pentru un FAB sau un `TextView` de „listă goală" în
-     viitor.
+  5. WHY A `FrameLayout` BETWEEN `CoordinatorLayout` AND `ListView`
+     `CoordinatorLayout` applies a `Behavior` to the DIRECT CHILD.
+     `ListView` could itself be the direct child, but the `FrameLayout` isolates
+     the behaviour and leaves room for a FAB or an "empty list" `TextView` in
+     the future.
 
-  REF: documentația `View`, `ViewGroup`, `View.MeasureSpec`, `CoordinatorLayout`.
+  REF: the documentation of `View`, `ViewGroup`, `View.MeasureSpec`, `CoordinatorLayout`.
   ======================================================================================
 -->
 
 <!--
   ======================================================================================
-  ARBORELE, PE NIVELURI — ȘI RESPONSABILITATEA FIECĂRUIA
+  THE TREE, BY LEVELS — AND EACH ONE'S RESPONSIBILITY
   ======================================================================================
-  DrawerLayout (id=drawerLayout)          ← știe să gliseze un panou peste conținut;
-  │                                          NU desenează nimic propriu-zis;
-  │                                          ține evidența stării „deschis/închis"
-  ├── CoordinatorLayout (id=main)         ← panoul de conținut (primul copil);
-  │   │                                      coordonează comportamentele copiilor
-  │   ├── AppBarLayout                    ← ține bara; știe să se ridice la scroll
-  │   │   └── MaterialToolbar (topAppBar) ← titlu, hamburger, meniu, click-uri
+  DrawerLayout (id=drawerLayout)          ← knows how to slide a panel over the content;
+  │                                          it draws nothing itself;
+  │                                          it keeps track of the "open/closed" state
+  ├── CoordinatorLayout (id=main)         ← the content panel (the first child);
+  │   │                                      coordinates the behaviours of the children
+  │   ├── AppBarLayout                    ← holds the bar; knows how to rise on scroll
+  │   │   └── MaterialToolbar (topAppBar) ← title, hamburger, menu, clicks
   │   │
-  │   └── FrameLayout                     ← suport pentru `layout_behavior`;
-  │       │                                  izolează lista de CoordinatorLayout
-  │       └── ListView (listView)         ← 20 rânduri din @array/items;
-  │                                          primește apăsarea lungă
+  │   └── FrameLayout                     ← support for `layout_behavior`;
+  │       │                                  isolates the list from CoordinatorLayout
+  │       └── ListView (listView)         ← 20 rows from @array/items;
+  │                                          receives the long press
   │
-  └── NavigationView (navigationView)     ← sertarul: meniu + iconițe + insets
-                                             proprii; glisează din `start`
+  └── NavigationView (navigationView)     ← the drawer: menu + icons + its own
+                                             insets; slides in from `start`
 
-  TABELUL RESPONSABILITĂȚILOR:
-  Nivel 1  DrawerLayout        glisează sertarul peste conținut
-  Nivel 2  CoordinatorLayout   coordonează AppBarLayout cu lista
-  Nivel 3  AppBarLayout        ține bara și aplică liftOnScroll
-  Nivel 4  MaterialToolbar     titlu, hamburger, meniu
-  Nivel 5  FrameLayout         aplică layout_behavior pe listă
-  Nivel 6  ListView            afișează rândurile
+  THE TABLE OF RESPONSIBILITIES:
+  Level 1  DrawerLayout        slides the drawer over the content
+  Level 2  CoordinatorLayout   coordinates AppBarLayout with the list
+  Level 3  AppBarLayout        holds the bar and applies liftOnScroll
+  Level 4  MaterialToolbar     title, hamburger, menu
+  Level 5  FrameLayout         applies layout_behavior to the list
+  Level 6  ListView            displays the rows
 
-  CE SE STRICĂ DACĂ LIPSEȘTE UN NIVEL:
-  DrawerLayout     → nu există sertar;
-  CoordinatorLayout → bara nu reacționează la scroll;
-  AppBarLayout     → bara nu se ridică, nu se colapsează;
-  MaterialToolbar  → ecranul nu are bară;
-  FrameLayout      → lista se desenează sub bară;
-  ListView         → ecranul e gol.
+  WHAT BREAKS IF A LEVEL IS MISSING:
+  DrawerLayout     → there is no drawer;
+  CoordinatorLayout → the bar does not react to scroll;
+  AppBarLayout     → the bar does not rise, does not collapse;
+  MaterialToolbar  → the screen has no bar;
+  FrameLayout      → the list is drawn under the bar;
+  ListView         → the screen is empty.
   ======================================================================================
 -->
 
 <!--
   ======================================================================================
-  ELEMENT: DrawerLayout (rădăcina)
+  ELEMENT: DrawerLayout (the root)
   ======================================================================================
-  `@+id/drawerLayout` — semnul `+` înseamnă „creează id-ul dacă nu există". Prima
-    apariție într-un fișier XML trebuie să aibă `+`; în cod se folosește
-    `R.id.drawerLayout` fără.
-  `match_parent` x 2 — containerul acoperă tot ecranul, inclusiv zonele de sub bare.
-    `EdgeToEdge` are sens doar așa: conținutul se întinde, iar padding-ul de insets
-    îl ține în zona sigură.
-  `xmlns:app` — namespace-ul pentru atributele definite de biblioteci (`app:menu`,
-    `app:title`). Fără el, `app:menu` nu e recunoscut.
+  `@+id/drawerLayout` — the `+` sign means "create the id if it does not exist". The first
+    occurrence in an XML file must have `+`; in the code you use
+    `R.id.drawerLayout` without it.
+  `match_parent` x 2 — the container covers the whole screen, including the areas under the bars.
+    `EdgeToEdge` only makes sense this way: the content stretches, and the insets padding
+    keeps it in the safe area.
+  `xmlns:app` — the namespace for the attributes defined by libraries (`app:menu`,
+    `app:title`). Without it, `app:menu` is not recognised.
 
-  DE CE `DrawerLayout` E RĂDĂCINA ȘI NU `CoordinatorLayout`: pentru că sertarul
-    trebuie să acopere TOT ecranul, inclusiv bara. Dacă `DrawerLayout` ar fi copil
-    al `CoordinatorLayout`, sertarul ar fi împins de bară și ar porni de sub ea.
+  WHY `DrawerLayout` IS THE ROOT AND NOT `CoordinatorLayout`: because the drawer
+    must cover the WHOLE screen, including the bar. If `DrawerLayout` were a child
+    of `CoordinatorLayout`, the drawer would be pushed by the bar and would start below it.
   ======================================================================================
 -->
 <androidx.drawerlayout.widget.DrawerLayout
@@ -125,64 +125,64 @@
 
 <!--
   ======================================================================================
-  REGULA `DrawerLayout`: EXACT DOI COPII
+  THE `DrawerLayout` RULE: EXACTLY TWO CHILDREN
   ======================================================================================
-  REGULA CANONICĂ: exact DOI copii direcți.
-    1. PRIMUL copil — conținutul. Orice `ViewGroup`; aici `CoordinatorLayout`.
-       Umple tot spațiul.
-    2. AL DOILEA copil — sertarul. Aici `NavigationView`. Trebuie să aibă
-       `android:layout_gravity="start"` (sau `end`).
+  THE CANONICAL RULE: exactly TWO direct children.
+    1. The FIRST child — the content. Any `ViewGroup`; here `CoordinatorLayout`.
+       It fills all the space.
+    2. The SECOND child — the drawer. Here `NavigationView`. It must have
+       `android:layout_gravity="start"` (or `end`).
 
-  CE ÎNSEAMNĂ „EXACT" TEHNIC: `DrawerLayout` acceptă mai mulți copii, dar
-    contractul e: UN conținut + CEL MULT un sertar pe fiecare margine. Poți avea un
-    sertar `start` și unul `end` simultan. Nu poți avea doi pe aceeași margine —
-    `IllegalStateException` la inflate: „Child drawer has absolute gravity ... but
+  WHAT "EXACTLY" MEANS TECHNICALLY: `DrawerLayout` accepts more children, but the
+    contract is: ONE content + AT MOST one drawer on each edge. You can have a
+    `start` drawer and an `end` one at the same time. You cannot have two on the same edge —
+    `IllegalStateException` at inflate: "Child drawer has absolute gravity ... but
     this DrawerLayout already has a drawer view along that edge".
 
-  CUM DECIDE `DrawerLayout` CINE E SERTAR: după `android:layout_gravity`. Un copil
-    fără gravity (sau cu `top`/`bottom`) e tratat ca CONȚINUT și desenat peste
-    ceilalți, pe tot ecranul. De aceea `NavigationView` fără `layout_gravity` ar
-    acoperi ecranul și nu s-ar deschide niciodată.
+  HOW `DrawerLayout` DECIDES WHICH ONE IS THE DRAWER: by `android:layout_gravity`. A child
+    without gravity (or with `top`/`bottom`) is treated as CONTENT and drawn over
+    the others, across the whole screen. That is why a `NavigationView` without `layout_gravity` would
+    cover the screen and would never open.
 
-  DE CE ORDINEA CONTEAZĂ: primul copil e conținutul prin contract și prin ordinea
-    de desenare. Copiii se desenează în ordinea din XML, deci sertarul (al doilea)
-    se desenează peste conținut. Dacă ai pune sertarul primul, ar fi desenat primul
-    și conținutul l-ar acoperi — deși `DrawerLayout` l-ar trata tot ca sertar,
-    pentru că are gravity.
+  WHY THE ORDER MATTERS: the first child is the content by contract and by the drawing
+    order. Children are drawn in the XML order, so the drawer (the second) is
+    drawn over the content. If you put the drawer first, it would be drawn first
+    and the content would cover it — although `DrawerLayout` would still treat it as a drawer,
+    because it has gravity.
 
-  CE SE ÎNTÂMPLĂ DACĂ PUI UN AL TREILEA COPIL FĂRĂ GRAVITY: e tratat ca al doilea
-    panou de conținut, desenat peste primul, pe tot ecranul. Build-ul trece; ecranul
-    arată ca și cum conținutul ar fi fost înlocuit. Un bug greu de diagnosticat,
-    pentru că XML-ul e valid.
+  WHAT HAPPENS IF YOU PUT A THIRD CHILD WITHOUT GRAVITY: it is treated as the second
+    content panel, drawn over the first, across the whole screen. The build passes; the screen
+    looks as if the content had been replaced. A bug that is hard to diagnose,
+    because the XML is valid.
 
-  DE CE `DrawerLayout` NU E UN `ViewGroup` OBIȘNUIT: are logică proprie de
-    interceptare a gesturilor (`onInterceptTouchEvent`), de măsurare a sertarului și
-    de animație. De aceea nu poate fi înlocuit cu un `FrameLayout` + `TranslationX`
-    scris de mână fără mult cod.
+  WHY `DrawerLayout` IS NOT AN ORDINARY `ViewGroup`: it has its own logic for
+    intercepting gestures (`onInterceptTouchEvent`), for measuring the drawer and
+    for animation. That is why it cannot be replaced with a `FrameLayout` + `TranslationX`
+    written by hand without a lot of code.
   ======================================================================================
 -->
 
 <!--
   ======================================================================================
-  ELEMENT: CoordinatorLayout (panoul de conținut)
+  ELEMENT: CoordinatorLayout (the content panel)
   ======================================================================================
-  `xmlns:android` și `xmlns:app` sunt declarate DIN NOU — deși sunt deja pe
-    `DrawerLayout`. Redundant, dar legal: namespace-urile se moștenesc, iar
-    redeclararea e ignorată. Nu strică nimic; unii editori le adaugă automat.
-  `@+id/main` — de aici vine `findViewById(R.id.main)` din cod, pentru insets.
-    Id-ul e pe CONȚINUT, nu pe `DrawerLayout` — deci padding-ul de insets nu atinge
-    sertarul.
-  `match_parent` x 2 — conținutul umple spațiul rămas după ce `DrawerLayout` îl
-    măsoară. Practic, tot ecranul.
+  `xmlns:android` and `xmlns:app` are declared AGAIN — although they are already on
+    `DrawerLayout`. Redundant, but legal: namespaces are inherited, and
+    redeclaring them is ignored. It breaks nothing; some editors add them automatically.
+  `@+id/main` — this is where `findViewById(R.id.main)` from the code comes from, for the insets.
+    The id is on the CONTENT, not on the `DrawerLayout` — so the insets padding does not touch
+    the drawer.
+  `match_parent` x 2 — the content fills the space left after `DrawerLayout` measures it.
+    In practice, the whole screen.
 
-  DE CE `CoordinatorLayout` ȘI NU DIRECT `FrameLayout`: coordonează `AppBarLayout`
-    cu lista — efectul de `liftOnScroll` are nevoie de el. Fără `CoordinatorLayout`,
-    bara nu știe când lista se derulează.
+  WHY `CoordinatorLayout` AND NOT DIRECTLY `FrameLayout`: it coordinates `AppBarLayout`
+    with the list — the `liftOnScroll` effect needs it. Without `CoordinatorLayout`,
+    the bar does not know when the list scrolls.
 
-  CE FACE CONCRET: ține un `Behavior` pentru fiecare copil direct. `AppBarLayout`
-    are un `Behavior` care ascultă scroll-ul; `FrameLayout`-ul cu
-    `app:layout_behavior="@string/appbar_scrolling_view_behavior"` are unul care se
-    împinge în jos cu înălțimea barei. Fără coordinator, cele două nu comunică.
+  WHAT IT DOES CONCRETELY: it keeps a `Behavior` for every direct child. `AppBarLayout`
+    has a `Behavior` that listens to scroll; the `FrameLayout` with
+    `app:layout_behavior="@string/appbar_scrolling_view_behavior"` has one that is
+    pushed down by the height of the bar. Without the coordinator, the two do not communicate.
   ======================================================================================
 -->
 <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -194,36 +194,36 @@
 
     <!--
       ================================================================================
-      ELEMENT: AppBarLayout (bara de sus)
+      ELEMENT: AppBarLayout (the top bar)
       ================================================================================
-      Un `LinearLayout` vertical cu un singur scop: să țină bara și să-i aplice
-      comportamentele de scroll. Nu e obligatoriu să conțină doar un toolbar; poate
-      conține și un `TabLayout`.
+      A vertical `LinearLayout` with a single purpose: to hold the bar and apply the
+      scroll behaviours to it. It does not have to contain only a toolbar; it can
+      also contain a `TabLayout`.
 
-      ATRIBUTE:
-      `wrap_content` pe înălțime — bara are înălțimea copilului
-        (`?attr/actionBarSize`). `match_parent` ar întinde-o pe tot ecranul.
-      `#6750A4` — movul de bază Material 3, HARDCODAT. Nu se adaptează la dark mode:
-        în întuneric bara rămâne mov deschis. Corect ar fi `?attr/colorPrimary`.
-      `liftOnScroll="true"` — când lista se derulează, bara își schimbă culoarea în
-        `liftOnScrollColor` (#4F378B, tot hardcodat) și primește o umbră. E efectul
-        „app bar care se ridică".
-      `liftOnScrollColor` — culoarea de destinație a tranziției. Fără ea, tranziția
-        ar folosi o culoare derivată din temă.
-      `liftOnScrollTargetViewId="@id/listView"` — îi spune lui `AppBarLayout` CARE
-        view derulează. Fără el, `AppBarLayout` încearcă să detecteze singur view-ul
-        derulabil; când view-ul e imbricat (aici `ListView`-ul e în `FrameLayout`),
-        detectarea poate alege alt view sau poate produce flicker. Id-ul explicit
-        elimină ambiguitatea — e recomandarea din documentația Material pentru
-        view-uri derulabile imbricate.
-      `@id/listView` și nu `@+id/listView`: id-ul e deja creat de `ListView`, care
-        apare mai jos în același fișier. `@+id` ar crea un id nou, iar referința ar
-        arăta spre altceva (sau ar da eroare de duplicat).
+      ATTRIBUTES:
+      `wrap_content` on the height — the bar has the height of the child
+        (`?attr/actionBarSize`). `match_parent` would stretch it across the whole screen.
+      `#6750A4` — the base Material 3 purple, HARDCODED. It does not adapt to dark mode:
+        in the dark the bar stays light purple. The correct value would be `?attr/colorPrimary`.
+      `liftOnScroll="true"` — when the list scrolls, the bar changes its colour to
+        `liftOnScrollColor` (#4F378B, also hardcoded) and receives a shadow. It is the
+        "app bar that rises" effect.
+      `liftOnScrollColor` — the destination colour of the transition. Without it, the transition
+        would use a colour derived from the theme.
+      `liftOnScrollTargetViewId="@id/listView"` — tells `AppBarLayout` WHICH
+        view scrolls. Without it, `AppBarLayout` tries to detect the scrollable view
+        itself; when the view is nested (here the `ListView` is in a `FrameLayout`),
+        the detection can pick another view or produce flicker. The explicit id
+        removes the ambiguity — it is the recommendation from the Material documentation for
+        nested scrollable views.
+      `@id/listView` and not `@+id/listView`: the id is already created by `ListView`, which
+        appears further down in the same file. `@+id` would create a new id, and the reference would
+        point to something else (or would give a duplicate error).
 
-      CUM FUNCȚIONEAZĂ „LIFT ON SCROLL" PE SCURT: `AppBarLayout` ascultă evenimentele
-        de scroll ale view-ului țintă. Când primește un scroll în jos, animă fundalul
-        spre `liftOnScrollColor` și adaugă o umbră; când ajunge sus, revine. E o
-        tranziție de culoare, nu o schimbare de înălțime.
+      HOW "LIFT ON SCROLL" WORKS IN SHORT: `AppBarLayout` listens to the scroll
+        events of the target view. When it receives a scroll down, it animates the background
+        towards `liftOnScrollColor` and adds a shadow; when it reaches the top, it returns.
+        It is a colour transition, not a height change.
       ================================================================================
     -->
     <com.google.android.material.appbar.AppBarLayout
@@ -238,45 +238,45 @@
           ==============================================================================
           ELEMENT: MaterialToolbar
           ==============================================================================
-          `?attr/actionBarSize` — înălțimea standard a barei (56dp). Nu hardcoda
-            `56dp`: pe unele teme și orientări diferă.
-          `android:background="@android:color/transparent"` — toolbar-ul e
-            transparent, culoarea vine de la `AppBarLayout`. Altfel ai două straturi
-            de mov, iar `liftOnScroll` ar schimba doar unul.
-          `app:title="Inbox"` — titlul inițial. Codul îl suprascrie cu
-            `toolbar.setTitle(...)` la click pe sertar.
-          `app:titleTextColor` și `app:navigationIconTint` — alb. Fără ele, textul ar
-            fi negru pe mov în light theme. `navigationIconTint` e necesar separat
-            pentru că iconița vectorială are culoarea proprie (#000000 în
+          `?attr/actionBarSize` — the standard bar height (56dp). Do not hardcode
+            `56dp`: on some themes and orientations it differs.
+          `android:background="@android:color/transparent"` — the toolbar is
+            transparent, the colour comes from `AppBarLayout`. Otherwise you would have two layers
+            of purple, and `liftOnScroll` would change only one.
+          `app:title="Inbox"` — the initial title. The code overwrites it with
+            `toolbar.setTitle(...)` on a drawer click.
+          `app:titleTextColor` and `app:navigationIconTint` — white. Without them, the text would
+            be black on purple in the light theme. `navigationIconTint` is needed separately
+            because the vector icon has its own colour (#000000 in
             `ic_menu.xml`).
-          `app:navigationIcon="@drawable/ic_menu"` — cele trei linii. Desenul e un
-            `VectorDrawable` de 24dp; culoarea reală o dă `navigationIconTint`.
-          `app:menu="@menu/top_app_bar"` — umflă meniul direct din XML. De aceea
-            `onCreate` nu are `onCreateOptionsMenu`.
-          `app:theme="@style/ThemeOverlay.Material3.Dark.ActionBar"` — aplică o temă
-            întunecată DOAR pe toolbar, ca textul și iconițele să fie deschise.
-            Alternativa ar fi fost să setezi fiecare culoare în parte.
-          `app:theme` și nu `android:theme`: `app:theme` e citit de `Toolbar` și
-            aplicat doar subarborelui lui. `android:theme` ar schimba tema întregii
-            ferestre.
-          `app:` peste tot și nu `android:`: atributele `title`, `titleTextColor`,
-            `navigationIcon`, `menu`, `layout_scrollFlags` sunt definite de biblioteci
-            (AppCompat/Material), nu de platformă. Cu `android:` ar fi ignorate sau ar
-            avea altă semnificație.
+          `app:navigationIcon="@drawable/ic_menu"` — the three lines. The drawing is a
+            24dp `VectorDrawable`; the real colour is given by `navigationIconTint`.
+          `app:menu="@menu/top_app_bar"` — inflates the menu directly from the XML. That is why
+            `onCreate` has no `onCreateOptionsMenu`.
+          `app:theme="@style/ThemeOverlay.Material3.Dark.ActionBar"` — applies a dark
+            theme ONLY to the toolbar, so that the text and icons are light.
+            The alternative would have been to set each colour individually.
+          `app:theme` and not `android:theme`: `app:theme` is read by `Toolbar` and
+            applied only to its subtree. `android:theme` would change the theme of the whole
+            window.
+          `app:` everywhere and not `android:`: the attributes `title`, `titleTextColor`,
+            `navigationIcon`, `menu`, `layout_scrollFlags` are defined by libraries
+            (AppCompat/Material), not by the platform. With `android:` they would be ignored or would
+            have another meaning.
 
-          `app:layout_scrollFlags="scroll|enterAlways|snap"` — comportamentul la
-            derulare:
-              scroll       → bara iese din ecran când derulezi în jos;
-              enterAlways  → revine imediat ce derulezi în sus, oriunde ai fi în listă;
-              snap         → se oprește complet vizibilă sau complet ascunsă, niciodată
-                             pe jumătate.
+          `app:layout_scrollFlags="scroll|enterAlways|snap"` — the behaviour on
+            scrolling:
+              scroll       → the bar leaves the screen when you scroll down;
+              enterAlways  → it comes back as soon as you scroll up, wherever you are in the list;
+              snap         → it stops completely visible or completely hidden, never
+                             halfway.
 
-          CE SE ÎNTÂMPLĂ DACĂ SCOȚI `app:menu`: bara rămâne fără
-            Search/Share/Settings, iar `toolbar.setOnMenuItemClickListener` nu se mai
-            apelează niciodată. Nu e eroare — doar un listener mort.
-          CE SE ÎNTÂMPLĂ DACĂ SCOȚI `app:navigationIcon`: hamburger-ul dispare, iar
-            `setNavigationOnClickListener` nu mai are ce apăsa. Sertarul rămâne
-            accesibil doar prin gestul de glisare de la marginea ecranului.
+          WHAT HAPPENS IF YOU REMOVE `app:menu`: the bar is left without
+            Search/Share/Settings, and `toolbar.setOnMenuItemClickListener` is never
+            called again. It is not an error — just a dead listener.
+          WHAT HAPPENS IF YOU REMOVE `app:navigationIcon`: the hamburger disappears, and
+            `setNavigationOnClickListener` has nothing to press. The drawer stays
+            accessible only through the swipe gesture from the edge of the screen.
           ==============================================================================
         -->
         <com.google.android.material.appbar.MaterialToolbar
@@ -298,40 +298,40 @@
       ================================================================================
       ELEMENT: FrameLayout + ListView
       ================================================================================
-      `app:layout_behavior="@string/appbar_scrolling_view_behavior"` — fără el,
-        `FrameLayout`-ul ar fi desenat de la `y=0`, adică SUB bară, iar primele
-        rânduri ar fi acoperite. Comportamentul îl împinge în jos exact cu înălțimea
-        barei.
-      De ce e un string și nu o clasă: `app:layout_behavior` acceptă numele complet
-        al clasei `Behavior`. `@string/appbar_scrolling_view_behavior` e un alias
-        definit de Material pentru
-        `com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior`. Așa
-        nu depinzi de numele intern al clasei.
+      `app:layout_behavior="@string/appbar_scrolling_view_behavior"` — without it,
+        the `FrameLayout` would be drawn from `y=0`, that is UNDER the bar, and the first
+        rows would be covered. The behaviour pushes it down by exactly the height of
+        the bar.
+      Why it is a string and not a class: `app:layout_behavior` accepts the full name
+        of the `Behavior` class. `@string/appbar_scrolling_view_behavior` is an alias
+        defined by Material for
+        `com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior`. This way
+        you do not depend on the internal name of the class.
 
-      `android:entries="@array/items"` — `ListView` își construiește singur un
-        `ArrayAdapter` din cele 20 de șiruri din `strings.xml`. NU există niciun
-        adapter în cod — de aceea `listView.getItemAtPosition(position)` întoarce
-        direct un `String`.
-      Ce face exact: în constructorul `ListView`, se citește atributul și se cheamă
+      `android:entries="@array/items"` — `ListView` builds its own
+        `ArrayAdapter` from the 20 strings in `strings.xml`. There is NO
+        adapter in the code — that is why `listView.getItemAtPosition(position)` returns
+        a `String` directly.
+      What it does exactly: in the `ListView` constructor, the attribute is read and
         `setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_list_item_1,
-        entries))`. Layout-ul rândului e cel standard de platformă — un `TextView`.
-      `android:nestedScrollingEnabled="true"` — permite listei să transmită
-        evenimentele de derulare părintelui (`CoordinatorLayout`), ca `liftOnScroll`
-        să funcționeze. Fără el, lista „înghite" derularea și bara nu reacționează.
-      `match_parent` pe înălțime — lista umple tot spațiul rămas după bară.
-        `wrap_content` ar fi lăsat-o să crească la infinit.
+        entries))` is called. The row layout is the standard platform one — a `TextView`.
+      `android:nestedScrollingEnabled="true"` — lets the list pass the
+        scroll events to the parent (`CoordinatorLayout`), so that `liftOnScroll`
+        works. Without it, the list "swallows" the scroll and the bar does not react.
+      `match_parent` on the height — the list fills all the space left after the bar.
+        `wrap_content` would have let it grow indefinitely.
 
-      DE CE `ListView` ȘI NU `RecyclerView` AICI: 20 de rânduri statice, fără
-        animații, fără view-uri reciclate complicate. `ListView` e suficient și cere
-        zero cod. `RecyclerView` ar fi cerut un adapter, un `ViewHolder` și un
-        `LayoutManager` — subiectul capitolului 12.
-      CE SE ÎNTÂMPLĂ DACĂ SCOȚI `FrameLayout`-UL: `ListView` ar primi
-        `app:layout_behavior` și ar funcționa, dar ai pierde locul pentru un FAB sau
-        un `TextView` de „listă goală". `FrameLayout`-ul e un strat de extensie, nu o
-        necesitate tehnică.
+      WHY `ListView` AND NOT `RecyclerView` HERE: 20 static rows, no
+        animations, no complicated recycled views. `ListView` is enough and requires
+        zero code. `RecyclerView` would have required an adapter, a `ViewHolder` and a
+        `LayoutManager` — the topic of chapter 12.
+      WHAT HAPPENS IF YOU REMOVE THE `FrameLayout`: `ListView` would receive
+        `app:layout_behavior` and would work, but you would lose the place for a FAB or
+        an "empty list" `TextView`. The `FrameLayout` is an extension layer, not a
+        technical necessity.
       ================================================================================
     -->
-    <!-- layout_behavior: spune CoordinatorLayout că acest view stă SUB app bar -->
+    <!-- layout_behavior: tells CoordinatorLayout that this view sits UNDER the app bar -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -349,20 +349,20 @@
 
     <!--
       ================================================================================
-      ELEMENT: NavigationView (sertarul)
+      ELEMENT: NavigationView (the drawer)
       ================================================================================
-      `layout_width="wrap_content"` — sertarul are lățimea conținutului, nu a
-        ecranului. `match_parent` ar acoperi tot și nu ar mai părea sertar. Material
-        recomandă ~280dp; `wrap_content` se apropie.
-      `layout_height="match_parent"` — pe toată înălțimea.
-      `android:layout_gravity="start"` — ATRIBUTUL CARE FACE DIFERENȚA. Fără el,
-        `NavigationView` e tratat ca al doilea panou de conținut și nu se deschide
-        niciodată. Trebuie să fie identic cu `GravityCompat.START` din cod.
-      `app:menu="@menu/drawer_menu"` — conținutul sertarului vine din XML.
-        `NavigationView` îl umflă singur; codul doar ascultă click-urile.
-      `NavigationView` își aplică singură insets-urile — extinde
-        `ScrimInsetsFrameLayout`, care adaugă padding pentru status bar. De aceea nu
-        are nevoie de blocul de insets din cod.
+      `layout_width="wrap_content"` — the drawer has the width of its content, not of the
+        screen. `match_parent` would cover everything and would no longer look like a drawer. Material
+        recommends ~280dp; `wrap_content` comes close.
+      `layout_height="match_parent"` — across the whole height.
+      `android:layout_gravity="start"` — THE ATTRIBUTE THAT MAKES THE DIFFERENCE. Without it,
+        `NavigationView` is treated as the second content panel and never opens.
+        It must be identical to `GravityCompat.START` in the code.
+      `app:menu="@menu/drawer_menu"` — the drawer contents come from the XML.
+        `NavigationView` inflates it itself; the code only listens to clicks.
+      `NavigationView` applies its insets itself — it extends
+        `ScrimInsetsFrameLayout`, which adds padding for the status bar. That is why it
+        does not need the insets block from the code.
       ================================================================================
     -->
     <com.google.android.material.navigation.NavigationView
@@ -376,48 +376,48 @@
 
 <!--
   ======================================================================================
-  `layout_gravity="start"` ȘI RTL
+  `layout_gravity="start"` AND RTL
   ======================================================================================
-  CE ÎNSEAMNĂ `start`: „începutul direcției de citire". În română, engleză, germană
-  — stânga. În arabă, ebraică, persană — dreapta.
+  WHAT `start` MEANS: "the start of the reading direction". In Romanian, English, German
+  — the left. In Arabic, Hebrew, Persian — the right.
 
-  CUM SE REZOLVĂ: `DrawerLayout` cheamă `Gravity.getAbsoluteGravity(gravity,
-  layoutDirection)` și transformă `START` în `LEFT` sau `RIGHT`, în funcție de
-  direcția de layout a view-ului. Rezultatul e folosit la măsurare și la poziționare.
+  HOW IT IS RESOLVED: `DrawerLayout` calls `Gravity.getAbsoluteGravity(gravity,
+  layoutDirection)` and turns `START` into `LEFT` or `RIGHT`, depending on the
+  layout direction of the view. The result is used for measuring and positioning.
 
-  DE CE E NEVOIE DE `android:supportsRtl="true"` ÎN MANIFEST: fără el, aplicația nu
-  primește direcție RTL de la sistem, iar `start` se comportă ca `left` chiar și în
-  arabă. Cu el, întreaga interfață se oglindește: toolbar-ul, textul, sertarul.
+  WHY `android:supportsRtl="true"` IS NEEDED IN THE MANIFEST: without it, the app does not
+  receive an RTL direction from the system, and `start` behaves like `left` even in
+  Arabic. With it, the whole interface mirrors: the toolbar, the text, the drawer.
 
-  CE SE ÎNTÂMPLĂ ÎN COD DACĂ AMESTECI `START` ȘI `LEFT`:
+  WHAT HAPPENS IN THE CODE IF YOU MIX `START` AND `LEFT`:
 
-  LTR (română):
-    XML: layout_gravity="start"  → sertarul e în STÂNGA
-    Cod: openDrawer(GravityCompat.START) → caută sertarul din START = STÂNGA → OK
+  LTR (Romanian):
+    XML: layout_gravity="start"  → the drawer is on the LEFT
+    Code: openDrawer(GravityCompat.START) → looks for the drawer from START = LEFT → OK
 
-  RTL (arabă):
-    XML: layout_gravity="start"  → sertarul e în DREAPTA
-    Cod: openDrawer(GravityCompat.START) → caută sertarul din START = DREAPTA → OK
+  RTL (Arabic):
+    XML: layout_gravity="start"  → the drawer is on the RIGHT
+    Code: openDrawer(GravityCompat.START) → looks for the drawer from START = RIGHT → OK
 
-  RTL cu cod greșit:
-    XML: layout_gravity="start"  → sertarul e în DREAPTA
-    Cod: openDrawer(Gravity.LEFT) → caută sertarul din STÂNGA → nu există → nimic
+  RTL with the wrong code:
+    XML: layout_gravity="start"  → the drawer is on the RIGHT
+    Code: openDrawer(Gravity.LEFT) → looks for the drawer from the LEFT → it does not exist → nothing
 
-  REGULA: `layout_gravity` din XML și `GravityCompat.*` din cod trebuie să folosească
-  aceeași constantă relativă (`start`/`end`). Niciodată `left`/`right` amestecat cu
+  THE RULE: `layout_gravity` in the XML and `GravityCompat.*` in the code must use
+  the same relative constant (`start`/`end`). Never `left`/`right` mixed with
   `start`/`end`.
 
-  DE CE `GravityCompat` ȘI NU `Gravity`: `GravityCompat.START` e definit în
-  biblioteca de compatibilitate și e egal cu `Gravity.START` pe API-urile care îl au.
-  Pe API-uri vechi, `GravityCompat` face conversia. În practică, cu `minSdk 33`, ai
-  putea folosi și `Gravity.START` — dar `GravityCompat` e convenția și nu costă nimic.
+  WHY `GravityCompat` AND NOT `Gravity`: `GravityCompat.START` is defined in
+  the compatibility library and is equal to `Gravity.START` on the APIs that have it.
+  On old APIs, `GravityCompat` does the conversion. In practice, with `minSdk 33`, you
+  could also use `Gravity.START` — but `GravityCompat` is the convention and costs nothing.
 
-  CE SE ÎNTÂMPLĂ CU `layout_gravity="end"`: sertarul vine din dreapta în LTR și din
-  stânga în RTL. Util pentru un al doilea sertar (de exemplu setări). Codul ar trebui
-  să folosească `GravityCompat.END` pentru el.
+  WHAT HAPPENS WITH `layout_gravity="end"`: the drawer comes from the right in LTR and from
+  the left in RTL. Useful for a second drawer (for example settings). The code would have to
+  use `GravityCompat.END` for it.
 
-  DE CE `NavigationView` NU ARE `layout_gravity` IMPLICIT: pentru că `DrawerLayout`
-  nu poate ghici ce margine vrei. Fără gravity, copilul e tratat ca conținut — și
-  ecranul arată ca și cum sertarul ar fi fost lipit peste listă.
+  WHY `NavigationView` HAS NO DEFAULT `layout_gravity`: because `DrawerLayout`
+  cannot guess which edge you want. Without gravity, the child is treated as content — and
+  the screen looks as if the drawer had been glued over the list.
   ======================================================================================
 -->

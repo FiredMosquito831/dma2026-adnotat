@@ -1,207 +1,207 @@
 /*
  * ======================================================================================
- * MainActivity.java — SINGURA ACTIVITATE A PROIECTULUI DMA02
+ * MainActivity.java — THE ONLY ACTIVITY OF THE DMA02 PROJECT
  * ======================================================================================
- * CE ESTE:
- *   Activitatea care apare în launcher și care deține ecranul din `activity_main.xml`.
- *   Extinde `AppCompatActivity`, nu `Activity`: are nevoie de tema Material3/AppCompat.
+ * WHAT IT IS:
+ *   The activity that appears in the launcher and owns the screen from `activity_main.xml`.
+ *   It extends `AppCompatActivity`, not `Activity`: it needs the Material3/AppCompat theme.
  *
- * DE CE EXISTĂ:
- *   1. Demonstrează ciclul de viață: șase metode suprascrise, fiecare doar loghează.
- *   2. Leagă layout-ul de cod: `setContentView(R.layout.activity_main)`.
- *   3. Demonstrează un `Intent` implicit: `pressMe` deschide share sheet-ul.
+ * WHY IT EXISTS:
+ *   1. It demonstrates the lifecycle: six overridden methods, each one only logs.
+ *   2. It binds the layout to the code: `setContentView(R.layout.activity_main)`.
+ *   3. It demonstrates an implicit `Intent`: `pressMe` opens the share sheet.
  *
- * CE SE STRICĂ FĂRĂ EL:
- *   - fără `setContentView`, ecranul rămâne gol și `findViewById` întoarce null;
- *   - fără `super.onCreate`, framework-ul aruncă `SuperNotCalledException`;
- *   - fără `pressMe`, `android:onClick` crapă la click, nu la compilare.
+ * WHAT BREAKS WITHOUT IT:
+ *   - without `setContentView`, the screen stays empty and `findViewById` returns null;
+ *   - without `super.onCreate`, the framework throws `SuperNotCalledException`;
+ *   - without `pressMe`, `android:onClick` crashes on click, not at compile time.
  *
  * REF: android.app.Activity (Android 36); AppCompatActivity (androidx.appcompat).
  * ======================================================================================
  */
 
-package ro.ase.ie.dma02;                             // același pachet ca DMA02App
+package ro.ase.ie.dma02;                             // the same package as DMA02App
 
-import android.content.Intent;                       // folosit doar în pressMe
-import android.os.Bundle;                            // parametrul din onCreate
-import android.util.Log;                             // scrierea în Logcat
-import android.view.View;                            // parametrul din pressMe — cerut de android:onClick
+import android.content.Intent;                       // used only in pressMe
+import android.os.Bundle;                            // the parameter of onCreate
+import android.util.Log;                             // writing to Logcat
+import android.view.View;                            // the parameter of pressMe — required by android:onClick
 
-import androidx.appcompat.app.AppCompatActivity;     // varianta AppCompat a lui Activity
+import androidx.appcompat.app.AppCompatActivity;     // the AppCompat variant of Activity
 
 /*
  * ======================================================================================
- * THEORY BLOCK: ciclul de viață al unei activități
+ * THEORY BLOCK: the lifecycle of an activity
  * ======================================================================================
- * 1. CE ESTE O ACTIVITATE
- *    O componentă cu fereastră. Sistemul o creează, o afișează, o ascunde și o
- *    distruge după reguli fixe. Tu nu apelezi `onCreate`; îl apelează framework-ul.
+ * 1. WHAT AN ACTIVITY IS
+ *    A component with a window. The system creates it, shows it, hides it and
+ *    destroys it by fixed rules. You do not call `onCreate`; the framework calls it.
  *
- * 2. CELE ȘAPTE STĂRI (șase metode + onRestart)
+ * 2. THE SEVEN STATES (six methods + onRestart)
  *    onCreate → onStart → onResume → onPause → onStop → onDestroy
- *    `onRestart` apare doar la revenirea din `onStop`.
+ *    `onRestart` appears only when returning from `onStop`.
  *
- * 3. `super` ESTE OBLIGATORIU
- *    `ActivityThread` verifică după fiecare metodă dacă ai apelat `super`. Dacă nu,
- *    aruncă `SuperNotCalledException`. Nu e convenție, e verificare la runtime.
+ * 3. `super` IS MANDATORY
+ *    `ActivityThread` checks after every method whether you called `super`. If not,
+ *    it throws `SuperNotCalledException`. It is not a convention, it is a runtime check.
  *
  * 4. `AppCompatActivity` vs `Activity`
- *    `AppCompatActivity` aduce backport-ul AppCompat: inflatare compatibilă, teme
- *    Material pe versiuni vechi, `AppCompatDelegate` pentru dark mode. Cere o temă
- *    care coboară din `Theme.AppCompat` (aici: `Theme.Material3.*`).
+ *    `AppCompatActivity` brings the AppCompat backport: compatible inflation, Material
+ *    themes on old versions, `AppCompatDelegate` for dark mode. It requires a theme
+ *    that descends from `Theme.AppCompat` (here: `Theme.Material3.*`).
  *
- * 5. ORDINEA DIN FIȘIER NU E ORDINEA DE EXECUȚIE
- *    Metodele sunt în ordine alfabetică (generate de IntelliJ), nu cronologică.
+ * 5. THE ORDER IN THE FILE IS NOT THE EXECUTION ORDER
+ *    The methods are in alphabetical order (generated by IntelliJ), not chronological.
  *
- * ASCII: CICLUL COMPLET
+ * ASCII: THE COMPLETE CYCLE
  *
- *   onCreate ──► onStart ──► onResume ──► [vizibil, interactiv]
+ *   onCreate ──► onStart ──► onResume ──► [visible, interactive]
  *                                            │
- *                          Home / altă activitate
+ *                          Home / another activity
  *                                            ▼
- *                                        onPause ──► onStop ──► [ascuns]
+ *                                        onPause ──► onStop ──► [hidden]
  *                                                          │
- *                                        revenire ──► onRestart ──► onStart ──► onResume
+ *                                        return ──► onRestart ──► onStart ──► onResume
  *                                                          │
  *                                        Back ──► onDestroy
  * ======================================================================================
  */
-public class MainActivity extends AppCompatActivity {   // (1) activitate cu suport AppCompat
+public class MainActivity extends AppCompatActivity {   // (1) an activity with AppCompat support
 
-    // Tag-ul din Logcat: "MainActivity".
-    // `static final` = aparține clasei, nu instanței. La rotire se creează o instanță
-    // nouă, dar tag-ul rămâne același — exact ce vrei în Logcat.
+    // The Logcat tag: "MainActivity".
+    // `static final` = it belongs to the class, not to the instance. On rotation a new
+    // instance is created, but the tag stays the same — exactly what you want in Logcat.
     private static final String TAG = MainActivity.class.getSimpleName();
 
     // ==================================================================================
-    // METODA 1/7: onCreate(Bundle) — CONSTRUCȚIA
+    // METHOD 1/7: onCreate(Bundle) — CONSTRUCTION
     // ==================================================================================
-    // THEORY: prima metodă a ciclului. Aici se inflatează layout-ul și se leagă
-    //         view-urile. `savedInstanceState` e null la prima creare și non-null
-    //         la recreare (rotire, revenire după kill).
+    // THEORY: the first method of the cycle. Here the layout is inflated and the views
+    //         are bound. `savedInstanceState` is null on first creation and non-null
+    //         on recreation (rotation, return after a kill).
     // LOGIC:
-    //   1. `super.onCreate(...)` — obligatoriu primul.
-    //   2. `setContentView(...)` — creează arborele de view-uri.
-    //   3. `Log.w(...)` — marchează sfârșitul construcției.
-    // REF: Activity.java (android-36), linia 1861 — `onCreate`.
-    // RISK: fără `super`, `SuperNotCalledException`. Fără `setContentView`, ecran gol.
+    //   1. `super.onCreate(...)` — mandatory first.
+    //   2. `setContentView(...)` — creates the view tree.
+    //   3. `Log.w(...)` — marks the end of construction.
+    // REF: Activity.java (android-36), line 1861 — `onCreate`.
+    // RISK: without `super`, `SuperNotCalledException`. Without `setContentView`, an empty screen.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);              // pas 1: framework-ul își face inițializările
-        setContentView(R.layout.activity_main);          // pas 2: XML-ul devine arbore de View-uri
-        Log.w(TAG, "onCreate");                          // pas 3: primul log al activității
+        super.onCreate(savedInstanceState);              // step 1: the framework does its initializations
+        setContentView(R.layout.activity_main);          // step 2: the XML becomes a tree of Views
+        Log.w(TAG, "onCreate");                          // step 3: the first log of the activity
     }
 
     // ==================================================================================
-    // METODA 2/7: onDestroy() — DISTRUGEREA
+    // METHOD 2/7: onDestroy() — DESTRUCTION
     // ==================================================================================
-    // THEORY: ultima metodă a ciclului. Apare la Back, la `finish()` sau la rotire.
-    //         NU este garantată: dacă sistemul omoară procesul, nu rulează.
-    // LOGIC: `super` + un rând în Logcat.
-    // REF: Activity.java (android-36), linia 2932 — `onDestroy`.
-    // RISK: nu pune aici salvarea de date — s-ar putea să nu apuce să ruleze.
-    //       Pentru salvare există `onPause` / `onStop` / `onSaveInstanceState`.
+    // THEORY: the last method of the cycle. It appears on Back, on `finish()` or on rotation.
+    //         It is NOT guaranteed: if the system kills the process, it does not run.
+    // LOGIC: `super` + one line in Logcat.
+    // REF: Activity.java (android-36), line 2932 — `onDestroy`.
+    // RISK: do not put data saving here — it might not get the chance to run.
+    //       For saving there are `onPause` / `onStop` / `onSaveInstanceState`.
     @Override
     protected void onDestroy() {
-        super.onDestroy();                              // curățenia framework-ului
+        super.onDestroy();                              // the framework's cleanup
         Log.w(TAG, "onDestroy");
     }
 
     // ==================================================================================
-    // METODA 3/7: onStart() — DEVENIREA VIZIBILĂ
+    // METHOD 3/7: onStart() — BECOMING VISIBLE
     // ==================================================================================
-    // THEORY: activitatea devine vizibilă, dar nu primește încă input. Este perechea
-    //         lui `onStop`.
-    // LOGIC: `super` + un rând în Logcat.
-    // REF: Activity.java (android-36), linia 2148 — `onStart`.
-    // RISK: aici încă nu poți presupune că utilizatorul poate apăsa ceva.
+    // THEORY: the activity becomes visible, but does not receive input yet. It is the
+    //         counterpart of `onStop`.
+    // LOGIC: `super` + one line in Logcat.
+    // REF: Activity.java (android-36), line 2148 — `onStart`.
+    // RISK: here you cannot yet assume that the user can press anything.
     @Override
     protected void onStart() {
-        super.onStart();                                // framework-ul își face tranziția
+        super.onStart();                                // the framework makes its transition
         Log.w(TAG, "onStart");
     }
 
     // ==================================================================================
-    // METODA 4/7: onStop() — ASCUNDEREA
+    // METHOD 4/7: onStop() — HIDING
     // ==================================================================================
-    // THEORY: activitatea nu mai este vizibilă: Home, altă activitate full-screen,
-    //         ecran stins. Este perechea lui `onStart`.
-    // LOGIC: `super` + un rând în Logcat.
-    // REF: Activity.java (android-36), linia 2889 — `onStop`.
-    // RISK: după `onStop`, activitatea poate fi distrusă fără `onDestroy` garantat.
+    // THEORY: the activity is no longer visible: Home, another full-screen activity,
+    //         screen off. It is the counterpart of `onStart`.
+    // LOGIC: `super` + one line in Logcat.
+    // REF: Activity.java (android-36), line 2889 — `onStop`.
+    // RISK: after `onStop`, the activity may be destroyed without a guaranteed `onDestroy`.
     @Override
     protected void onStop() {
-        super.onStop();                                 // framework-ul își face tranziția
+        super.onStop();                                 // the framework makes its transition
         Log.w(TAG, "onStop");
     }
 
     // ==================================================================================
-    // METODA 5/7: onPause() — PIERDEREA FOCUSULUI
+    // METHOD 5/7: onPause() — LOSING FOCUS
     // ==================================================================================
-    // THEORY: activitatea își pierde focusul: altă activitate vine peste ea, dialog,
-    //         share sheet, Home. Poate fi încă vizibilă.
-    // LOGIC: `super` + un rând în Logcat.
-    // REF: Activity.java (android-36), linia 2660 — `onPause`.
-    // RISK: `onPause` blochează tranziția către activitatea următoare. Orice lucrezi
-    //       aici întârzie ecranul următor.
+    // THEORY: the activity loses focus: another activity comes over it, a dialog,
+    //         the share sheet, Home. It may still be visible.
+    // LOGIC: `super` + one line in Logcat.
+    // REF: Activity.java (android-36), line 2660 — `onPause`.
+    // RISK: `onPause` blocks the transition to the next activity. Whatever you do here
+    //       delays the next screen.
     @Override
     protected void onPause() {
-        super.onPause();                                // framework-ul își face tranziția
+        super.onPause();                                // the framework makes its transition
         Log.w(TAG, "onPause");
     }
 
     // ==================================================================================
-    // METODA 6/7: onResume() — DEVENIREA INTERACTIVĂ
+    // METHOD 6/7: onResume() — BECOMING INTERACTIVE
     // ==================================================================================
-    // THEORY: activitatea este în prim-plan și primește input. Este perechea lui
-    //         `onPause`.
-    // LOGIC: `super` + un rând în Logcat.
-    // REF: Activity.java (android-36), linia 2226 — `onResume`.
-    // RISK: aici poți porni animații și listeners; nu face treabă grea, pentru că
-    //       întârzie primul frame interactiv.
+    // THEORY: the activity is in the foreground and receives input. It is the counterpart
+    //         of `onPause`.
+    // LOGIC: `super` + one line in Logcat.
+    // REF: Activity.java (android-36), line 2226 — `onResume`.
+    // RISK: here you may start animations and listeners; do not do heavy work, because
+    //       it delays the first interactive frame.
     @Override
     protected void onResume() {
-        super.onResume();                               // framework-ul își face tranziția
+        super.onResume();                               // the framework makes its transition
         Log.w(TAG, "onResume");
     }
 
     // ==================================================================================
-    // METODA 7/7: pressMe(View) — UN `Intent` IMPLICIT
+    // METHOD 7/7: pressMe(View) — AN IMPLICIT `Intent`
     // ==================================================================================
-    // THEORY: `android:onClick="pressMe"` din layout leagă butonul de această metodă
-    //         prin REFLECȚIE, nu la compilare. Framework-ul caută în Context-ul
-    //         view-ului o metodă `public void` cu exact un parametru `View`.
+    // THEORY: `android:onClick="pressMe"` in the layout binds the button to this method
+    //         through REFLECTION, not at compile time. The framework looks in the
+    //         view's Context for a `public void` method with exactly one `View` parameter.
     // LOGIC:
-    //   1. Varianta 1 (comentată): ACTION_VIEW + https:// → browser.
-    //   2. Varianta 2 (comentată): ACTION_DIAL + tel: → tastatură telefonică.
-    //   3. Varianta 3 (activă): ACTION_SEND + text/plain → share sheet.
+    //   1. Variant 1 (commented out): ACTION_VIEW + https:// → browser.
+    //   2. Variant 2 (commented out): ACTION_DIAL + tel: → phone dialer.
+    //   3. Variant 3 (active): ACTION_SEND + text/plain → share sheet.
     // REF: Intent.java, Intent.ACTION_SEND, Intent.createChooser.
-    // RISK: `Uri` NU e importat. Dacă decomentezi primele două variante, fișierul
-    //       nu compilează: `cannot find symbol: class Uri`.
-    public void pressMe(View view) {                    // semnătura e dictată de android:onClick="pressMe"
+    // RISK: `Uri` is NOT imported. If you uncomment the first two variants, the file
+    //       does not compile: `cannot find symbol: class Uri`.
+    public void pressMe(View view) {                    // the signature is dictated by android:onClick="pressMe"
         // --------------------------------------------------------------------------
-        // VARIANTA 1 (comentată): deschide un URL în browserul implicit.
+        // VARIANT 1 (commented out): opens a URL in the default browser.
         // --------------------------------------------------------------------------
-        // `ACTION_VIEW` + `https://` = „arată-mi acest lucru".
-        // Ar cere `import android.net.Uri;` — de aceea blocul e comentat.
+        // `ACTION_VIEW` + `https://` = "show me this thing".
+        // It would require `import android.net.Uri;` — that is why the block is commented out.
   /*      Intent web = new Intent(Intent.ACTION_VIEW, Uri.parse("https://developer.android.com"));
         startActivity(web);*/
 
         // --------------------------------------------------------------------------
-        // VARIANTA 2 (comentată): deschide tastatura telefonică, fără să sune.
+        // VARIANT 2 (commented out): opens the phone dialer, without calling.
         // --------------------------------------------------------------------------
-        // `ACTION_DIAL` NU cere permisiunea CALL_PHONE. Varianta care sună,
-        // `ACTION_CALL`, ar cere-o.
+        // `ACTION_DIAL` does NOT require the CALL_PHONE permission. The variant that
+        // calls, `ACTION_CALL`, would require it.
         /*Intent call = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:0212345678"));
         startActivity(call);*/
 
         // --------------------------------------------------------------------------
-        // VARIANTA 3 (activă): share sheet.
+        // VARIANT 3 (active): share sheet.
         // --------------------------------------------------------------------------
-        Intent share = new Intent(Intent.ACTION_SEND);                  // acțiunea: „trimite"
-        share.setType("text/plain");                                     // MIME: obligatoriu pentru rezolvare
-        share.putExtra(Intent.EXTRA_TEXT, "Hello!");                     // payload-ul
-        startActivity(Intent.createChooser(share, "Share via DMA"));     // chooser forțat, cu titlu
+        Intent share = new Intent(Intent.ACTION_SEND);                  // the action: "send"
+        share.setType("text/plain");                                     // MIME: mandatory for resolution
+        share.putExtra(Intent.EXTRA_TEXT, "Hello!");                     // the payload
+        startActivity(Intent.createChooser(share, "Share via DMA"));     // forced chooser, with a title
 
     }
-}   // închide clasa MainActivity
+}   // closes the MainActivity class

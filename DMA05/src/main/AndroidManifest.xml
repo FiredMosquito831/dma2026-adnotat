@@ -2,81 +2,81 @@
 
 <!--
   ======================================================================================
-  FIȘIER: AndroidManifest.xml
+  FILE: AndroidManifest.xml
   ======================================================================================
-  LOCAȚIE: DMA05/src/main/AndroidManifest.xml
-  ROL:     declară aplicația, tema și singura activitate. Fără el, iconița nu pornește.
+  LOCATION: DMA05/src/main/AndroidManifest.xml
+  ROLE:     declares the application, the theme and the only activity. Without it, the icon does not start.
   ======================================================================================
 -->
 
 <!--
   ======================================================================================
-  THEORY BLOCK: MANIFESTUL
+  THEORY BLOCK: THE MANIFEST
   ======================================================================================
-  1. CE ESTE
-     Un fișier XML care declară aplicația către sistemul de operare, ÎNAINTE de a rula
-     vreo linie de Java. Sistemul îl citește la instalare și la pornirea unei componente.
+  1. WHAT IT IS
+     An XML file that declares the application to the operating system, BEFORE running
+     any line of Java. The system reads it at install time and when starting a component.
 
-  2. CINE ÎL FOLOSEȘTE
-     - la instalare: ce permisiuni cere aplicația, ce componente are
-     - la lansare: care e activitatea de start (intent-filter MAIN + LAUNCHER)
-     - la navigare: ce activități pot fi pornite din alte aplicații (exported)
-     - la runtime: ce temă are aplicația, ce mod de soft input are activitatea
+  2. WHO USES IT
+     - at install: which permissions the app asks for, which components it has
+     - at launch: which is the start activity (intent-filter MAIN + LAUNCHER)
+     - at navigation: which activities can be started from other apps (exported)
+     - at runtime: which theme the app has, which soft input mode the activity has
 
   3. MANIFEST MERGER
-     La build, AGP combină manifestul tău cu manifestele bibliotecilor (AppCompat,
-     Material, activity-ktx). Fiecare bibliotecă își declară componentele și
-     permisiunile. Rezultatul e un singur manifest, în APK.
-     Atributele tools: rezolvă conflictele:
-       tools:node="merge"     → combină
-       tools:node="replace"   → înlocuiește
-       tools:node="remove"    → elimină
-     DMA05 nu are conflicte, deci nu folosește tools: în manifest.
+     At build, AGP combines your manifest with the manifests of the libraries (AppCompat,
+     Material, activity-ktx). Each library declares its components and
+     permissions. The result is a single manifest, in the APK.
+     The tools: attributes resolve conflicts:
+       tools:node="merge"     → combine
+       tools:node="replace"   → replace
+       tools:node="remove"    → remove
+     DMA05 has no conflicts, so it does not use tools: in the manifest.
 
-  4. ATRIBUTELE DIN <application>
-     android:allowBackup="true"          → sistemul poate salva datele aplicației
-     android:dataExtractionRules         → regulile de backup pentru Android 12+
-     android:fullBackupContent           → regulile de backup pentru versiunile vechi
-     android:icon / roundIcon            → iconițele
-     android:label="@string/app_name"    → numele din launcher
-     android:supportsRtl="true"          → suport pentru scriere de la dreapta la stânga
-     android:theme="@style/Theme.DMA05"  → tema aplicației
+  4. THE ATTRIBUTES IN <application>
+     android:allowBackup="true"          → the system can save the application data
+     android:dataExtractionRules         → the backup rules for Android 12+
+     android:fullBackupContent           → the backup rules for older versions
+     android:icon / roundIcon            → the icons
+     android:label="@string/app_name"    → the name in the launcher
+     android:supportsRtl="true"          → support for right-to-left writing
+     android:theme="@style/Theme.DMA05"  → the application theme
 
-  5. ATRIBUTELE DIN <activity>
-     android:name=".MainActivity"        → clasa; punctul înseamnă namespace-ul aplicației
-     android:exported="true"             → poate fi pornită din exterior (necesar launcher)
-     android:windowSoftInputMode="adjustResize" → modul de reacție la tastatură
+  5. THE ATTRIBUTES IN <activity>
+     android:name=".MainActivity"        → the class; the dot means the application namespace
+     android:exported="true"             → it can be started from outside (needed by the launcher)
+     android:windowSoftInputMode="adjustResize" → how it reacts to the keyboard
 
   6. INTENT-FILTER
      <action android:name="android.intent.action.MAIN" />
      <category android:name="android.intent.category.LAUNCHER" />
-     Combinația MAIN + LAUNCHER e ce face activitatea să apară în launcher.
-     Fără ea, activitatea există, dar nu e pornită de nimeni.
+     The MAIN + LAUNCHER combination is what makes the activity appear in the launcher.
+     Without it, the activity exists, but nobody starts it.
 
-  7. CE NU ARE DMA05
-     - niciun <uses-permission>          → nu accesează nimic protejat
-     - niciun <service>, <receiver>      → o singură activitate
-     - niciun atribut package            → vine din namespace (AGP 8+)
+  7. WHAT DMA05 DOES NOT HAVE
+     - no <uses-permission>              → it does not access anything protected
+     - no <service>, <receiver>          → a single activity
+     - no package attribute              → it comes from namespace (AGP 8+)
   ======================================================================================
 -->
 
 <!--
-  Nu există atribut `package`: din AGP 8, pachetul vine din
-  namespace = "ro.ase.ie.dma05" în build.gradle.kts. Dacă ai lăsa package, build-ul
-  ar eșua cu un mesaj care spune că atributul nu mai e suportat în manifestul sursă.
-  namespace e folosit și pentru R și pentru clasa generată databinding.
+  There is no `package` attribute: since AGP 8, the package comes from
+  namespace = "ro.ase.ie.dma05" in build.gradle.kts. If you left package in, the build
+  would fail with a message saying the attribute is no longer supported in the source manifest.
+  namespace is used both for R and for the generated databinding class.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
     <!--
-      <application> — tot ce ține de aplicație în ansamblu.
-        allowBackup + dataExtractionRules + fullBackupContent → șablonul Android Studio;
-          fișierele res/xml/backup_rules.xml și data_extraction_rules.xml există în proiect
-        icon / roundIcon      → iconițele (roundIcon pentru Android 7.1+)
-        label                 → numele din launcher, din strings.xml (singura intrare de acolo)
-        supportsRtl           → interfața se oglindește în limbile RTL
-        theme                 → Theme.DMA05, definit în values/themes.xml
+      <application> — everything that concerns the application as a whole.
+        allowBackup + dataExtractionRules + fullBackupContent → the Android Studio template;
+          the files res/xml/backup_rules.xml and data_extraction_rules.xml exist in the project
+        icon / roundIcon      → the icons (roundIcon for Android 7.1+)
+        label                 → the name in the launcher, from strings.xml (the only entry there)
+        supportsRtl           → the interface mirrors itself in RTL languages
+        theme                 → Theme.DMA05, defined in values/themes.xml
     -->
     <application
         android:allowBackup="true"
@@ -89,21 +89,21 @@
         android:theme="@style/Theme.DMA05">
 
         <!--
-          SINGURA ACTIVITATE.
-            android:name=".MainActivity"   → punctul în față înseamnă „namespace-ul
-                                             aplicației"; deci ro.ase.ie.dma05.MainActivity
-            android:exported="true"        → obligatoriu din API 31 pentru orice componentă
-                                             cu intent-filter; fără el, build-ul eșuează.
-                                             Înseamnă „alte aplicații au voie să pornească
-                                             asta" — necesar pentru iconița din launcher.
-            windowSoftInputMode="adjustResize" → cere sistemului să micșoreze fereastra
-                                             când apare tastatura. Cu edge-to-edge pe
-                                             API 30+, fereastra NU mai e redimensionată
-                                             de sistem: aplicația trebuie să consume
-                                             WindowInsetsCompat.Type.ime(). DMA05 tratează
-                                             doar systemBars(), deci tastatura acoperă
-                                             widget-urile de jos. Nu se vede, pentru că
-                                             EditText-urile sunt sus.
+          THE ONLY ACTIVITY.
+            android:name=".MainActivity"   → the leading dot means "the application
+                                             namespace"; so ro.ase.ie.dma05.MainActivity
+            android:exported="true"        → mandatory since API 31 for any component
+                                             with an intent-filter; without it, the build fails.
+                                             It means "other applications are allowed to start
+                                             this" — needed for the launcher icon.
+            windowSoftInputMode="adjustResize" → asks the system to shrink the window
+                                             when the keyboard appears. With edge-to-edge on
+                                             API 30+, the window is NO longer resized
+                                             by the system: the application must consume
+                                             WindowInsetsCompat.Type.ime(). DMA05 handles
+                                             only systemBars(), so the keyboard covers
+                                             the bottom widgets. It is not visible, because
+                                             the EditTexts are at the top.
         -->
         <activity
             android:name=".MainActivity"
@@ -111,9 +111,9 @@
             android:windowSoftInputMode="adjustResize">
 
             <!--
-              INTENT-FILTER — ce face activitatea vizibilă în launcher.
-              Fără el, activitatea există, dar nu e pornită de nimeni; o poți porni doar
-              cu adb shell am start, dacă știi numele complet.
+              INTENT-FILTER — what makes the activity visible in the launcher.
+              Without it, the activity exists, but nobody starts it; you can start it only
+              with adb shell am start, if you know the full name.
             -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

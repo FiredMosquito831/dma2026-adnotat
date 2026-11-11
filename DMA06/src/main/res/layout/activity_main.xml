@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- ==================================================================================
-     FIȘIER: activity_main.xml
+     FILE: activity_main.xml
      ==================================================================================
-     LOCAȚIE:  DMA06/src/main/res/layout/activity_main.xml
-     ROL:      layout-ul meniului: două texte (titlu + subtitlu) și trei butoane.
-     CONȚINE:  2 × TextView, 3 × MaterialButton
-     ID-URI:   btnStep1, btnStep2, btnStep3   ← singurele atinse din cod
+     LOCATION: DMA06/src/main/res/layout/activity_main.xml
+     ROLE:     the menu layout: two texts (title + subtitle) and three buttons.
+     CONTAINS: 2 × TextView, 3 × MaterialButton
+     IDS:      btnStep1, btnStep2, btnStep3   ← the only ones touched from code
      ================================================================================== -->
 
-<!-- De ce XML-ul are nevoie de antet: un layout se citește rar de sus în jos; de obicei
-     îl cauți după un id. Antetul îți spune în trei linii ce id-uri există, ca să nu
-     derulezi 40 de linii ca să afli dacă butonul se numește btnStep1 sau button1. -->
+<!-- Why the XML needs a header: a layout is rarely read top to bottom; usually
+     you look it up by an id. The header tells you in three lines which ids exist, so you do not
+     scroll 40 lines to find out whether the button is called btnStep1 or button1. -->
 
-<!-- Rădăcina: coloană verticală, cu grupul de copii centrat pe verticală și padding pe toate laturile. -->
+<!-- Root: a vertical column, with the group of children centred vertically and padding on all sides. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -20,14 +20,14 @@
     android:orientation="vertical"
     android:padding="24dp">
 
-    <!-- Titlul ecranului: „From ListView to RecyclerView" (din strings.xml) -->
+    <!-- The screen title: "From ListView to RecyclerView" (from strings.xml) -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/main_heading"
         android:textAppearance="?attr/textAppearanceHeadlineSmall" />
 
-    <!-- Subtitlul: „The numbers from 1 to 100, displayed in three steps." -->
+    <!-- The subtitle: "The numbers from 1 to 100, displayed in three steps." -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -36,14 +36,14 @@
         android:text="@string/main_description"
         android:textAppearance="?attr/textAppearanceBodyMedium" />
 
-    <!-- Butonul 1: id-ul btnStep1 este căutat în MainActivity.openOnClick -->
+    <!-- Button 1: the id btnStep1 is looked up in MainActivity.openOnClick -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnStep1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/step1_title" />
 
-    <!-- Butonul 2: 8dp sub primul -->
+    <!-- Button 2: 8dp below the first -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnStep2"
         android:layout_width="match_parent"
@@ -51,7 +51,7 @@
         android:layout_marginTop="8dp"
         android:text="@string/step2_title" />
 
-    <!-- Butonul 3: 8dp sub al doilea -->
+    <!-- Button 3: 8dp below the second -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnStep3"
         android:layout_width="match_parent"
@@ -61,16 +61,16 @@
 </LinearLayout>
 
 <!-- ======================================================================================
-     CE TREBUIE REȚINUT DIN FIȘIER
+     WHAT TO REMEMBER FROM THE FILE
      ======================================================================================
-     orientation="vertical"      copiii se așază unul sub altul, în ordinea din fișier
-     gravity="center_vertical"   centrează GRUPUL de copii, nu fiecare copil
-     layout_gravity              ar poziționa view-ul în părintele lui — alt atribut!
-     padding="24dp"              margine interioară pe toate cele patru laturi
-     match_parent pe butoane     late cât ecranul; wrap_content le-ar face inegale
-     @+id/btnStep1               `+` = creează id-ul dacă nu există
-     MaterialButton              nume complet, pentru că nu e în android.widget
-     ?attr/...                   atribut rezolvat din tema curentă (Material3)
-     @string/...                 text dintr-un fișier de resurse, traductibil
-     layout_marginTop="8dp"      spațiu între butoane, nu padding în ele
+     orientation="vertical"      the children stack one under another, in file order
+     gravity="center_vertical"   centres the GROUP of children, not each child
+     layout_gravity              would position the view inside its parent — a different attribute!
+     padding="24dp"              inner margin on all four sides
+     match_parent on the buttons as wide as the screen; wrap_content would make them uneven
+     @+id/btnStep1               `+` = creates the id if it does not exist
+     MaterialButton              full name, because it is not in android.widget
+     ?attr/...                   attribute resolved from the current theme (Material3)
+     @string/...                 text from a resource file, translatable
+     layout_marginTop="8dp"      space between buttons, not padding inside them
      ====================================================================================== -->

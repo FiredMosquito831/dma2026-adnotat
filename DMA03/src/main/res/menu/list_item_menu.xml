@@ -1,42 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   ======================================================================================
-  FIȘIER: list_item_menu.xml
+  FILE: list_item_menu.xml
   ======================================================================================
-  ROL:
-    Meniul contextual de pe un rând: Open / Rename / Delete. Umflat de `PopupMenu`
-    în `MainActivity`, la apăsarea lungă.
+  ROLE:
+    The context menu of a row: Open / Rename / Delete. Inflated by `PopupMenu`
+    in `MainActivity`, on long press.
 
-  CE DEMONSTREAZĂ:
-    1. Un meniu minimal, fără iconițe și fără `showAsAction`.
-    2. Id-urile `action_*` — exact cele verificate în cod.
+  WHAT IT DEMONSTRATES:
+    1. A minimal menu, with no icons and no `showAsAction`.
+    2. The `action_*` ids — exactly the ones checked in the code.
 
-  REF: cap. 14 (secțiunea despre meniuri), documentația `PopupMenu`.
+  REF: ch. 14 (the section on menus), the documentation of `PopupMenu`.
   ======================================================================================
 -->
 
 <!--
   ======================================================================================
-  ELEMENT: <menu> cu trei <item>
+  ELEMENT: <menu> with three <item>s
   ======================================================================================
-  MINIMALISM DELIBERAT: fără iconițe, fără `showAsAction`. Un `PopupMenu` nu are
-    bară — toate elementele apar în listă, deci `showAsAction` ar fi ignorat.
+  DELIBERATE MINIMALISM: no icons, no `showAsAction`. A `PopupMenu` has no
+    bar — all the items appear in the list, so `showAsAction` would be ignored.
 
-  CELE TREI ID-URI SUNT EXACT CELE VERIFICATE ÎN `MainActivity`: `action_open`,
-    `action_rename`, `action_delete`. Dacă redenumești unul în XML fără să modifici
-    codul, ramura respectivă nu se mai execută — și nu primești eroare de compilare,
-    doar un `if` care nu mai intră niciodată.
+  THE THREE IDS ARE EXACTLY THE ONES CHECKED IN `MainActivity`: `action_open`,
+    `action_rename`, `action_delete`. If you rename one in the XML without modifying
+    the code, that branch no longer runs — and you get no compile error,
+    just an `if` that never matches again.
 
-  FĂRĂ `android:icon` — un meniu contextual scurt se citește mai repede fără
-    iconițe. Cu iconițe, `PopupMenu` le afișează, dar ocupă mai mult spațiu.
+  WITHOUT `android:icon` — a short context menu reads faster without
+    icons. With icons, `PopupMenu` displays them, but they take up more space.
 
-  ORDINEA ELEMENTELOR = ORDINEA DIN MENIU. `Open`, `Rename`, `Delete` apar de sus în
-    jos. Dacă vrei `Delete` ultimul (ca acțiune distructivă), ordinea asta e deja
-    corectă.
+  THE ORDER OF THE ITEMS = THE ORDER IN THE MENU. `Open`, `Rename`, `Delete` appear from top to
+    bottom. If you want `Delete` last (as a destructive action), this order is already
+    correct.
 
-  DE CE `Delete` NU ARE UN STIL ROȘU: meniurile Android nu au un atribut standard
-    pentru „element periculos". Ai putea seta un `SpannableString` cu culoare în cod,
-    dar nu e o practică răspândită.
+  WHY `Delete` HAS NO RED STYLE: Android menus have no standard attribute
+    for a "dangerous item". You could set a coloured `SpannableString` in the code,
+    but it is not a widespread practice.
   ======================================================================================
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">

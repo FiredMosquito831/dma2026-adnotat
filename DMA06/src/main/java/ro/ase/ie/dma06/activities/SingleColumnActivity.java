@@ -1,88 +1,88 @@
 /*
  * ======================================================================================
- * FIȘIER: SingleColumnActivity.java
+ * FILE: SingleColumnActivity.java
  * ======================================================================================
- * LOCAȚIE:  DMA06/src/main/java/ro/ase/ie/dma06/activities/SingleColumnActivity.java
- * PACHET:   ro.ase.ie.dma06.activities
- * ROL:      treapta 1. Un ListView, un ArrayAdapter, un TextView per rând.
- *           Nu scrie nicio linie de reciclare: ArrayAdapter o face în locul ei.
+ * LOCATION: DMA06/src/main/java/ro/ase/ie/dma06/activities/SingleColumnActivity.java
+ * PACKAGE:  ro.ase.ie.dma06.activities
+ * ROLE:     step 1. One ListView, one ArrayAdapter, one TextView per row.
+ *           It writes no line of recycling code: ArrayAdapter does it in its place.
  *
- * STRUCTURA FIȘIERULUI (2 părți):
- *   1. importuri   — 6 linii
- *   2. onCreate    — 10 linii, dintre care 4 construiesc adapterul
+ * FILE STRUCTURE (2 parts):
+ *   1. imports     — 6 lines
+ *   2. onCreate    — 10 lines, of which 4 build the adapter
  *
- * CE TREBUIE SĂ ȘTII ÎNAINTE:
- *   - `android.R.layout.simple_list_item_1` e un layout din SISTEM, nu din proiect.
- *   - `ArrayAdapter` cheamă `toString()` pe fiecare element. Pentru Integer = numărul.
- *   - `setAdapter` e tot ce trebuie: ListView cere singur getCount și getView.
+ * WHAT YOU NEED TO KNOW BEFOREHAND:
+ *   - `android.R.layout.simple_list_item_1` is a layout from the SYSTEM, not from the project.
+ *   - `ArrayAdapter` calls `toString()` on each element. For Integer = the number.
+ *   - `setAdapter` is all you need: ListView asks for getCount and getView by itself.
  * ======================================================================================
  */
 
 // ======================================================================================
-// BLOCUL 1 — PACHETUL ȘI IMPORTURILE
+// BLOCK 1 — THE PACKAGE AND THE IMPORTS
 // ======================================================================================
-// Aici pachetul coincide cu folderul (activities/). Importurile sunt în trei grupuri:
-// android.* (framework), androidx.* (bibliotecă împachetată) și ro.ase.* (codul tău).
-// Separarea nu e obligatorie pentru compilator, dar face evident ce vine de unde.
+// Here the package matches the folder (activities/). The imports come in three groups:
+// android.* (framework), androidx.* (bundled library) and ro.ase.* (your code).
+// The separation is not required by the compiler, but it makes obvious what comes from where.
 // ======================================================================================
 
-package ro.ase.ie.dma06.activities;      // pachetul ecranelor
+package ro.ase.ie.dma06.activities;      // the package of the screens
 
-import android.os.Bundle;                // parametrul lui onCreate
-import android.widget.ArrayAdapter;      // adapterul gata făcut din SDK
-import android.widget.ListView;          // widget-ul care afișează lista
+import android.os.Bundle;                // the parameter of onCreate
+import android.widget.ArrayAdapter;      // the ready-made adapter from the SDK
+import android.widget.ListView;          // the widget that displays the list
 
-import androidx.appcompat.app.AppCompatActivity;   // activitatea de bază
+import androidx.appcompat.app.AppCompatActivity;   // the base activity
 
-import ro.ase.ie.data.NumberData;        // pachetul declarat, nu folderul
-import ro.ase.ie.dma06.R;                // resursele aplicației
+import ro.ase.ie.data.NumberData;        // the declared package, not the folder
+import ro.ase.ie.dma06.R;                // the app's resources
 
 // ======================================================================================
 // THEORY BLOCK: LISTVIEW + ARRAYADAPTER
 // ======================================================================================
 /*
- * 1. CE FACE LISTVIEW
- *    -   Este un AdapterView: un widget care nu știe ce afișează, dar știe să afișeze.
- *    -   Cere unui Adapter: „câte elemente ai?" (getCount) și „dă-mi rândul pentru
- *        poziția N" (getView).
- *    -   Ține doar rândurile vizibile în arborele de view-uri. Restul nu există.
- *    -   Are un RecycleBin intern: rândurile care ies din ecran sunt păstrate pentru
- *        refolosire, pe tipuri (getItemViewType).
+ * 1. WHAT LISTVIEW DOES
+ *    -   It is an AdapterView: a widget that does not know what it displays, but knows how to display.
+ *    -   It asks an Adapter: "how many elements do you have?" (getCount) and "give me the row for
+ *        position N" (getView).
+ *    -   It keeps only the visible rows in the view tree. The rest do not exist.
+ *    -   It has an internal RecycleBin: the rows that leave the screen are kept for
+ *        reuse, by type (getItemViewType).
  *
- * 2. CE FACE ARRAYADAPTER
- *    -   Implementează getCount, getItem, getItemId și getView.
- *    -   getView: dacă convertView e null, umflă `resource`; altfel refolosește.
- *    -   Apoi ia elementul de la poziție și îi cheamă `toString()`, pe care îl pune
- *        într-un TextView.
- *    -   Deci: un singur text per rând. Atât.
+ * 2. WHAT ARRAYADAPTER DOES
+ *    -   It implements getCount, getItem, getItemId and getView.
+ *    -   getView: if convertView is null, it inflates `resource`; otherwise it reuses it.
+ *    -   Then it takes the element at the position and calls `toString()` on it, which it puts
+ *        into a TextView.
+ *    -   So: a single text per row. That is all.
  *
- * 3. CE TREBUIE SĂ CONȚINĂ `resource`
- *    -   Un TextView. Fie rădăcina însăși (cazul simple_list_item_1), fie un copil
- *        cu id-ul android.R.id.text1.
- *    -   Dacă lipsește, ArrayAdapter aruncă RuntimeException la primul rând:
- *        „You must supply a resource ID for a TextView".
+ * 3. WHAT `resource` MUST CONTAIN
+ *    -   A TextView. Either the root itself (the simple_list_item_1 case), or a child
+ *        with the id android.R.id.text1.
+ *    -   If it is missing, ArrayAdapter throws a RuntimeException on the first row:
+ *        "You must supply a resource ID for a TextView".
  *
- * 4. UNDE SE OPREȘTE
- *    -   La al doilea TextView. ArrayAdapter nu are unde să pună a doua valoare.
- *    -   La formatare per coloană. toString() dă un singur șir; nu poți alinia
- *        coloana a doua la dreapta cu font monospațiat.
- *    -   La modele fără toString() suprascris: în listă apare Movie@a1b2c3.
+ * 4. WHERE IT STOPS
+ *    -   At the second TextView. ArrayAdapter has nowhere to put the second value.
+ *    -   At per-column formatting. toString() gives a single string; you cannot right-align
+ *        the second column with a monospaced font.
+ *    -   At models without an overridden toString(): the list shows Movie@a1b2c3.
  *
- * 5. RECICLAREA E ASCUNSĂ, NU LIPSĂ
- *    -   ArrayAdapter primește `convertView` și îl refolosește, exact ca un adapter
- *        propriu. Doar că tu nu vezi parametrul și nu poți pune un ViewHolder.
- *    -   Pentru un singur TextView, lipsa ViewHolder-ului nu costă: nu ai ce căuta.
+ * 5. RECYCLING IS HIDDEN, NOT MISSING
+ *    -   ArrayAdapter receives `convertView` and reuses it, exactly like a custom
+ *        adapter. It is just that you do not see the parameter and cannot attach a ViewHolder.
+ *    -   For a single TextView, the missing ViewHolder costs nothing: there is nothing to look up.
  *
- * 6. CE COD SE EXECUTĂ LA FIECARE RÂND
+ * 6. WHAT CODE RUNS FOR EACH ROW
  *    ListView.obtainView(position)
  *      └─ ArrayAdapter.getView(position, convertView, parent)
  *           ├─ convertView == null ?
- *           │     ├─ da  → inflater.inflate(simple_list_item_1, parent, false)
- *           │     └─ nu  → view = convertView
- *           ├─ text = (TextView) view        ← mFieldId == 0, rădăcina e TextView
+ *           │     ├─ yes → inflater.inflate(simple_list_item_1, parent, false)
+ *           │     └─ no  → view = convertView
+ *           ├─ text = (TextView) view        ← mFieldId == 0, the root is a TextView
  *           └─ text.setText(getItem(position).toString())
  *
- * DIAGRAMA:
+ * DIAGRAM:
  *
  *   ListView ──getCount()──▶ ArrayAdapter ──▶ List.size()
  *            ──getView(n)──▶ ArrayAdapter ──▶ convertView? inflate : reuse
@@ -94,98 +94,98 @@ import ro.ase.ie.dma06.R;                // resursele aplicației
  * Step 1: one column.
  * ArrayAdapter is enough because each row shows one text value.
  */
-public class SingleColumnActivity extends AppCompatActivity {   // o activitate, fără stare
+public class SingleColumnActivity extends AppCompatActivity {   // an activity, with no state
 
     // ==================================================================================
-    // METODA 1 — onCreate
+    // METHOD 1 — onCreate
     // ==================================================================================
-    // Teorie:  ciclul de viață; aici se construiește tot ecranul.
-    // Logică:  1. super  2. setContentView  3. findViewById  4. construiește adapterul
+    // Theory:  the lifecycle; here the whole screen is built.
+    // Logic:   1. super  2. setContentView  3. findViewById  4. build the adapter
     //          5. setAdapter
-    // Risc:    dacă uiți setAdapter, ecranul rămâne gol, fără nicio eroare.
-    // Ref:     capitolul 12 (ListView vs RecyclerView).
+    // Risk:    if you forget setAdapter, the screen stays empty, with no error at all.
+    // Ref:     chapter 12 (ListView vs RecyclerView).
     // ==================================================================================
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);                       // 1. ciclul de viață al părintelui
-        setContentView(R.layout.activity_single_column);          // 2. rădăcina layout-ului ESTE ListView-ul
+        super.onCreate(savedInstanceState);                       // 1. the parent's lifecycle
+        setContentView(R.layout.activity_single_column);          // 2. the layout root IS the ListView
 
-        ListView lvNumbers = findViewById(R.id.lvNumbers);        // 3. singurul view din layout
+        ListView lvNumbers = findViewById(R.id.lvNumbers);        // 3. the only view in the layout
 
         // ArrayAdapter calls toString() on each number and shows it in a TextView
         ArrayAdapter<Integer> adapter = new ArrayAdapter<>(
                 this, android.R.layout.simple_list_item_1, NumberData.getNumbers());
-        //      ↑ Context   ↑ layout din SISTEM            ↑ List<Integer> cu 100 de elemente
-        lvNumbers.setAdapter(adapter);                            // 4. leagă lista de widget
+        //      ↑ Context   ↑ layout from the SYSTEM          ↑ List<Integer> with 100 elements
+        lvNumbers.setAdapter(adapter);                            // 4. binds the list to the widget
     }
 
-    // ArrayAdapter<Integer> — generic-ul trebuie să coincidă cu tipul listei. Lista e
-    // List<Integer>, deci adapterul e ArrayAdapter<Integer>. Dacă ai pune
-    // ArrayAdapter<String>, ai avea nevoie de List<String> — și ai pierde tipul numeric.
+    // ArrayAdapter<Integer> — the generic must match the type of the list. The list is
+    // List<Integer>, so the adapter is ArrayAdapter<Integer>. If you put
+    // ArrayAdapter<String>, you would need a List<String> — and you would lose the numeric type.
     //
-    // new ArrayAdapter<>(...) cu diamant — tipul se deduce din variabila din stânga.
+    // new ArrayAdapter<>(...) with the diamond — the type is inferred from the variable on the left.
     //
-    // `this` ca prim argument — e Context-ul. Adapterul are nevoie de el ca să obțină
-    // LayoutInflater-ul cu care umflă rândul. În NumberListAdapter vei vedea exact
-    // același lucru, doar că explicit: LayoutInflater.from(context).
+    // `this` as the first argument — it is the Context. The adapter needs it to obtain
+    // the LayoutInflater with which it inflates the row. In NumberListAdapter you will see exactly
+    // the same thing, only explicit: LayoutInflater.from(context).
     //
-    // android.R.layout.simple_list_item_1 — „android." de la început e esențial.
-    // R.layout.simple_list_item_1 nu există în proiect; android.R e pachetul de resurse
-    // al framework-ului. Fișierul e livrat de sistem, nu de tine.
+    // android.R.layout.simple_list_item_1 — the leading "android." is essential.
+    // R.layout.simple_list_item_1 does not exist in the project; android.R is the framework's
+    // resource package. The file is shipped by the system, not by you.
     //
-    // NumberData.getNumbers() ca al treilea argument — se cheamă o singură dată, în
-    // onCreate. Rezultatul e o listă de 100 de elemente, ținută de adapter prin
-    // referință. Dacă ai chema getNumbers() din nou, ai avea o listă nouă, pe care
-    // adapterul nu o vede.
+    // NumberData.getNumbers() as the third argument — it is called once, in
+    // onCreate. The result is a list of 100 elements, held by the adapter through
+    // a reference. If you called getNumbers() again, you would have a new list, which the
+    // adapter does not see.
     //
-    // lvNumbers.setAdapter(adapter) — ultima linie și cea mai importantă. Înainte de ea,
-    // ListView-ul e gol și nu știe că există date. La apel, ListView înregistrează un
-    // DataSetObserver pe adapter și cere un layout; abia atunci încep getCount() și getView().
+    // lvNumbers.setAdapter(adapter) — the last line and the most important one. Before it,
+    // the ListView is empty and does not know that data exists. On the call, ListView registers a
+    // DataSetObserver on the adapter and asks for a layout; only then do getCount() and getView() start.
     //
-    // Ordinea dintre findViewById și setAdapter nu contează — poți construi adapterul
-    // înainte de a găsi lista. Ce contează e ca ambele să se întâmple după setContentView,
-    // altfel findViewById întoarce null.
+    // The order between findViewById and setAdapter does not matter — you can build the adapter
+    // before finding the list. What matters is that both happen after setContentView,
+    // otherwise findViewById returns null.
     //
     // ==================================================================================
-    // CE FACE ARRAYADAPTER CU convertView
+    // WHAT ARRAYADAPTER DOES WITH convertView
     // ==================================================================================
     //
     //   ArrayAdapter.getView(position, convertView, parent)
     //     ├─ convertView == null ?
-    //     │     ├─ da  → view = inflater.inflate(mResource, parent, false)
-    //     │     └─ nu  → view = convertView
+    //     │     ├─ yes → view = inflater.inflate(mResource, parent, false)
+    //     │     └─ no  → view = convertView
     //     ├─ mFieldId == 0 ?
-    //     │     ├─ da  → text = (TextView) view          ← rădăcina e TextView
-    //     │     └─ nu  → text = view.findViewById(mFieldId)
+    //     │     ├─ yes → text = (TextView) view          ← the root is a TextView
+    //     │     └─ no  → text = view.findViewById(mFieldId)
     //     └─ text.setText(getItem(position).toString())
     //
-    // Reciclarea e IDENTICĂ cu cea din NumberListAdapter. Diferența e că tu nu vezi
-    // parametrul convertView și nu poți atârna un ViewHolder de rând. Pentru un singur
-    // TextView, asta nu costă nimic — nu ai ce căuta.
+    // Recycling is IDENTICAL to the one in NumberListAdapter. The difference is that you do not see
+    // the convertView parameter and cannot hang a ViewHolder off the row. For a single
+    // TextView, that costs nothing — there is nothing to look up.
     //
     // ==================================================================================
-    // CE SE ÎNTÂMPLĂ DACĂ UIȚI setAdapter
+    // WHAT HAPPENS IF YOU FORGET setAdapter
     // ==================================================================================
     //
-    //   ListView fără adapter
-    //     ├─ getCount() nu e chemată niciodată
-    //     ├─ getView() nu e chemată niciodată
-    //     ├─ ecranul: alb, fără rânduri
-    //     └─ nicio excepție, niciun mesaj în Logcat
+    //   ListView without an adapter
+    //     ├─ getCount() is never called
+    //     ├─ getView() is never called
+    //     ├─ the screen: white, with no rows
+    //     └─ no exception, no message in Logcat
     //
-    // E aceeași clasă de eroare ca RecyclerView fără LayoutManager: o componentă validă,
-    // într-o stare validă, care nu are ce afișa. Nu e un bug al framework-ului; e o
-    // configurare incompletă.
+    // It is the same class of error as a RecyclerView without a LayoutManager: a valid component,
+    // in a valid state, that has nothing to display. It is not a bug of the framework; it is an
+    // incomplete configuration.
     //
     // ==================================================================================
-    // DE CE TREI LINII AJUNG AICI ȘI NU AJUNG LA TREAPTA 2
+    // WHY THREE LINES ARE ENOUGH HERE AND ARE NOT ENOUGH AT STEP 2
     // ==================================================================================
     //
-    //   Treapta 1: 1 coloană  → 1 TextView  → ArrayAdapter știe
-    //   Treapta 2: 2 coloane  → 2 TextView  → ArrayAdapter NU știe
-    //   Treapta 3: 2 coloane  → 2 TextView  → RecyclerView.Adapter știe
+    //   Step 1: 1 column  → 1 TextView  → ArrayAdapter knows how
+    //   Step 2: 2 columns → 2 TextViews → ArrayAdapter does NOT know how
+    //   Step 3: 2 columns → 2 TextViews → RecyclerView.Adapter knows how
     //
-    // Regula nu e „ArrayAdapter e pentru liste simple". Regula e: ArrayAdapter știe
-    // EXACT UN text per rând. Atât timp cât rândul tău e un text, e cel mai bun
-    // instrument. Când rândul are structură, treci la BaseAdapter.
+    // The rule is not "ArrayAdapter is for simple lists". The rule is: ArrayAdapter knows
+    // EXACTLY ONE text per row. As long as your row is one text, it is the best
+    // tool. When the row has structure, you move to BaseAdapter.
 }

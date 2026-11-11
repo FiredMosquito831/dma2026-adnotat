@@ -1,41 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   ======================================================================================
-  FIȘIER: activity_second.xml
+  FILE: activity_second.xml
   ======================================================================================
-  ROL:
-    Layout-ul ecranului de laborator. Un singur `LinearLayout` vertical cu un
-    singur `Button`, legat de cod prin `android:onClick`.
+  ROLE:
+    The layout of the lab screen. A single vertical `LinearLayout` with a
+    single `Button`, linked to the code through `android:onClick`.
 
-  CE DEMONSTREAZĂ:
-    1. `android:onClick` — legătura XML → metodă, prin reflecție.
-    2. `LinearLayout` vertical — containerul în care se adaugă butoane din cod.
-    3. `tools:context` — atribut care există doar pentru preview-ul din IDE.
+  WHAT IT DEMONSTRATES:
+    1. `android:onClick` — the XML → method link, through reflection.
+    2. Vertical `LinearLayout` — the container into which buttons are added from code.
+    3. `tools:context` — an attribute that exists only for the IDE preview.
 
-  REF: cap. 14 (secțiunea despre dialoguri), documentația `android:onClick`.
+  REF: ch. 14 (the section on dialogs), the documentation of `android:onClick`.
   ======================================================================================
 -->
 
 <!--
   ======================================================================================
-  ELEMENT: LinearLayout (rădăcina)
+  ELEMENT: LinearLayout (the root)
   ======================================================================================
-  `LinearLayout` vertical — copiii se stivuiesc de sus în jos. De asta butoanele
-    adăugate din cod apar unul sub altul, nu peste.
-  `android:orientation="vertical"` — obligatoriu pentru stivuirea pe verticală.
-    Valoarea implicită este `horizontal`, deci fără atribut butoanele ar sta unul
-    lângă altul.
-  `android:id="@+id/main"` — folosit de două ori în cod: pentru insets și pentru
-    `inflatedLayout`. Id-ul se repetă față de `activity_main.xml`, dar nu e o
-    problemă: cele două layout-uri nu coexistă niciodată în același arbore.
-  `xmlns:app` e declarat, dar NEFOLOSIT — niciun atribut `app:*` în fișier.
-    Rămășiță din șablon, semnalată de lint.
-  `xmlns:tools` — namespace-ul atributelor de design-time. Folosit o singură dată,
-    pentru `tools:context`.
-  `tools:context=".SecondActivity"` — doar pentru preview-ul din Android Studio: îi
-    spune editorului ce temă și ce clasă să folosească. Eliminat la build, nu ajunge
-    în APK. Fără el, preview-ul folosește tema aplicației și nu știe ce activitate
-    să simuleze.
+  A vertical `LinearLayout` — the children stack from top to bottom. That is why the buttons
+    added from code appear one below the other, not on top of each other.
+  `android:orientation="vertical"` — mandatory for vertical stacking.
+    The default value is `horizontal`, so without the attribute the buttons would sit next to
+    each other.
+  `android:id="@+id/main"` — used twice in the code: for the insets and for
+    `inflatedLayout`. The id repeats compared to `activity_main.xml`, but it is not a
+    problem: the two layouts never coexist in the same tree.
+  `xmlns:app` is declared, but UNUSED — no `app:*` attribute in the file.
+    A leftover from the template, flagged by lint.
+  `xmlns:tools` — the namespace of the design-time attributes. Used only once,
+    for `tools:context`.
+  `tools:context=".SecondActivity"` — only for the Android Studio preview: it
+    tells the editor which theme and which class to use. Removed at build time, it does not reach
+    the APK. Without it, the preview uses the app theme and does not know which activity
+    to simulate.
   ======================================================================================
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -51,32 +51,32 @@
       ================================================================================
       ELEMENT: Button
       ================================================================================
-      `android:onClick="btnClick"` — leagă butonul de metoda `btnClick(View)` din
-        activitate, prin reflecție. NU există `setOnClickListener` în cod — toată
-        legătura e aici.
-      De ce funcționează fără cod: la click, Android caută metoda în contextul
-        activității. Dacă nu o găsește, excepția apare LA RUNTIME, nu la compilare.
-      Cum caută exact: `View.performClick()` cheamă `onClick`-ul setat; dacă nu
-        există, `View` are un `DeclaredOnClickListener` creat la inflate, care ține
-        numele metodei și contextul. La click, caută metoda cu reflecție, în context
-        și în părinții lui.
+      `android:onClick="btnClick"` — binds the button to the `btnClick(View)` method in the
+        activity, through reflection. There is NO `setOnClickListener` in the code — the whole
+        link is here.
+      Why it works without code: on click, Android looks for the method in the activity
+        context. If it does not find it, the exception appears AT RUNTIME, not at compile time.
+      How it searches exactly: `View.performClick()` calls the `onClick` that was set; if there is
+        none, `View` has a `DeclaredOnClickListener` created at inflate, which holds
+        the method name and the context. On click, it looks for the method with reflection, in the context
+        and in its parents.
 
-      `android:id="@+id/button"` NU e folosit nicăieri — nici în cod, nici în alt
-        XML. E util doar dacă vrei să-l referențiezi mai târziu. Butoanele create
-        din cod primesc id-uri numerice (1, 2, 3...), nu id-uri de resursă.
-      `match_parent` pe lățime — butonul umple ecranul. Butoanele adăugate din cod
-        primesc același `MATCH_PARENT`, deci arată identic.
-      `wrap_content` pe înălțime — cât are nevoie textul, plus padding-ul implicit
-        al butonului Material.
-      FĂRĂ `padding` pe `LinearLayout` — butoanele ating marginile ecranului.
-        Cosmetic, nu funcțional.
-      DE CE `Button` ȘI NU `MaterialButton`: `Button` e stilizat automat de tema
-        Material3 (prin `buttonStyle` din temă), deci arată ca un `MaterialButton`.
-        Diferența apare doar dacă vrei atribute specifice (`app:icon`,
+      `android:id="@+id/button"` is NOT used anywhere — neither in the code nor in another
+        XML. It is useful only if you want to reference it later. The buttons created
+        from code receive numeric ids (1, 2, 3...), not resource ids.
+      `match_parent` on the width — the button fills the screen. The buttons added from code
+        receive the same `MATCH_PARENT`, so they look identical.
+      `wrap_content` on the height — as much as the text needs, plus the default padding
+        of the Material button.
+      WITHOUT `padding` on the `LinearLayout` — the buttons touch the edges of the screen.
+        Cosmetic, not functional.
+      WHY `Button` AND NOT `MaterialButton`: `Button` is styled automatically by the Material3
+        theme (through `buttonStyle` in the theme), so it looks like a `MaterialButton`.
+        The difference only shows if you want specific attributes (`app:icon`,
         `app:cornerRadius`).
-      CE SE ÎNTÂMPLĂ DACĂ ADAUGI `android:enabled="false"`: butonul nu mai primește
-        click-uri, deci `btnClick` nu se mai apelează. Util pentru a bloca o acțiune
-        până la o condiție.
+      WHAT HAPPENS IF YOU ADD `android:enabled="false"`: the button no longer receives
+        clicks, so `btnClick` is no longer called. Useful for blocking an action
+        until a condition.
       ================================================================================
     -->
     <Button

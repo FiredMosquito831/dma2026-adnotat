@@ -1,510 +1,510 @@
 /*
  * ======================================================================================
- * FIȘIER: MainActivity.java — ECRANUL CU LISTA
+ * FILE: MainActivity.java — THE SCREEN WITH THE LIST
  * ======================================================================================
- * CE ESTE: activitatea de start. Ține lista de filme, o afișează cu un `ArrayAdapter`
- *   într-un `ListView` și pornește `ItemActivity` pentru insert sau edit.
+ * WHAT IT IS: the start activity. It holds the list of movies, displays it with an `ArrayAdapter`
+ *   in a `ListView` and starts `ItemActivity` for insert or edit.
  *
- * DE CE EXISTĂ: este singurul loc care deține STAREA aplicației (lista `movies`).
- *   `ItemActivity` este doar un formular care produce un `Movie` și îl trimite înapoi.
+ * WHY IT EXISTS: it is the only place that owns the application STATE (the `movies` list).
+ *   `ItemActivity` is just a form that produces a `Movie` and sends it back.
  *
- * CE ȘTIE: lista, adapterul, cele două extra-uri, launcher-ul de rezultat.
- *   Nu știe cum arată formularul și nu validează date.
+ * WHAT IT KNOWS: the list, the adapter, the two extras, the result launcher.
+ *   It does not know what the form looks like and it does not validate data.
  *
- * CE S-AR RUPE FĂRĂ EL: aplicația ar porni direct într-un formular fără listă,
- *   iar rezultatul salvat nu ar avea unde să se întoarcă.
+ * WHAT WOULD BREAK WITHOUT IT: the application would start directly in a form with no list,
+ *   and the saved result would have nowhere to return to.
  * ======================================================================================
  */
 
 package ro.ase.ie.g1097.activities;
 
 // ======================================================================================
-// IMPORTURI — GRUPATE PE SURSĂ
+// IMPORTS — GROUPED BY SOURCE
 // ======================================================================================
-// android.*        — clase din framework (Intent, Bundle, View, widget-uri)
-// androidx.*       — biblioteci Jetpack (AppCompat, EdgeToEdge, insets, activity result)
+// android.*        — framework classes (Intent, Bundle, View, widgets)
+// androidx.*       — Jetpack libraries (AppCompat, EdgeToEdge, insets, activity result)
 // com.google.*     — Material Components (FloatingActionButton)
-// java.util.*      — colecții și date
-// ro.ase.ie.g1097  — modelul și clasa R generată
+// java.util.*      — collections and dates
+// ro.ase.ie.g1097  — the model and the generated R class
 // ======================================================================================
 
-// Intent: obiectul care descrie „ce activitate pornești" și ce date duce cu ea.
+// Intent: the object that describes "which activity you start" and what data it carries.
 import android.content.Intent;
 
-// Bundle: sacul de stare salvat de sistem (folosit aici doar în semnătura lui onCreate).
+// Bundle: the state bag saved by the system (used here only in the onCreate signature).
 import android.os.Bundle;
 
-// View: clasa de bază pentru orice element de UI. Apare în semnăturile listener-ilor.
+// View: the base class for any UI element. It appears in the listener signatures.
 import android.view.View;
 
-// AdapterView: clasa de bază pentru ListView/Spinner. Aici doar pentru OnItemClickListener.
+// AdapterView: the base class for ListView/Spinner. Here only for OnItemClickListener.
 import android.widget.AdapterView;
 
-// ArrayAdapter: puntea dintre `List<Movie>` și rândurile din ListView.
+// ArrayAdapter: the bridge between `List<Movie>` and the rows in the ListView.
 import android.widget.ArrayAdapter;
 
-// ListView: widget-ul care afișează lista derulabilă.
+// ListView: the widget that displays the scrollable list.
 import android.widget.ListView;
 
-// Toast: mesaje scurte. Importat în sursă, dar NEUTILIZAT în acest fișier.
+// Toast: short messages. Imported in the source, but UNUSED in this file.
 import android.widget.Toast;
 
-// EdgeToEdge: activează desenarea sub barele de sistem (status + navigare).
+// EdgeToEdge: enables drawing under the system bars (status + navigation).
 import androidx.activity.EdgeToEdge;
 
-// ActivityResult: rezultatul întors de activitatea secundară (cod + Intent).
+// ActivityResult: the result returned by the secondary activity (code + Intent).
 import androidx.activity.result.ActivityResult;
 
-// ActivityResultCallback: interfața cu o singură metodă, apelată la întoarcere.
+// ActivityResultCallback: the single-method interface, called on return.
 import androidx.activity.result.ActivityResultCallback;
 
-// ActivityResultLauncher: obiectul care pornește activitatea și ține legătura cu callback-ul.
+// ActivityResultLauncher: the object that starts the activity and holds the link to the callback.
 import androidx.activity.result.ActivityResultLauncher;
 
-// ActivityResultContracts: contractele predefinite (aici, StartActivityForResult).
+// ActivityResultContracts: the predefined contracts (here, StartActivityForResult).
 import androidx.activity.result.contract.ActivityResultContracts;
 
-// AppCompatActivity: activitatea de bază cu suport pentru teme Material și ActionBar.
+// AppCompatActivity: the base activity with support for Material themes and the ActionBar.
 import androidx.appcompat.app.AppCompatActivity;
 
-// Insets: valorile în pixeli ale barelor care acoperă conținutul.
+// Insets: the pixel values of the bars that cover the content.
 import androidx.core.graphics.Insets;
 
-// ViewCompat: versiunea compatibilă a API-urilor de View (insets pe orice API).
+// ViewCompat: the compatible version of the View APIs (insets on any API).
 import androidx.core.view.ViewCompat;
 
-// WindowInsetsCompat: descrierea insets-urilor, independent de versiunea Android.
+// WindowInsetsCompat: the description of the insets, independent of the Android version.
 import androidx.core.view.WindowInsetsCompat;
 
-// FloatingActionButton: butonul rotund din colțul dreapta-jos.
+// FloatingActionButton: the round button in the bottom-right corner.
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-// ArrayList: implementarea concretă a listei.
+// ArrayList: the concrete implementation of the list.
 import java.util.ArrayList;
 
-// Calendar: câmpurile de dată (YEAR, MONTH, DAY_OF_MONTH) și constantele lunilor.
+// Calendar: the date fields (YEAR, MONTH, DAY_OF_MONTH) and the month constants.
 import java.util.Calendar;
 
-// Date: tipul stocat în model pentru data de lansare.
+// Date: the type stored in the model for the release date.
 import java.util.Date;
 
-// GregorianCalendar: constructorul rapid „an, lună, zi" folosit în datele demo.
+// GregorianCalendar: the quick "year, month, day" constructor used in the demo data.
 import java.util.GregorianCalendar;
 
-// List: interfața de listă. Câmpul este declarat `List`, nu `ArrayList`.
+// List: the list interface. The field is declared `List`, not `ArrayList`.
 import java.util.List;
 
-// Modelul de date — singura dependență către `model`.
+// The data model — the only dependency on `model`.
 import ro.ase.ie.g1097.model.Movie;
 
-// R: clasa generată din resurse. Aici pentru `R.layout.activity_main` și `R.id.*`.
+// R: the class generated from resources. Here for `R.layout.activity_main` and `R.id.*`.
 import ro.ase.ie.g1097.R;
 
 /*
  * ======================================================================================
- * BLOC DE TEORIE: ACTIVITY, INTENT, ADAPTER
+ * THEORY BLOCK: ACTIVITY, INTENT, ADAPTER
  * ======================================================================================
  *
- * 1. **Activity = un ecran cu o stare.** `MainActivity` este un `Context` (are acces la
- *    resurse, temă, sistem) și un `LifecycleOwner` (are un ciclu de viață: onCreate ->
+ * 1. **Activity = a screen with a state.** `MainActivity` is a `Context` (it has access to
+ *    resources, theme, system) and a `LifecycleOwner` (it has a lifecycle: onCreate ->
  *    onStart -> onResume -> onPause -> onStop -> onDestroy).
  *
- * 2. **Intent = un mesaj.** Un `Intent` explicit conține clasa destinatar și un `Bundle`
- *    de extra-uri. Pornirea se face cu `startActivity` (fără rezultat) sau cu un
- *    `ActivityResultLauncher` (cu rezultat).
+ * 2. **Intent = a message.** An explicit `Intent` contains the target class and a `Bundle`
+ *    of extras. Starting is done with `startActivity` (without a result) or with an
+ *    `ActivityResultLauncher` (with a result).
  *
- * 3. **Adapter = traducătorul.** `ListView` nu știe ce este un `Movie`. `ArrayAdapter`
- *    știe: pentru fiecare poziție, ia `movies.get(position)` și îl transformă într-un
- *    rând de UI. Fără adapter, `ListView` ar afișa o listă de obiecte goale.
+ * 3. **Adapter = the translator.** `ListView` does not know what a `Movie` is. `ArrayAdapter`
+ *    does: for each position, it takes `movies.get(position)` and turns it into a
+ *    UI row. Without an adapter, `ListView` would display a list of empty objects.
  *
- * 4. **Ordinea în onCreate este contract, nu stil.** Fiecare pas depinde de cel dinainte:
- *    fără `super`, AppCompat nu are delegate; fără `setContentView`, `findViewById`
- *    întoarce null; fără adapter, `setAdapter` primește null.
+ * 4. **The order in onCreate is a contract, not style.** Each step depends on the previous one:
+ *    without `super`, AppCompat has no delegate; without `setContentView`, `findViewById`
+ *    returns null; without an adapter, `setAdapter` receives null.
  *
- * VIZUAL: ciclul de viață în timpul unui insert
+ * VISUAL: the lifecycle during an insert
  *
  *   MainActivity:  onCreate -> onStart -> onResume -> onPause
  *                                                        |
  *                                                        v
  *   ItemActivity:                                   onCreate -> onStart -> onResume
  *                                                        |
- *                                                   (utilizatorul salvează)
+ *                                                   (the user saves)
  *                                                        |
  *                                                   setResult + finish
  *                                                        |
- *   MainActivity:  onStart -> onResume -> [callback launcher] -> listă redesenată
+ *   MainActivity:  onStart -> onResume -> [launcher callback] -> list redrawn
  *
- *   MainActivity NU este distrusă cât timp ItemActivity este deasupra. Este doar
- *   oprită. De aceea lista `movies` supraviețuiește și de aceea callback-ul o poate
- *   modifica direct.
+ *   MainActivity is NOT destroyed while ItemActivity is on top. It is only
+ *   stopped. That is why the `movies` list survives and why the callback can
+ *   modify it directly.
  * ======================================================================================
  */
 public class MainActivity extends AppCompatActivity {
 
     // ==================================================================================
-    // CONSTANTELE DE EXTRA
+    // THE EXTRA CONSTANTS
     // ==================================================================================
-    // DE CE CONSTANTE ȘI NU LITERALI: cheia „movie" este scrisă în două fișiere.
-    //   Dacă într-un loc scrii "movie" și în altul "Movie", `getSerializableExtra`
-    //   întoarce `null` FĂRĂ NICIO EROARE. Compilatorul nu te ajută cu String-uri.
+    // WHY CONSTANTS AND NOT LITERALS: the key "movie" is written in two files.
+    //   If in one place you write "movie" and in another "Movie", `getSerializableExtra`
+    //   returns `null` WITH NO ERROR AT ALL. The compiler does not help you with Strings.
     //
-    // DE CE `protected`: `ItemActivity` este în același pachet, deci ar funcționa și
-    //   `package-private`. `protected` documentează intenția: „se folosește din
-    //   subclase / din cod apropiat".
+    // WHY `protected`: `ItemActivity` is in the same package, so `package-private` would
+    //   work too. `protected` documents the intention: "it is used from
+    //   subclasses / from nearby code".
     //
-    // DE CE `static`: valoarea aparține clasei, nu instanței. `MainActivity.MOVIE_EXTRA`
-    //   se poate scrie fără să existe un obiect MainActivity.
+    // WHY `static`: the value belongs to the class, not to the instance. `MainActivity.MOVIE_EXTRA`
+    //   can be written without a MainActivity object existing.
     //
-    // DE CE `final`: cheia nu trebuie schimbată niciodată la runtime.
+    // WHY `final`: the key must never change at runtime.
     // ==================================================================================
     protected static final String POSITION_EXTRA = "position";
     protected static final String MOVIE_EXTRA = "movie";
 
     // ==================================================================================
-    // CÂMPUL 1: fabInsert
+    // FIELD 1: fabInsert
     // ==================================================================================
-    // TIP: FloatingActionButton — butonul „+".
-    // DE CE CÂMP: este legat în `initControls` și folosit în `initListeners`.
-    //   O variabilă locală în `initControls` ar muri la sfârșitul metodei.
+    // TYPE: FloatingActionButton — the "+" button.
+    // WHY A FIELD: it is bound in `initControls` and used in `initListeners`.
+    //   A local variable in `initControls` would die at the end of the method.
     // ==================================================================================
     private FloatingActionButton fabInsert;
 
     // ==================================================================================
-    // CÂMPUL 2: listView
+    // FIELD 2: listView
     // ==================================================================================
-    // TIP: ListView — widget-ul care afișează rândurile.
-    // DE CE CÂMP: legat în `initControls`, i se atașează listener în `initListeners`.
+    // TYPE: ListView — the widget that displays the rows.
+    // WHY A FIELD: bound in `initControls`, a listener is attached to it in `initListeners`.
     // ==================================================================================
     private ListView listView;
 
     // ==================================================================================
-    // CÂMPUL 3: launcher
+    // FIELD 3: launcher
     // ==================================================================================
-    // TIP: ActivityResultLauncher<Intent> — obiectul returnat de `registerForActivityResult`.
-    // DE CE CÂMP: este creat în `onCreate` și folosit în `initListeners`, în două
-    //   locuri (FAB și click pe rând).
-    // RISC DE ORDINE: `initListeners()` rulează ÎNAINTE de atribuirea acestui câmp.
-    //   Funcționează doar pentru că listener-ii se execută la CLICK, nu la înregistrare.
+    // TYPE: ActivityResultLauncher<Intent> — the object returned by `registerForActivityResult`.
+    // WHY A FIELD: it is created in `onCreate` and used in `initListeners`, in two
+    //   places (the FAB and the row click).
+    // ORDER RISK: `initListeners()` runs BEFORE this field is assigned.
+    //   It works only because the listeners execute on CLICK, not at registration.
     // ==================================================================================
     private ActivityResultLauncher<Intent> launcher;
 
     // ==================================================================================
-    // CÂMPUL 4: movies
+    // FIELD 4: movies
     // ==================================================================================
-    // TIP: `final List<Movie>` inițializat cu `ArrayList`.
-    // DE CE `List` și nu `ArrayList`: tipul declarat este interfața. Implementarea
-    //   poate fi schimbată (ex. `LinkedList`) fără să modifici restul codului.
-    // DE CE `final`: REFERINȚA nu se schimbă niciodată. Poți face `movies.add(...)`,
-    //   `movies.set(...)`, dar nu `movies = new ArrayList<>()`.
-    // DE CE `new ArrayList<>()` aici: lista trebuie să existe înainte de `onCreate`,
-    //   pentru că `ArrayAdapter` primește referința la ea.
+    // TYPE: `final List<Movie>` initialised with `ArrayList`.
+    // WHY `List` and not `ArrayList`: the declared type is the interface. The implementation
+    //   can be changed (e.g. `LinkedList`) without modifying the rest of the code.
+    // WHY `final`: the REFERENCE never changes. You can do `movies.add(...)`,
+    //   `movies.set(...)`, but not `movies = new ArrayList<>()`.
+    // WHY `new ArrayList<>()` here: the list must exist before `onCreate`,
+    //   because `ArrayAdapter` receives the reference to it.
     // ==================================================================================
     private final List<Movie> movies = new ArrayList<>();
 
     // ==================================================================================
-    // CÂMPUL 5: movieAdapter
+    // FIELD 5: movieAdapter
     // ==================================================================================
-    // TIP: ArrayAdapter<Movie> — adapterul care leagă lista de ListView.
-    // DE CE NU este `final`: este atribuit în `onCreate`, după `addSampleMovies()`.
-    // DE CE CÂMP: `notifyDataSetChanged()` este apelat din interiorul callback-ului,
-    //   unde ai nevoie de aceeași instanță.
+    // TYPE: ArrayAdapter<Movie> — the adapter that links the list to the ListView.
+    // WHY IT IS NOT `final`: it is assigned in `onCreate`, after `addSampleMovies()`.
+    // WHY A FIELD: `notifyDataSetChanged()` is called from inside the callback,
+    //   where you need the same instance.
     // ==================================================================================
     private ArrayAdapter<Movie> movieAdapter;
 
     // ==================================================================================
-    // onCreate — CONSTRUCTORUL DE FAPT AL ECRANULUI
+    // onCreate — THE SCREEN'S REAL CONSTRUCTOR
     // ==================================================================================
-    // Semnătura este impusă de framework: `protected void onCreate(Bundle)`.
-    // `savedInstanceState` este `null` la prima creare și un `Bundle` la recreare
-    //   (rotire de ecran, schimbare de temă). Aici NU este folosit: lista se pierde
-    //   la rotire. Este o limitare cunoscută a acestui commit.
+    // The signature is imposed by the framework: `protected void onCreate(Bundle)`.
+    // `savedInstanceState` is `null` on first creation and a `Bundle` on recreation
+    //   (screen rotation, theme change). Here it is NOT used: the list is lost
+    //   on rotation. This is a known limitation of this commit.
     // ==================================================================================
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        // PASUL 1: lansează lanțul de inițializare al clasei părinte.
-        // CE FACE: AppCompat își instalează delegate-ul, încarcă tema, creează
-        //   ActionBar-ul și pregătește `FragmentManager`-ul.
-        // CE SE RUPE DACĂ LIPSEȘTE: `SuperNotCalledException` la `onStart`, sau
-        //   `NullPointerException` în `setContentView` pentru că delegate-ul nu există.
-        // CE SE RUPE DACĂ E PREA TÂRZIU (după setContentView): AppCompat nu mai poate
-        //   aplica tema pe fereastră; poți vedea un flash de culoare greșită.
+        // STEP 1: start the parent class's initialisation chain.
+        // WHAT IT DOES: AppCompat installs its delegate, loads the theme, creates
+        //   the ActionBar and prepares the `FragmentManager`.
+        // WHAT BREAKS IF IT IS MISSING: `SuperNotCalledException` at `onStart`, or
+        //   `NullPointerException` in `setContentView` because the delegate does not exist.
+        // WHAT BREAKS IF IT IS TOO LATE (after setContentView): AppCompat can no longer
+        //   apply the theme to the window; you may see a flash of the wrong colour.
         super.onCreate(savedInstanceState);
 
-        // PASUL 2: activează modul edge-to-edge.
-        // CE FACE: setează ferestrele să deseneze și sub barele de sistem, astfel
-        //   încât conținutul să poată ocupa tot ecranul. Barele devin transparente.
-        // DE CE ÎNAINTE DE setContentView: configurarea ferestrei trebuie făcută
-        //   înainte ca prima vedere să fie atașată, altfel poți vedea o recolorare.
-        // CONSECINȚĂ: conținutul intră SUB ceas și sub bara de navigare. De aceea
-        //   pasul 4 aplică padding.
+        // STEP 2: enable edge-to-edge mode.
+        // WHAT IT DOES: sets the windows to draw under the system bars as well, so
+        //   that the content can occupy the whole screen. The bars become transparent.
+        // WHY BEFORE setContentView: the window configuration must be done
+        //   before the first view is attached, otherwise you may see a recolouring.
+        // CONSEQUENCE: the content goes UNDER the clock and under the navigation bar. That is why
+        //   step 4 applies padding.
         EdgeToEdge.enable(this);
 
-        // PASUL 3: umple fereastra cu arborele de view-uri din XML.
-        // CE FACE: inflatează `res/layout/activity_main.xml` și îl atașează la fereastră.
-        // DE CE ÎNAINTE DE findViewById: înainte de acest apel, `findViewById` nu are
-        //   unde să caute și întoarce `null` pentru orice ID.
-        // CE SE RUPE DACĂ LIPSEȘTE: ecran alb; orice `findViewById` -> null -> NPE.
+        // STEP 3: fill the window with the view tree from XML.
+        // WHAT IT DOES: inflates `res/layout/activity_main.xml` and attaches it to the window.
+        // WHY BEFORE findViewById: before this call, `findViewById` has
+        //   nowhere to search and returns `null` for any ID.
+        // WHAT BREAKS IF IT IS MISSING: white screen; any `findViewById` -> null -> NPE.
         setContentView(R.layout.activity_main);
 
-        // PASUL 4: aplică padding egal cu barele de sistem pe rădăcină.
+        // STEP 4: apply padding equal to the system bars on the root.
         // ==============================================================================
-        // VIZUAL: zona sigură (safe area)
+        // VISUAL: the safe area
         //
         //   +--------------------------------------------------+  ^
-        //   |  ceas   baterie   notificări                     |  | status bar (~24dp)
+        //   |  clock  battery  notifications                   |  | status bar (~24dp)
         //   +--------------------------------------------------+  v
         //   |                                                  |  ^
         //   |                                                  |  |
-        //   |            CONȚINUT (padding aplicat)            |  | ecran
+        //   |            CONTENT (padding applied)             |  | screen
         //   |                                                  |  |
         //   |                                                  |  |
         //   +--------------------------------------------------+  v
-        //   |  back   home   recente                           |  ^  navigation bar (~48dp)
+        //   |  back  home  recents                             |  ^  navigation bar (~48dp)
         //   +--------------------------------------------------+  v
         //
-        //   Fără padding: primul rând din listă intră sub ceas, iar FAB-ul intră
-        //   sub bara de navigare și devine imposibil de apăsat.
-        //   Cu padding pe R.id.main: TOȚI copiii sunt împinși în zona sigură.
+        //   Without padding: the first row of the list goes under the clock, and the FAB goes
+        //   under the navigation bar and becomes impossible to tap.
+        //   With padding on R.id.main: ALL children are pushed into the safe area.
         // ==============================================================================
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
 
-            // Extrage insets-urile pentru „systemBars": status bar + navigation bar
-            // + caption bar. Nu include tastatura (IME), care ar fi `Type.ime()`.
+            // Extracts the insets for "systemBars": status bar + navigation bar
+            // + caption bar. It does not include the keyboard (IME), which would be `Type.ime()`.
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
 
-            // Aplică padding pe toate cele patru laturi, în pixeli.
-            // DE CE pe rădăcină: padding-ul pe un copil ar împinge doar acel copil;
-            //   ceilalți ar rămâne sub bare.
-            // EFECT SECUNDAR: padding-ul se REAPLICĂ la fiecare schimbare de insets
-            //   (rotire, bară de navigare care apare/dispare). `setPadding` nu adună,
-            //   ci înlocuiește — deci nu se acumulează.
+            // Applies padding on all four sides, in pixels.
+            // WHY on the root: padding on a child would push only that child;
+            //   the others would stay under the bars.
+            // SIDE EFFECT: the padding is REAPPLIED on every insets change
+            //   (rotation, navigation bar appearing/disappearing). `setPadding` does not add,
+            //   it replaces — so it does not accumulate.
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
 
-            // `return insets` (nu `CONSUMED`): insets-urile continuă să circule către
-            // copii. Dacă ai returna `WindowInsetsCompat.CONSUMED`, niciun copil nu
-            // ar mai primi informația și ar trebui să își aplice singur padding.
+            // `return insets` (not `CONSUMED`): the insets keep flowing to the
+            // children. If you returned `WindowInsetsCompat.CONSUMED`, no child
+            // would receive the information any more and each would have to apply its own padding.
             return insets;
         });
 
-        // PASUL 5: umple lista cu 3 filme demo.
-        // DE CE ÎNAINTE de crearea adapterului: adapterul primește REFERINȚA la listă.
-        //   Umplând lista înainte, adapterul vede deja 3 elemente la construcție și
-        //   nu ai nevoie de `notifyDataSetChanged()`.
-        // Dacă ai apela `addSampleMovies()` după `new ArrayAdapter(...)`, ar funcționa
-        //   și atunci (aceeași referință), dar ar trebui un `notifyDataSetChanged()`
-        //   ca ListView-ul să redeseneze.
+        // STEP 5: fill the list with 3 demo movies.
+        // WHY BEFORE creating the adapter: the adapter receives the REFERENCE to the list.
+        //   By filling the list first, the adapter already sees 3 elements at construction and
+        //   you do not need `notifyDataSetChanged()`.
+        // If you called `addSampleMovies()` after `new ArrayAdapter(...)`, it would work
+        //   then too (same reference), but you would need a `notifyDataSetChanged()`
+        //   for the ListView to redraw.
         addSampleMovies();
 
-        // PASUL 6: creează adapterul.
-        // Parametri:
-        //   1. `this` — Context-ul (MainActivity este un Context).
-        //   2. `android.R.layout.simple_list_item_1` — un layout care conține UN TextView.
-        //   3. `movies` — lista de date, ținută prin REFERINȚĂ, nu copiată.
-        // DE CE `android.R.layout` și nu `R.layout`: este un layout din framework,
-        //   nu din proiect.
-        // DE CE `<>` (diamond): compilatorul deduce `ArrayAdapter<Movie>` din `movies`.
+        // STEP 6: create the adapter.
+        // Parameters:
+        //   1. `this` — the Context (MainActivity is a Context).
+        //   2. `android.R.layout.simple_list_item_1` — a layout that contains ONE TextView.
+        //   3. `movies` — the data list, held by REFERENCE, not copied.
+        // WHY `android.R.layout` and not `R.layout`: it is a layout from the framework,
+        //   not from the project.
+        // WHY `<>` (diamond): the compiler infers `ArrayAdapter<Movie>` from `movies`.
         movieAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, movies);
 
-        // PASUL 7: leagă view-urile de câmpuri și atașează adapterul.
-        // DE CE DUPĂ crearea adapterului: `initControls` face `listView.setAdapter(movieAdapter)`.
-        //   Dacă `movieAdapter` ar fi null, `setAdapter(null)` ar lăsa lista goală.
+        // STEP 7: bind the views to the fields and attach the adapter.
+        // WHY AFTER creating the adapter: `initControls` does `listView.setAdapter(movieAdapter)`.
+        //   If `movieAdapter` were null, `setAdapter(null)` would leave the list empty.
         initControls();
 
-        // PASUL 8: atașează listener-ii.
-        // DE CE DUPĂ `initControls`: listener-ii au nevoie de `fabInsert` și `listView`,
-        //   care sunt atribuite acolo. Înainte, ar fi null -> NPE la înregistrare.
-        // OBSERVAȚIE: `launcher` este încă null în acest moment. Vezi pasul 9.
+        // STEP 8: attach the listeners.
+        // WHY AFTER `initControls`: the listeners need `fabInsert` and `listView`,
+        //   which are assigned there. Before, they would be null -> NPE at registration.
+        // NOTE: `launcher` is still null at this moment. See step 9.
         initListeners();
 
-        // PASUL 9: înregistrează callback-ul pentru rezultat.
+        // STEP 9: register the callback for the result.
         // ==============================================================================
-        // DE CE AICI ȘI NU ÎNTR-UN LISTENER:
-        //   `registerForActivityResult` trebuie apelat ÎNAINTE ca activitatea să
-        //   ajungă în starea STARTED. Altfel primești:
+        // WHY HERE AND NOT INSIDE A LISTENER:
+        //   `registerForActivityResult` must be called BEFORE the activity
+        //   reaches the STARTED state. Otherwise you get:
         //   "LifecycleOwner ... is attempting to register while current state is RESUMED.
         //    LifecycleOwners must call register before they are STARTED."
-        //   De aceea înregistrarea stă în `onCreate`, nu în `onClick`.
+        //   That is why the registration sits in `onCreate`, not in `onClick`.
         //
-        // FLUXUL:
+        // THE FLOW:
         //   [onCreate] registerForActivityResult(contract, callback)
         //        |
         //        v
-        //   [click FAB] launcher.launch(intent)
+        //   [FAB click] launcher.launch(intent)
         //        |
         //        v
-        //   ItemActivity se deschide; MainActivity -> onPause
+        //   ItemActivity opens; MainActivity -> onPause
         //        |
         //        v
         //   ItemActivity: setResult(RESULT_OK, intent) + finish()
         //        |
         //        v
-        //   MainActivity revine: onStart -> onResume
+        //   MainActivity returns: onStart -> onResume
         //        |
         //        v
-        //   callback.onActivityResult(result)   <-- aici se modifică lista
+        //   callback.onActivityResult(result)   <-- the list is modified here
         // ==============================================================================
         launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
 
-                // Callback-ul este o clasă anonimă. Se poate scrie și cu lambda, dar
-                // sursa folosește forma explicită — utilă la examen pentru claritate.
+                // The callback is an anonymous class. It can also be written as a lambda, but
+                // the source uses the explicit form — useful in the exam for clarity.
                 new ActivityResultCallback<ActivityResult>() {
                     @Override
                     public void onActivityResult(ActivityResult o) {
 
-                        // VERIFICARE OBLIGATORIE: a venit un rezultat bun?
-                        // Dacă utilizatorul apasă Back, `ItemActivity` se închide cu
-                        // RESULT_CANCELED, iar `o.getData()` este null.
-                        // Fără acest `if`, următorul `intent.getSerializableExtra`
-                        // ar arunca NullPointerException.
+                        // MANDATORY CHECK: did a good result arrive?
+                        // If the user presses Back, `ItemActivity` closes with
+                        // RESULT_CANCELED, and `o.getData()` is null.
+                        // Without this `if`, the next `intent.getSerializableExtra`
+                        // would throw NullPointerException.
                         if(o.getResultCode() == RESULT_OK)
                         {
-                            // Extrage Intent-ul de rezultat. Poate fi null dacă
-                            // activitatea a apelat `setResult(RESULT_OK)` fără Intent —
-                            // aici nu se întâmplă, dar este un risc teoretic.
+                            // Extracts the result Intent. It can be null if
+                            // the activity called `setResult(RESULT_OK)` without an Intent —
+                            // that does not happen here, but it is a theoretical risk.
                             Intent intent = o.getData();
 
-                            // Citește obiectul serializat. Cast-ul este necesar pentru
-                            // că `getSerializableExtra` întoarce `Serializable`.
-                            // RISC: dacă obiectul nu ar fi `Movie`, cast-ul ar arunca
-                            //   `ClassCastException` la runtime.
+                            // Reads the serialised object. The cast is needed because
+                            // `getSerializableExtra` returns `Serializable`.
+                            // RISK: if the object were not a `Movie`, the cast would throw
+                            //   `ClassCastException` at runtime.
                             Movie movie = (Movie) intent.getSerializableExtra(MOVIE_EXTRA);
 
-                            // Citește poziția. Valoarea implicită `-1` este CHEIA
-                            // întregului protocol: -1 înseamnă „nu există poziție",
-                            // adică insert.
+                            // Reads the position. The default value `-1` is the KEY
+                            // of the whole protocol: -1 means "there is no position",
+                            // that is, insert.
                             int position = intent.getIntExtra(POSITION_EXTRA, -1);
 
-                            // MOD INSERT: ItemActivity nu a trimis poziție.
+                            // INSERT MODE: ItemActivity did not send a position.
                             if(position == -1)
                             {
-                                // Adaugă la finalul listei.
+                                // Adds at the end of the list.
                                 movies.add(movie);
 
-                                // Anunță adapterul că datele s-au schimbat.
-                                // FĂRĂ ACEASTĂ LINIE: filmul este în listă, dar
-                                // ListView-ul nu se redesenează și utilizatorul
-                                // nu vede nimic până la următoarea recreare.
+                                // Tells the adapter that the data has changed.
+                                // WITHOUT THIS LINE: the movie is in the list, but
+                                // the ListView does not redraw and the user
+                                // sees nothing until the next recreation.
                                 movieAdapter.notifyDataSetChanged();
                             }
-                            // MOD EDIT: ItemActivity a trimis poziția.
+                            // EDIT MODE: ItemActivity sent the position.
                             else
                             {
-                                // Înlocuiește elementul de la poziția respectivă.
-                                // `set` nu schimbă dimensiunea listei.
+                                // Replaces the element at that position.
+                                // `set` does not change the size of the list.
                                 movies.set(position, movie);
 
-                                // Și aici este obligatoriu: `set` nu notifică nimeni.
+                                // Here too it is mandatory: `set` notifies nobody.
                                 movieAdapter.notifyDataSetChanged();
                             }
                         }
 
-                        // Dacă resultCode != RESULT_OK, nu facem nimic. Lista rămâne
-                        // neatinsă, exact ca înainte de deschiderea formularului.
+                        // If resultCode != RESULT_OK, we do nothing. The list stays
+                        // untouched, exactly as before the form was opened.
                     }
                 });
     }
 
     // ==================================================================================
-    // initListeners — CE SE ÎNTÂMPLĂ LA INTERACȚIUNE
+    // initListeners — WHAT HAPPENS ON INTERACTION
     // ==================================================================================
-    // Două acțiuni: FAB (insert) și click pe rând (edit).
-    // Ambele pornesc ACEEAȘI activitate, cu extra-uri diferite.
+    // Two actions: the FAB (insert) and the row click (edit).
+    // Both start the SAME activity, with different extras.
     // ==================================================================================
     private void initListeners() {
 
         // FAB -> INSERT
-        // Clasă anonimă `View.OnClickListener` cu o singură metodă `onClick`.
+        // Anonymous class `View.OnClickListener` with a single method `onClick`.
         fabInsert.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                // `MainActivity.this` și NU `this`.
+                // `MainActivity.this` AND NOT `this`.
                 // ==========================================================================
-                // DE CE: în interiorul clasei anonime, `this` este INSTANȚA LISTENER-ULUI,
-                //   nu activitatea. `new Intent(this, ItemActivity.class)` ar căuta un
-                //   constructor `Intent(View.OnClickListener, Class)` — inexistent —
-                //   și NU ar compila.
-                // `MainActivity.this` este referința calificată către instanța exterioară,
-                //   care ESTE un `Context`.
+                // WHY: inside the anonymous class, `this` is the LISTENER INSTANCE,
+                //   not the activity. `new Intent(this, ItemActivity.class)` would look for a
+                //   constructor `Intent(View.OnClickListener, Class)` — which does not exist —
+                //   and would NOT compile.
+                // `MainActivity.this` is the qualified reference to the outer instance,
+                //   which IS a `Context`.
                 // ==========================================================================
                 Intent intent = new Intent(MainActivity.this, ItemActivity.class);
 
-                // Pornește activitatea PRIN LAUNCHER, nu prin `startActivity`.
-                // DE CE: `startActivity` pornește ecranul, dar nu are unde să întoarcă
-                //   rezultatul. `launcher.launch` știe cine primește răspunsul.
-                // FĂRĂ EXTRA-URI: ItemActivity vede `existing == null` -> insert mode.
+                // Starts the activity THROUGH THE LAUNCHER, not through `startActivity`.
+                // WHY: `startActivity` starts the screen, but has nowhere to return
+                //   the result to. `launcher.launch` knows who receives the answer.
+                // WITHOUT EXTRAS: ItemActivity sees `existing == null` -> insert mode.
                 launcher.launch(intent);
             }
         });
 
-        // CLICK PE RÂND -> EDIT
-        // `AdapterView.OnItemClickListener` are o singură metodă cu 4 parametri.
+        // ROW CLICK -> EDIT
+        // `AdapterView.OnItemClickListener` has a single method with 4 parameters.
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                // Parametrii:
-                //   `parent`   — ListView-ul (aici nu e folosit)
-                //   `view`     — rândul apăsat (aici nu e folosit)
-                //   `position` — indexul din adapter; ASTA ne interesează
-                //   `id`       — id-ul rândului; pentru ArrayAdapter este egal cu poziția
+                // The parameters:
+                //   `parent`   — the ListView (not used here)
+                //   `view`     — the pressed row (not used here)
+                //   `position` — the index in the adapter; THIS is what interests us
+                //   `id`       — the row id; for ArrayAdapter it equals the position
 
-                // Același tip de Intent: aceeași activitate, alt conținut.
+                // The same kind of Intent: the same activity, different content.
                 Intent intent = new Intent(MainActivity.this, ItemActivity.class);
 
-                // Trimite filmul selectat. `putExtra(String, Serializable)` este
-                // suprascrierea aleasă pentru că `Movie implements Serializable`.
-                // OBIECTUL ESTE SERIALIZAT — în ItemActivity ajunge o COPIE.
+                // Sends the selected movie. `putExtra(String, Serializable)` is
+                // the overload chosen because `Movie implements Serializable`.
+                // THE OBJECT IS SERIALISED — a COPY arrives in ItemActivity.
                 intent.putExtra(MOVIE_EXTRA, movies.get(position));
 
-                // Trimite și poziția. Ea este singurul lucru care distinge edit de insert.
+                // Sends the position too. It is the only thing that distinguishes edit from insert.
                 // `int` -> `putExtra(String, int)`.
                 intent.putExtra(POSITION_EXTRA, position);
 
-                // Pornește pentru rezultat, exact ca la insert.
+                // Starts for a result, exactly as on insert.
                 launcher.launch(intent);
             }
         });
     }
 
     // ==================================================================================
-    // initControls — LEGĂTURA XML <-> COD
+    // initControls — THE XML <-> CODE LINK
     // ==================================================================================
-    // Trei linii, trei responsabilități: două `findViewById` și o atașare de adapter.
+    // Three lines, three responsibilities: two `findViewById` and one adapter attachment.
     // ==================================================================================
     private void initControls() {
 
-        // `findViewById` caută în arborele inflat la `setContentView`.
-        // În Java modern, metoda este generică: tipul se deduce din variabila din stânga.
-        //   Echivalentul vechi: `(FloatingActionButton) findViewById(R.id.floatingActionButton)`.
-        // Dacă ID-ul nu există în layout, întoarce `null` FĂRĂ eroare — NPE la primul acces.
+        // `findViewById` searches the tree inflated at `setContentView`.
+        // In modern Java, the method is generic: the type is inferred from the variable on the left.
+        //   The old equivalent: `(FloatingActionButton) findViewById(R.id.floatingActionButton)`.
+        // If the ID does not exist in the layout, it returns `null` WITH NO error — NPE at the first access.
         fabInsert = findViewById(R.id.floatingActionButton);
 
-        // Același lucru pentru listă. ID-ul `listView` există în `activity_main.xml`.
+        // The same for the list. The ID `listView` exists in `activity_main.xml`.
         listView = findViewById(R.id.listView);
 
-        // Atașează adapterul. Din acest moment, ListView-ul știe ce să afișeze.
-        // DE CE ULTIMA LINIE: are nevoie de `listView` (deja atribuit) și de
-        //   `movieAdapter` (atribuit în onCreate înainte de apelul acestei metode).
+        // Attaches the adapter. From this moment on, the ListView knows what to display.
+        // WHY THE LAST LINE: it needs `listView` (already assigned) and
+        //   `movieAdapter` (assigned in onCreate before this method is called).
         listView.setAdapter(movieAdapter);
     }
 
     // ==================================================================================
-    // addSampleMovies — DATELE DEMO
+    // addSampleMovies — THE DEMO DATA
     // ==================================================================================
-    // Trei filme construite cu constructorul cu 10 parametri. Aici se vede, în practică,
-    // capcana pozițională descrisă în 22.1: fiecare apel are exact 10 argumente, în
-    // ordinea din semnătură.
+    // Three movies built with the 10-parameter constructor. This is where, in practice, the
+    // positional trap described in 22.1 becomes visible: every call has exactly 10 arguments, in
+    // the order of the signature.
     //
-    // DE CE EXISTĂ: ca să ai ce vedea la prima pornire, fără să introduci date manual.
-    // DE CE ÎN COD ȘI NU ÎN RESURSE: sunt obiecte, nu texte; un array XML ar cere
-    //   parsare și conversii de tip.
+    // WHY IT EXISTS: so that you have something to see on first launch, without entering data by hand.
+    // WHY IN CODE AND NOT IN RESOURCES: they are objects, not texts; an XML array would need
+    //   parsing and type conversions.
     // ==================================================================================
     private void addSampleMovies() {
 
-        // FILMUL 1: Inception
-        // Argumentele, în ordine:
+        // MOVIE 1: Inception
+        // The arguments, in order:
         //   1. "Inception"                                          -> String title
         //   2. new GregorianCalendar(2010, Calendar.JULY, 16).getTime() -> Date release
         //   3. "Sci-Fi"                                             -> String genre
@@ -518,50 +518,50 @@ public class MainActivity extends AppCompatActivity {
         movies.add(new Movie(
                 "Inception",
 
-                // `GregorianCalendar(an, lună, zi)`:
-                //   - anul este ABSOLUT (2010), nu relativ;
-                //   - luna este 0-INDEXATĂ: `Calendar.JULY` = 6, nu 7. De aceea se
-                //     folosesc constantele, nu numerele — `new GregorianCalendar(2010, 7, 16)`
-                //     ar însemna 16 AUGUST;
-                //   - ziua este 1-indexată, ca în viața reală.
-                // `.getTime()` transformă Calendar-ul într-un `Date` (milisecunde).
-                //   `GregorianCalendar` ESTE un `Calendar`, dar NU este un `Date`.
+                // `GregorianCalendar(year, month, day)`:
+                //   - the year is ABSOLUTE (2010), not relative;
+                //   - the month is 0-INDEXED: `Calendar.JULY` = 6, not 7. That is why
+                //     the constants are used, not the numbers — `new GregorianCalendar(2010, 7, 16)`
+                //     would mean 16 AUGUST;
+                //   - the day is 1-indexed, as in real life.
+                // `.getTime()` turns the Calendar into a `Date` (milliseconds).
+                //   `GregorianCalendar` IS a `Calendar`, but is NOT a `Date`.
                 new GregorianCalendar(2010, Calendar.JULY, 16).getTime(),
 
-                // Genul — text simplu, nu trebuie să existe în `@array/movie_genre`.
+                // The genre — plain text, it does not have to exist in `@array/movie_genre`.
                 "Sci-Fi",
 
-                // Bugetul: literal `int` (160 000 000) lărgit automat la `double`.
-                // Nu are nevoie de sufix; `160000000.0` ar fi echivalent.
+                // The budget: an `int` literal (160,000,000) widened automatically to `double`.
+                // It needs no suffix; `160000000.0` would be equivalent.
                 160000000,
 
-                // Durata: literal `int`, în minute.
+                // The duration: an `int` literal, in minutes.
                 148,
 
-                // Rating: literal `float`. Sufixul `f` este OBLIGATORIU.
-                // Fără el, `4.5` ar fi `double` și nu s-ar potrivi la parametrul `float`
-                // fără cast explicit.
+                // The rating: a `float` literal. The `f` suffix is MANDATORY.
+                // Without it, `4.5` would be a `double` and would not match the `float` parameter
+                // without an explicit cast.
                 4.5f,
 
-                // `watched` — film văzut.
+                // `watched` — a movie that has been seen.
                 true,
 
-                // `approval` — textul butonului radio, nu ID-ul.
+                // `approval` — the text of the radio button, not the ID.
                 "PG-13",
 
-                // `onWatchlist` — nu este pe lista de revăzut.
+                // `onWatchlist` — it is not on the rewatch list.
                 false,
 
-                // `poster` — URL fictiv. Nu este descărcat nicăieri în acest commit.
+                // `poster` — a fictitious URL. It is not downloaded anywhere in this commit.
                 "https://example.com/posters/inception.jpg"));
 
-        // FILMUL 2: Toy Story
-        // Aceeași structură, alte valori. `Calendar.NOVEMBER` = 10 (0-indexat).
-        // `4f` este tot un literal `float`, doar fără zecimale.
-        // ATENȚIE: genul „Animation" NU există în `@array/movie_genre` (Drama, Action,
+        // MOVIE 2: Toy Story
+        // The same structure, different values. `Calendar.NOVEMBER` = 10 (0-indexed).
+        // `4f` is also a `float` literal, just without decimals.
+        // WARNING: the genre "Animation" does NOT exist in `@array/movie_genre` (Drama, Action,
         //   Comedy, Horror, Romance, Thriller, Sci-Fi, Adventure, Fantasy, Mystery).
-        //   Consecința apare la editare: `fillForm` nu găsește potrivirea, spinner-ul
-        //   rămâne pe „Drama", iar salvarea schimbă genul filmului. Vezi 22.3.
+        //   The consequence appears on edit: `fillForm` finds no match, the spinner
+        //   stays on "Drama", and saving changes the movie's genre. See 22.3.
         movies.add(new Movie(
                 "Toy Story",
                 new GregorianCalendar(1995, Calendar.NOVEMBER, 22).getTime(),
@@ -574,11 +574,11 @@ public class MainActivity extends AppCompatActivity {
                 false,
                 "https://example.com/posters/toy-story.jpg"));
 
-        // FILMUL 3: The Matrix
-        // `Calendar.MARCH` = 2 (0-indexat). `5f` = rating maxim.
-        // `watched = false` și `onWatchlist = true` — combinația „nu l-am văzut,
-        // dar vreau să-l văd". Este singurul film din cele trei cu această combinație,
-        // utilă pentru verificarea celor două controale independente.
+        // MOVIE 3: The Matrix
+        // `Calendar.MARCH` = 2 (0-indexed). `5f` = maximum rating.
+        // `watched = false` and `onWatchlist = true` — the combination "I have not seen it,
+        // but I want to". It is the only movie of the three with this combination,
+        // useful for checking the two independent controls.
         movies.add(new Movie(
                 "The Matrix",
                 new GregorianCalendar(1999, Calendar.MARCH, 31).getTime(),

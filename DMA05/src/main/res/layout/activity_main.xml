@@ -2,13 +2,13 @@
 
 <!--
   ======================================================================================
-  FIȘIER: activity_main.xml
+  FILE: activity_main.xml
   ======================================================================================
-  LOCAȚIE: DMA05/src/main/res/layout/activity_main.xml
-  ROL:     singurul layout al aplicației. Un LinearLayout vertical cu 14 copii direcți,
-           care acoperă toate widget-urile de input uzuale.
-  ID-URI:  17 (rădăcina + 16 copii sau descendenți)
-  FOLOSITE ÎN COD: 7 (button, switch1, checkBox, seekBar, radioGroup, toggleButton, ratingBar)
+  LOCATION: DMA05/src/main/res/layout/activity_main.xml
+  ROLE:     the only layout of the application. A vertical LinearLayout with 14 direct children,
+           which covers all the usual input widgets.
+  IDs:     17 (the root + 16 children or descendants)
+  USED IN CODE: 7 (button, switch1, checkBox, seekBar, radioGroup, toggleButton, ratingBar)
   ======================================================================================
 -->
 
@@ -17,61 +17,61 @@
   THEORY BLOCK: INFLATE → MEASURE → LAYOUT → DRAW
   ======================================================================================
   1. INFLATE (build + runtime)
-     La build: aapt2 compilează XML-ul într-un format binar și generează R.id.*.
-     La runtime: LayoutInflater parsează XML-ul binar și creează obiectele Java.
-     Fiecare tag devine un obiect; fiecare atribut android:* devine o valoare în
-     AttributeSet, citită de constructor.
+     At build: aapt2 compiles the XML into a binary format and generates R.id.*.
+     At runtime: LayoutInflater parses the binary XML and creates the Java objects.
+     Each tag becomes an object; each android:* attribute becomes a value in
+     the AttributeSet, read by the constructor.
 
   2. MEASURE
-     Părintele întreabă fiecare copil: „cât de mare vrei să fii?"
-     Răspunsul depinde de MeasureSpec, care are două componente: mod + dimensiune.
-       EXACTLY   → dimensiunea e impusă (match_parent sau valoare fixă)
-       AT_MOST   → copilul poate fi oricât, dar nu mai mult decât atât (wrap_content)
-       UNSPECIFIED → fără constrângeri (ScrollView pe verticală)
-     Rezultatul: getMeasuredWidth() / getMeasuredHeight().
+     The parent asks each child: "how big do you want to be?"
+     The answer depends on the MeasureSpec, which has two components: mode + size.
+       EXACTLY   → the size is imposed (match_parent or a fixed value)
+       AT_MOST   → the child can be as big as it wants, but no bigger than that (wrap_content)
+       UNSPECIFIED → no constraints (ScrollView vertically)
+     The result: getMeasuredWidth() / getMeasuredHeight().
 
   3. LAYOUT
-     Părintele decide poziția fiecărui copil: left, top, right, bottom.
-     LinearLayout vertical: fiecare copil primește top = bottom-ul copilului anterior.
-     Rezultatul: getLeft(), getTop(), getWidth(), getHeight().
+     The parent decides the position of each child: left, top, right, bottom.
+     Vertical LinearLayout: each child receives top = the bottom of the previous child.
+     The result: getLeft(), getTop(), getWidth(), getHeight().
 
   4. DRAW
-     Fiecare view își desenează conținutul: fundal, text, imagini, copii.
-     Aici apare primul pixel pe ecran.
+     Each view draws its content: background, text, images, children.
+     This is where the first pixel appears on screen.
 
-  DE CE CONTEAZĂ:
-     - match_parent pe lățime + wrap_content pe înălțime = rând de formular.
-     - Un LinearLayout fără ScrollView nu poate fi derulat pe verticală: măsoară
-       copiii cu AT_MOST pe înălțimea ecranului, iar ce nu încape e tăiat.
-     - setPadding în listener-ul de insets se aplică ÎNAINTE de measure, deci
-       schimbă măsurătoarea, nu doar desenarea.
+  WHY IT MATTERS:
+     - match_parent on width + wrap_content on height = a form row.
+     - A LinearLayout without a ScrollView cannot be scrolled vertically: it measures
+       the children with AT_MOST on the screen height, and whatever does not fit is clipped.
+     - setPadding in the insets listener is applied BEFORE measure, so it
+       changes the measurement, not just the drawing.
   ======================================================================================
 -->
 
 <!--
-  RĂDĂCINA — LinearLayout vertical.
-  DE CE LinearLayout și nu ConstraintLayout: pentru 14 copii stivuiți vertical,
-    LinearLayout e suficient și mai simplu. ConstraintLayout ar fi adăugat constrângeri
-    pentru fiecare copil, fără beneficiu.
-  DE CE vertical: copiii se stivuiesc de sus în jos, unul sub altul.
-  DE CE nu ScrollView: pe un ecran mic, ultimele widget-uri (SeekBar, RatingBar) pot
-    ieși din zona vizibilă. G1097 învelește formularul într-un ScrollView exact din
-    acest motiv.
+  THE ROOT — a vertical LinearLayout.
+  WHY LinearLayout and not ConstraintLayout: for 14 children stacked vertically,
+    LinearLayout is enough and simpler. ConstraintLayout would have added constraints
+    for each child, with no benefit.
+  WHY vertical: the children are stacked from top to bottom, one under another.
+  WHY not a ScrollView: on a small screen, the last widgets (SeekBar, RatingBar) can
+    go outside the visible area. G1097 wraps the form in a ScrollView for exactly
+    this reason.
 
-  ATRIBUTE, PE RÂND:
-    xmlns:android   → atributele framework-ului
-    xmlns:app       → atributele bibliotecilor (aici, app:srcCompat de pe ImageView)
-    xmlns:tools     → atribute care există DOAR în preview și sunt eliminate la build
-    android:id      → @+id/main; rădăcina are ID, deci binding.main există, dar codul
-                      folosește binding.getRoot()
-    layout_width    → match_parent: umple fereastra
-    layout_height   → match_parent: umple fereastra
+  THE ATTRIBUTES, LINE BY LINE:
+    xmlns:android   → the framework attributes
+    xmlns:app       → the library attributes (here, app:srcCompat on the ImageView)
+    xmlns:tools     → attributes that exist ONLY in the preview and are stripped at build
+    android:id      → @+id/main; the root has an ID, so binding.main exists, but the code
+                      uses binding.getRoot()
+    layout_width    → match_parent: fills the window
+    layout_height   → match_parent: fills the window
     orientation     → vertical
-    tools:context   → doar pentru preview; îi spune lui Android Studio ce activitate
-                      să simuleze. Eliminat la build.
+    tools:context   → only for the preview; it tells Android Studio which activity
+                      to simulate. Stripped at build.
 
-  Spațiul de dinaintea lui `>` (tools:context=".MainActivity" >) e în fișierul real.
-  XML-ul îl ignoră. Nu îl „repara" — codul trebuie să rămână byte-identic.
+  The space before `>` (tools:context=".MainActivity" >) is in the real file.
+  XML ignores it. Do not "fix" it — the code must stay byte-identical.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -83,15 +83,15 @@
     tools:context=".MainActivity" >
 
     <!--
-      BUTTON — primul copil; singurul cu click listener.
-        android:id="@+id/button"              → câmpul binding.button (tip Button)
-        android:layout_width="match_parent"   → lat cât părintele (toată coloana)
-        android:layout_height="wrap_content"  → înalt cât textul + padding-ul implicit
-        android:text="Button"                 → eticheta; hardcodată, nu din strings.xml
+      BUTTON — the first child; the only one with a click listener.
+        android:id="@+id/button"              → the binding.button field (type Button)
+        android:layout_width="match_parent"   → as wide as the parent (the whole column)
+        android:layout_height="wrap_content"  → as tall as the text + the default padding
+        android:text="Button"                 → the label; hardcoded, not from strings.xml
 
-      match_parent pe lățime + wrap_content pe înălțime = rând de formular.
-      android:text e hardcodat; lint dă warning HardcodedText. strings.xml conține doar
-      app_name — DMA05 e laborator, nu produs.
+      match_parent on width + wrap_content on height = a form row.
+      android:text is hardcoded; lint gives a HardcodedText warning. strings.xml contains only
+      app_name — DMA05 is a lab, not a product.
     -->
     <Button
         android:id="@+id/button"
@@ -100,15 +100,15 @@
         android:text="Button" />
 
     <!--
-      IMAGEVIEW — al doilea copil; fără listener, doar afișare.
-        android:id="@+id/imageView"           → câmpul binding.imageView
-        app:srcCompat="@drawable/…"           → vectorul, prin AppCompat (nu android:src)
-        layout_height="wrap_content"          → înălțimea intrinsică a drawable-ului
+      IMAGEVIEW — the second child; no listener, display only.
+        android:id="@+id/imageView"           → the binding.imageView field
+        app:srcCompat="@drawable/…"           → the vector, through AppCompat (not android:src)
+        layout_height="wrap_content"          → the intrinsic height of the drawable
 
-      app:srcCompat și nu android:src: varianta AppCompat, necesară pentru VectorDrawable
-      pe API-uri vechi și pentru app:tint. Fișierul ic_android_black_24dp.xml e un vector.
-      ImageView nu are listener — e contraexemplul care arată că „fiecare widget are
-      listener" e fals.
+      app:srcCompat and not android:src: the AppCompat variant, needed for VectorDrawable
+      on old APIs and for app:tint. The file ic_android_black_24dp.xml is a vector.
+      ImageView has no listener — it is the counterexample that shows that "every widget has
+      a listener" is false.
     -->
     <ImageView
         android:id="@+id/imageView"
@@ -117,14 +117,14 @@
         app:srcCompat="@drawable/ic_android_black_24dp" />
 
     <!--
-      SWITCH — al treilea copil; CompoundButton, listener de bifă.
-        android:id="@+id/switch1"             → câmpul binding.switch1 (nu `switch`)
-        android:text="Switch"                 → eticheta din stânga, nu starea
-        fără android:checked                  → pornește oprit
+      SWITCH — the third child; CompoundButton, check listener.
+        android:id="@+id/switch1"             → the binding.switch1 field (not `switch`)
+        android:text="Switch"                 → the label on the left, not the state
+        no android:checked                    → it starts off
 
-      De ce ID-ul e switch1 și nu switch: generatorul de layout din Android Studio
-      construiește ID-ul din numele widget-ului și adaugă un număr când numele simplu
-      nu e disponibil. Codul îl folosește exact așa: binding.switch1.
+      Why the ID is switch1 and not switch: the layout generator in Android Studio
+      builds the ID from the widget name and adds a number when the plain name
+      is not available. The code uses it exactly like that: binding.switch1.
     -->
     <Switch
         android:id="@+id/switch1"
@@ -133,16 +133,16 @@
         android:text="Switch" />
 
     <!--
-      EDITTEXT #1 — text liber.
-        android:id="@+id/editTextText"        → câmpul binding.editTextText
-        android:ems="10"                      → lățime minimă de 10 em-uri (ignorată de match_parent)
-        android:inputType="text"              → TYPE_CLASS_TEXT: QWERTY, fără filtrare
-        android:hint="Text"                   → placeholder, dispare la prima tastă
+      EDITTEXT #1 — free text.
+        android:id="@+id/editTextText"        → the binding.editTextText field
+        android:ems="10"                      → a minimum width of 10 ems (ignored by match_parent)
+        android:inputType="text"              → TYPE_CLASS_TEXT: QWERTY, no filtering
+        android:hint="Text"                   → placeholder, disappears on the first keystroke
 
-      android:ems="10" — „lățimea a 10 caractere M". Cu layout_width="match_parent",
-      MeasureSpec-ul e EXACTLY pe lățime, deci ems e ignorat. Rămâne ca rămășiță.
-      android:hint NU e valoare: getText() întoarce "", nu hint-ul. Hint-ul e desenat
-      de TextView-ul însuși, doar cât timp textul e gol.
+      android:ems="10" — "the width of 10 M characters". With layout_width="match_parent",
+      the MeasureSpec is EXACTLY on width, so ems is ignored. It remains as a leftover.
+      android:hint is NOT a value: getText() returns "", not the hint. The hint is drawn
+      by the TextView itself, only while the text is empty.
     -->
     <EditText
         android:id="@+id/editTextText"
@@ -153,13 +153,13 @@
         android:hint="Text" />
 
     <!--
-      EDITTEXT #2 — parolă.
-        android:id="@+id/editTextTextPassword" → câmpul binding.editTextTextPassword
-        android:inputType="textPassword"       → mascare cu puncte + sugestii oprite
-        android:hint="Password"                → placeholder; NU e valoare
+      EDITTEXT #2 — password.
+        android:id="@+id/editTextTextPassword" → the binding.editTextTextPassword field
+        android:inputType="textPassword"       → masking with dots + suggestions turned off
+        android:hint="Password"                → placeholder; NOT a value
 
-      Mascarea e doar vizuală: textul real rămâne în getText() și ajunge în Bundle la
-      rotire dacă nu dezactivezi salvarea stării. Pentru un laborator e suficient.
+      The masking is only visual: the real text stays in getText() and reaches the Bundle on
+      rotation if you do not disable state saving. For a lab it is enough.
     -->
     <EditText
         android:id="@+id/editTextTextPassword"
@@ -171,12 +171,12 @@
 
     <!--
       EDITTEXT #3 — email.
-        android:id="@+id/editTextTextEmailAddress" → câmpul binding.editTextTextEmailAddress
-        android:inputType="textEmailAddress"       → tastatură cu @ și ., fără validare
+        android:id="@+id/editTextTextEmailAddress" → the binding.editTextTextEmailAddress field
+        android:inputType="textEmailAddress"       → keyboard with @ and ., no validation
         android:hint="Email"                       → placeholder
 
-      inputType nu validează: poți tasta abc fără @. IME-ul poate oferi sugestii de
-      adrese, dar câmpul acceptă orice.
+      inputType does not validate: you can type abc without @. The IME can offer address
+      suggestions, but the field accepts anything.
     -->
     <EditText
         android:id="@+id/editTextTextEmailAddress"
@@ -187,13 +187,13 @@
         android:inputType="textEmailAddress" />
 
     <!--
-      EDITTEXT #4 — oră.
-        android:id="@+id/editTextTime"        → câmpul binding.editTextTime
-        android:inputType="time"              → tastatură numerică + separator oră
+      EDITTEXT #4 — time.
+        android:id="@+id/editTextTime"        → the binding.editTextTime field
+        android:inputType="time"              → numeric keyboard + time separator
         android:hint="Time"                   → placeholder
 
-      Tastatura e numerică cu `:`; filtrul acceptă cifre și separatori, dar acceptă
-      și 99:99. Validarea formatului rămâne treaba codului.
+      The keyboard is numeric with `:`; the filter accepts digits and separators, but it also accepts
+      99:99. Format validation remains the code's job.
     -->
     <EditText
         android:id="@+id/editTextTime"
@@ -204,13 +204,13 @@
         android:inputType="time" />
 
     <!--
-      EDITTEXT #5 — dată.
-        android:id="@+id/editTextDate"        → câmpul binding.editTextDate
-        android:inputType="date"              → tastatură numerică + separator dată
+      EDITTEXT #5 — date.
+        android:id="@+id/editTextDate"        → the binding.editTextDate field
+        android:inputType="date"              → numeric keyboard + date separator
         android:hint="Date"                   → placeholder
 
-      Tastatura e numerică cu `/`; acceptă și 99/99/9999. inputType e un contract cu
-      tastatura, nu cu datele.
+      The keyboard is numeric with `/`; it also accepts 99/99/9999. inputType is a contract with
+      the keyboard, not with the data.
     -->
     <EditText
         android:id="@+id/editTextDate"
@@ -221,10 +221,10 @@
         android:inputType="date" />
 
     <!--
-      CHECKBOX — 0..n alegeri independente.
-        android:id="@+id/checkBox"            → câmpul binding.checkBox
-        android:text="CheckBox"               → eticheta din dreapta
-        fără android:checked                  → pornește nebifat
+      CHECKBOX — 0..n independent choices.
+        android:id="@+id/checkBox"            → the binding.checkBox field
+        android:text="CheckBox"               → the label on the right
+        no android:checked                    → it starts unchecked
     -->
     <CheckBox
         android:id="@+id/checkBox"
@@ -233,15 +233,15 @@
         android:text="CheckBox" />
 
     <!--
-      RADIOGROUP — containerul impune excluderea reciprocă între copii.
-        android:id="@+id/radioGroup"          → câmpul binding.radioGroup
-        fără android:orientation              → implicit vertical
-        fără android:checkedButton            → niciun buton bifat la pornire
+      RADIOGROUP — the container enforces mutual exclusion between the children.
+        android:id="@+id/radioGroup"          → the binding.radioGroup field
+        no android:orientation                → vertical by default
+        no android:checkedButton              → no button checked at startup
 
-      CheckBox = 0..n alegeri independente. RadioGroup = exact 0 sau 1. Doi RadioButton
-      fără un RadioGroup în jur s-ar comporta ca niște checkbox-uri — asta e tot rolul
-      containerului. RadioGroup extinde LinearLayout, deci are orientation, gravity și
-      layout_weight pentru copii.
+      CheckBox = 0..n independent choices. RadioGroup = exactly 0 or 1. Two RadioButtons
+      without a RadioGroup around them would behave like checkboxes — that is the whole role of
+      the container. RadioGroup extends LinearLayout, so it has orientation, gravity and
+      layout_weight for the children.
     -->
     <RadioGroup
         android:id="@+id/radioGroup"
@@ -249,9 +249,9 @@
         android:layout_height="wrap_content" >
 
         <!--
-          OPȚIUNEA 1.
-            android:id="@+id/radioButton1"    → R.id.radioButton1, valoarea din checkedId
-            android:text="First Option"       → textul returnat de getText()
+          OPTION 1.
+            android:id="@+id/radioButton1"    → R.id.radioButton1, the value in checkedId
+            android:text="First Option"       → the text returned by getText()
         -->
         <RadioButton
             android:id="@+id/radioButton1"
@@ -260,13 +260,13 @@
             android:text="First Option" />
 
         <!--
-          OPȚIUNEA 2.
-            android:id="@+id/radioButton2"    → R.id.radioButton2, valoarea din checkedId
-            android:text="Second Option"      → textul returnat de getText()
+          OPTION 2.
+            android:id="@+id/radioButton2"    → R.id.radioButton2, the value in checkedId
+            android:text="Second Option"      → the text returned by getText()
 
-          Copiii au ID-uri, deci binding.radioButton1 și binding.radioButton2 există.
-          Codul nu le folosește — trece prin group.findViewById(checkedId). Ambele căi
-          sunt valide.
+          The children have IDs, so binding.radioButton1 and binding.radioButton2 exist.
+          The code does not use them — it goes through group.findViewById(checkedId). Both paths
+          are valid.
         -->
         <RadioButton
             android:id="@+id/radioButton2"
@@ -277,10 +277,10 @@
     </RadioGroup>
 
     <!--
-      TOGGLEBUTTON — buton cu două stări.
-        android:id="@+id/toggleButton"        → câmpul binding.toggleButton
-        android:text="ToggleButton"           → eticheta stării ON; OFF e implicit "OFF"
-        fără android:textOn / textOff         → de unde inconsecvența ON/OFF
+      TOGGLEBUTTON — a button with two states.
+        android:id="@+id/toggleButton"        → the binding.toggleButton field
+        android:text="ToggleButton"           → the label for the ON state; OFF is "OFF" by default
+        no android:textOn / textOff           → hence the ON/OFF inconsistency
     -->
     <ToggleButton
         android:id="@+id/toggleButton"
@@ -289,13 +289,13 @@
         android:text="ToggleButton" />
 
     <!--
-      PROGRESSBAR — demonstrativ, rămâne la 0.
-        android:id="@+id/progressBar"         → câmpul binding.progressBar
-        style="?android:attr/progressBarStyleHorizontal" → bară, nu cerc
-        fără android:progress                 → valoarea implicită 0
+      PROGRESSBAR — demonstrative, it stays at 0.
+        android:id="@+id/progressBar"         → the binding.progressBar field
+        style="?android:attr/progressBarStyleHorizontal" → a bar, not a circle
+        no android:progress                   → the default value 0
 
-      Fără style, ar fi cercul care se învârte la infinit. ?android:attr/... înseamnă
-      „atributul din tema platformei", nu din tema aplicației.
+      Without the style, it would be the circle that spins forever. ?android:attr/... means
+      "the attribute from the platform theme", not from the application theme.
     -->
     <ProgressBar
         android:id="@+id/progressBar"
@@ -304,13 +304,13 @@
         android:layout_height="wrap_content" />
 
     <!--
-      SEEKBAR — bară glisantă.
-        android:id="@+id/seekBar"             → câmpul binding.seekBar
-        fără android:max                      → maximul implicit 100
-        fără android:progress                 → valoarea inițială 0
+      SEEKBAR — sliding bar.
+        android:id="@+id/seekBar"             → the binding.seekBar field
+        no android:max                        → the default maximum 100
+        no android:progress                   → the initial value 0
 
-      SeekBar extinde ProgressBar (prin AbsSeekBar), de aceea are getProgress() și
-      setProgress(int). Diferența: adaugă degetul și cele trei evenimente de atingere.
+      SeekBar extends ProgressBar (through AbsSeekBar), which is why it has getProgress() and
+      setProgress(int). The difference: it adds the finger and the three touch events.
     -->
     <SeekBar
         android:id="@+id/seekBar"
@@ -318,15 +318,15 @@
         android:layout_height="wrap_content" />
 
     <!--
-      RATINGBAR — 5 stele, pas de 0.5.
-        android:id="@+id/ratingBar"           → câmpul binding.ratingBar
-        android:numStars="5"                  → 5 stele
-        android:stepSize="0.5"                → jumătăți de stea → valoare float
-        android:layout_gravity="center_horizontal" → centrat pe orizontală
-        layout_width="wrap_content"           → lată cât stelele, nu cât ecranul
+      RATINGBAR — 5 stars, step of 0.5.
+        android:id="@+id/ratingBar"           → the binding.ratingBar field
+        android:numStars="5"                  → 5 stars
+        android:stepSize="0.5"                → half stars → a float value
+        android:layout_gravity="center_horizontal" → centred horizontally
+        layout_width="wrap_content"           → as wide as the stars, not as the screen
 
-      RatingBar extinde AbsSeekBar, deci e și ea un ProgressBar cu getProgress().
-      Valoarea implicită e 0, deci nicio stea aprinsă la pornire.
+      RatingBar extends AbsSeekBar, so it is also a ProgressBar with getProgress().
+      The default value is 0, so no star is lit at startup.
     -->
     <RatingBar
         android:id="@+id/ratingBar"

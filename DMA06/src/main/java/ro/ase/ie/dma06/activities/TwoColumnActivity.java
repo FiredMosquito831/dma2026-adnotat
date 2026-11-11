@@ -1,70 +1,70 @@
 /*
  * ======================================================================================
- * FIȘIER: TwoColumnActivity.java
+ * FILE: TwoColumnActivity.java
  * ======================================================================================
- * LOCAȚIE:  DMA06/src/main/java/ro/ase/ie/dma06/activities/TwoColumnActivity.java
- * PACHET:   ro.ase.ie.dma06.activities
- * ROL:      treapta 2. Același ListView ca treapta 1, dar cu un adapter propriu care
- *           umple două coloane.
+ * LOCATION: DMA06/src/main/java/ro/ase/ie/dma06/activities/TwoColumnActivity.java
+ * PACKAGE:  ro.ase.ie.dma06.activities
+ * ROLE:     step 2. The same ListView as step 1, but with a custom adapter that
+ *           fills two columns.
  *
- * STRUCTURA FIȘIERULUI (2 părți):
- *   1. importuri   — 7 linii
- *   2. onCreate    — 8 linii: layout, findViewById, adapter, setAdapter
+ * FILE STRUCTURE (2 parts):
+ *   1. imports     — 7 lines
+ *   2. onCreate    — 8 lines: layout, findViewById, adapter, setAdapter
  *
- * CE TREBUIE SĂ ȘTII ÎNAINTE:
- *   - Id-ul `lvNumbers` e ACELAȘI ca în treapta 1, dar în alt layout. Nu e conflict.
- *   - Activitatea nu știe ce e într-un rând: nu atinge tvDecimal / tvBinary.
- *   - Diferența față de treapta 1 e o singură clasă: NumberListAdapter.
+ * WHAT YOU NEED TO KNOW BEFOREHAND:
+ *   - The id `lvNumbers` is THE SAME as in step 1, but in another layout. No conflict.
+ *   - The activity does not know what is in a row: it does not touch tvDecimal / tvBinary.
+ *   - The difference from step 1 is a single class: NumberListAdapter.
  * ======================================================================================
  */
 
 // ======================================================================================
-// BLOCUL 1 — PACHETUL ȘI IMPORTURILE
+// BLOCK 1 — THE PACKAGE AND THE IMPORTS
 // ======================================================================================
-// Față de SingleColumnActivity, importul `android.widget.ArrayAdapter` a dispărut și
-// a apărut `ro.ase.ie.adapters.NumberListAdapter`. Restul e identic.
+// Compared with SingleColumnActivity, the `android.widget.ArrayAdapter` import is gone and
+// `ro.ase.ie.adapters.NumberListAdapter` has appeared. The rest is identical.
 // ======================================================================================
 
-package ro.ase.ie.dma06.activities;      // pachetul ecranelor
+package ro.ase.ie.dma06.activities;      // the package of the screens
 
-import android.os.Bundle;                // parametrul lui onCreate
-import android.widget.ListView;          // ACELAȘI widget ca treapta 1
+import android.os.Bundle;                // the parameter of onCreate
+import android.widget.ListView;          // THE SAME widget as step 1
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import ro.ase.ie.adapters.NumberListAdapter;   // adapterul propriu, din pachetul `adapters`
-import ro.ase.ie.data.NumberData;             // aceleași date ca la treapta 1
+import ro.ase.ie.adapters.NumberListAdapter;   // the custom adapter, from the `adapters` package
+import ro.ase.ie.data.NumberData;             // the same data as in step 1
 import ro.ase.ie.dma06.R;
 
 // ======================================================================================
-// THEORY BLOCK: DE LA ARRAYADAPTER LA BASEADAPTER
+// THEORY BLOCK: FROM ARRAYADAPTER TO BASEADAPTER
 // ======================================================================================
 /*
- * 1. CE RĂMÂNE IDENTIC
- *    -   Widget-ul: ListView.
- *    -   Datele: NumberData.getNumbers().
- *    -   Ciclul: onCreate → setContentView → findViewById → new Adapter → setAdapter.
- *    -   Reciclarea: tot ListView o face; doar că acum o scrii tu.
+ * 1. WHAT STAYS IDENTICAL
+ *    -   The widget: ListView.
+ *    -   The data: NumberData.getNumbers().
+ *    -   The cycle: onCreate → setContentView → findViewById → new Adapter → setAdapter.
+ *    -   Recycling: ListView still does it; it is just that now you write it.
  *
- * 2. CE SE SCHIMBĂ
- *    -   Adapterul: ArrayAdapter (SDK) → NumberListAdapter (al tău).
- *    -   Layout-ul rândului: android.R.layout.simple_list_item_1 → item_number.xml.
- *    -   Numărul de coloane: 1 → 2.
- *    -   Cine cheamă findViewById: SDK-ul → codul tău, o dată per rând.
+ * 2. WHAT CHANGES
+ *    -   The adapter: ArrayAdapter (SDK) → NumberListAdapter (yours).
+ *    -   The row layout: android.R.layout.simple_list_item_1 → item_number.xml.
+ *    -   The number of columns: 1 → 2.
+ *    -   Who calls findViewById: the SDK → your code, once per row.
  *
- * 3. CE TREBUIE SĂ FACĂ ACTIVITATEA ÎN PLUS
- *    -   Nimic, în afară de a pasa `this` (Context) adapterului propriu.
- *    -   ArrayAdapter lua Context-ul prin constructor; NumberListAdapter la fel.
- *    -   Deci diferența se vede doar în tipul variabilei.
+ * 3. WHAT THE ACTIVITY MUST DO EXTRA
+ *    -   Nothing, apart from passing `this` (Context) to the custom adapter.
+ *    -   ArrayAdapter took the Context through the constructor; NumberListAdapter likewise.
+ *    -   So the difference shows only in the type of the variable.
  *
- * 4. CE NU TREBUIE SĂ FACĂ ACTIVITATEA
- *    -   Să cunoască id-urile din rând (tvDecimal, tvBinary).
- *    -   Să știe câte coloane are rândul.
- *    -   Să atingă convertView, ViewHolder sau reciclarea.
- *    Orice astfel de linie ar fi o scurgere de responsabilitate: activitatea ar trebui
- *    schimbată când se schimbă rândul.
+ * 4. WHAT THE ACTIVITY MUST NOT DO
+ *    -   Know the ids inside the row (tvDecimal, tvBinary).
+ *    -   Know how many columns the row has.
+ *    -   Touch convertView, ViewHolder or recycling.
+ *    Any such line would be a leak of responsibility: the activity would have to be
+ *    changed when the row changes.
  *
- * DIAGRAMA RESPONSABILITĂȚILOR:
+ * DIAGRAM OF RESPONSIBILITIES:
  *
  *   TwoColumnActivity                 NumberListAdapter
  *   ├── setContentView(layout)        ├── getCount()   → 100
@@ -75,11 +75,11 @@ import ro.ase.ie.dma06.R;
  *   └── setAdapter(adapter)                 ├── findViewById × 2
  *                                           └── setText × 2
  *
- * 5. DE CE ID-URILE NU SE CIOCNESC
- *    R.id.lvNumbers e o singură constantă int, generată o dată pentru toate layout-urile.
- *    Valoarea e aceeași, iar findViewById o caută în arborele atașat activității
- *    curente. Dacă ai avea două ListView-uri cu același id ÎN ACELAȘI layout, primul
- *    găsit ar fi returnat — și al doilea ar fi inaccesibil.
+ * 5. WHY THE IDS DO NOT CLASH
+ *    R.id.lvNumbers is a single int constant, generated once for all layouts.
+ *    The value is the same, and findViewById looks for it in the tree attached to the
+ *    current activity. If you had two ListViews with the same id IN THE SAME layout, the
+ *    first one found would be returned — and the second would be inaccessible.
  */
 
 /**
@@ -89,70 +89,70 @@ import ro.ase.ie.dma06.R;
 public class TwoColumnActivity extends AppCompatActivity {
 
     // ==================================================================================
-    // METODA 1 — onCreate
+    // METHOD 1 — onCreate
     // ==================================================================================
-    // Teorie:  același ciclu de viață; se schimbă doar clasa adapterului.
-    // Logică:  1. super  2. setContentView  3. findViewById  4. new NumberListAdapter
+    // Theory:  the same lifecycle; only the adapter class changes.
+    // Logic:   1. super  2. setContentView  3. findViewById  4. new NumberListAdapter
     //          5. setAdapter
-    // Risc:    `this` trebuie să fie Context; dacă ai pasa altceva, LayoutInflater.from
-    //          aruncă.
-    // Ref:     capitolul 12.
+    // Risk:    `this` must be a Context; if you passed something else, LayoutInflater.from
+    //          would throw.
+    // Ref:     chapter 12.
     // ==================================================================================
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);                    // 1. ciclul de viață
-        setContentView(R.layout.activity_two_column);          // 2. include antetul + ListView
+        super.onCreate(savedInstanceState);                    // 1. the lifecycle
+        setContentView(R.layout.activity_two_column);          // 2. includes the header + ListView
 
-        ListView lvNumbers = findViewById(R.id.lvNumbers);     // 3. ACELAȘI id ca în treapta 1
+        ListView lvNumbers = findViewById(R.id.lvNumbers);     // 3. THE SAME id as in step 1
 
         NumberListAdapter adapter = new NumberListAdapter(this, NumberData.getNumbers());
-        //                                ↑ Context                  ↑ List<Integer> cu 100
-        lvNumbers.setAdapter(adapter);                         // 4. leagă lista de widget
+        //                                ↑ Context                  ↑ List<Integer> with 100
+        lvNumbers.setAdapter(adapter);                         // 4. binds the list to the widget
     }
 
-    // Același id, alt layout — lvNumbers apare și în activity_single_column.xml, și în
-    // activity_two_column.xml. Nu e o problemă: id-urile sunt unice PER LAYOUT, nu global.
-    // findViewById caută doar în arborele layout-ului curent, deci găsește ListView-ul
-    // din ecranul curent.
+    // The same id, another layout — lvNumbers appears both in activity_single_column.xml and in
+    // activity_two_column.xml. It is not a problem: ids are unique PER LAYOUT, not globally.
+    // findViewById looks only in the current layout's tree, so it finds the ListView
+    // of the current screen.
     //
-    // `this` ca Context — adapterul are nevoie de el pentru LayoutInflater. Aici e
-    // singurul loc în care activitatea atinge detaliul de inflate.
+    // `this` as the Context — the adapter needs it for the LayoutInflater. Here it is
+    // the only place where the activity touches the inflate detail.
     //
-    // Activitatea nu știe ce e într-un rând — nu există findViewById(R.id.tvDecimal)
-    // aici. Cele două coloane sunt treaba adapterului. Dacă redenumești tvDecimal în
-    // XML, se schimbă doar NumberListAdapter.
+    // The activity does not know what is in a row — there is no findViewById(R.id.tvDecimal)
+    // here. The two columns are the adapter's business. If you rename tvDecimal in the
+    // XML, only NumberListAdapter changes.
     //
-    // Comparație cu treapta 1: aceeași structură, patru linii, doar clasa adapterului
-    // diferită. Lecția: activitatea aproape nu se schimbă; adapterul e locul unde se
-    // întâmplă totul.
+    // Comparison with step 1: the same structure, four lines, only the adapter class
+    // different. The lesson: the activity hardly changes; the adapter is where everything
+    // happens.
     //
-    // Ce s-ar întâmpla dacă ai pasa `null` ca Context: LayoutInflater.from(null) aruncă
-    // NullPointerException în constructorul adapterului, deci la
-    // new NumberListAdapter(null, ...). Erora apare devreme, în onCreate, nu la primul
-    // rând — bine pentru depanare.
-    //
-    // ==================================================================================
-    // DE CE ACTIVITATEA NU ARE NEVOIE DE `implements`
-    // ==================================================================================
-    //
-    // Nu e nevoie de nicio interfață pentru că activitatea nu primește evenimente de la
-    // adapter. Nu există „onItemBound" sau „onRowCreated". Adapterul e un obiect pasiv:
-    // ListView îl întreabă, el răspunde. Activitatea doar îl construiește și îl predă.
-    //
-    // Dacă ai vrea să reacționezi la un click pe rând, ai avea două variante:
-    //   1. lvNumbers.setOnItemClickListener(...)  → în activitate, cu poziția
-    //   2. un listener pus pe rând, în getView     → în adapter
-    // Aici nu e nevoie de niciuna: rândurile nu sunt clickabile.
+    // What would happen if you passed `null` as the Context: LayoutInflater.from(null) throws
+    // NullPointerException in the adapter's constructor, so at
+    // new NumberListAdapter(null, ...). The error appears early, in onCreate, not on the first
+    // row — good for debugging.
     //
     // ==================================================================================
-    // CE S-AR ÎNTÂMPLA DACĂ AI PUNE ADAPTERUL ÎNTR-UN CÂMP STATIC
+    // WHY THE ACTIVITY DOES NOT NEED `implements`
     // ==================================================================================
     //
-    //   private static NumberListAdapter adapter;   // ← greșit
+    // No interface is needed because the activity does not receive events from the
+    // adapter. There is no "onItemBound" or "onRowCreated". The adapter is a passive object:
+    // ListView asks, it answers. The activity only builds it and hands it over.
     //
-    // Adapterul ține lista și, prin holder-e, view-urile. Un câmp static ar ține
-    // adapterul în viață după ce activitatea e distrusă, iar view-urile din holder-e ar
-    // ține arborele vechi. Rezultatul: o scurgere de memorie care crește la fiecare
-    // rotire. Adapterul e întotdeauna un câmp de instanță (sau o variabilă locală, ca
-    // aici) — niciodată static.
+    // If you wanted to react to a click on a row, you would have two options:
+    //   1. lvNumbers.setOnItemClickListener(...)  → in the activity, with the position
+    //   2. a listener put on the row, in getView  → in the adapter
+    // Neither is needed here: the rows are not clickable.
+    //
+    // ==================================================================================
+    // WHAT WOULD HAPPEN IF YOU PUT THE ADAPTER IN A STATIC FIELD
+    // ==================================================================================
+    //
+    //   private static NumberListAdapter adapter;   // ← wrong
+    //
+    // The adapter holds the list and, through the holders, the views. A static field would
+    // keep the adapter alive after the activity is destroyed, and the views in the holders
+    // would hold the old tree. The result: a memory leak that grows with every
+    // rotation. The adapter is always an instance field (or a local variable, as
+    // here) — never static.
 }

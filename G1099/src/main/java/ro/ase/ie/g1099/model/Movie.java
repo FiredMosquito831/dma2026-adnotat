@@ -1,100 +1,100 @@
 /*
  * ======================================================================================
- * FIȘIER: Movie.java — MODELUL DE DATE AL APLICAȚIEI
+ * FILE: Movie.java — THE DATA MODEL OF THE APP
  * ======================================================================================
- * CE ESTE ACEST FIȘIER:
- *   O clasă POJO (Plain Old Java Object): 10 câmpuri private, un constructor fără
- *   parametri, un constructor cu 10 parametri, o suprascriere de `toString()` și
- *   20 de getter-e/setter-e. Zero logică de business, zero referințe la Android.
+ * WHAT THIS FILE IS:
+ *   A POJO class (Plain Old Java Object): 10 private fields, one no-argument
+ *   constructor, one constructor with 10 parameters, one `toString()` override and
+ *   20 getters/setters. Zero business logic, zero references to Android.
  *
- * DE CE EXISTĂ:
- *   Ca să transporte datele unui film dintr-un ecran în altul fără să depindă de UI.
- *   `MainActivity` ține `List<Movie>`; `ItemActivity` construiește un `Movie`.
+ * WHY IT EXISTS:
+ *   So it can carry the data of a movie from one screen to another without depending on the UI.
+ *   `MainActivity` holds `List<Movie>`; `ItemActivity` builds a `Movie`.
  *
- * DE CE DEPINDE:
- *   Doar de `java.io.Serializable` și `java.util.Date`. Nimic din `android.*`.
- *   De aceea clasa poate fi testată pe JVM, fără emulator.
+ * WHAT IT DEPENDS ON:
+ *   Only on `java.io.Serializable` and `java.util.Date`. Nothing from `android.*`.
+ *   That is why the class can be tested on the JVM, without an emulator.
  *
- * CINE DEPINDE DE EL:
- *   `MainActivity` (lista, adapterul, cele 3 filme demo), `ItemActivity`
- *   (`fillForm` citește, `saveMovie` scrie), `ArrayAdapter` (apelează `toString()`).
+ * WHO DEPENDS ON IT:
+ *   `MainActivity` (the list, the adapter, the 3 demo movies), `ItemActivity`
+ *   (`fillForm` reads, `saveMovie` writes), `ArrayAdapter` (calls `toString()`).
  *
- * CE NU FACE:
- *   Nu validează nimic. Nu știe ce este un `EditText`, un `Intent` sau un `ListView`.
- *   Nu are `id`: identitatea filmului în listă este POZIȚIA, nu un câmp.
+ * WHAT IT DOES NOT DO:
+ *   It validates nothing. It does not know what an `EditText`, an `Intent` or a `ListView` is.
+ *   It has no `id`: the identity of the movie in the list is the POSITION, not a field.
  *
- * CE S-AR RUPE FĂRĂ EL:
- *   Tot fluxul de date. `Intent.putExtra` nu ar avea ce serializa, `ArrayAdapter`
- *   nu ar avea ce afișa, iar `ItemActivity` ar trebui să trimită 10 extra-uri
- *   separate și să le recompună manual în `MainActivity`.
+ * WHAT BREAKS WITHOUT IT:
+ *   The whole data flow. `Intent.putExtra` would have nothing to serialize, `ArrayAdapter`
+ *   would have nothing to display, and `ItemActivity` would have to send 10 separate
+ *   extras and recompose them manually in `MainActivity`.
  * ======================================================================================
  */
 
-// PACHETUL: `model` — stratul de date, separat de `activities`.
-// DE CE CONTEAZĂ: `ItemActivity` importă `ro.ase.ie.g1099.model.Movie`, niciodată invers.
-//   Modelul nu știe cine îl folosește. Este singura regulă de arhitectură din aplicație.
+// THE PACKAGE: `model` — the data layer, separate from `activities`.
+// WHY IT MATTERS: `ItemActivity` imports `ro.ase.ie.g1099.model.Movie`, never the other way round.
+//   The model does not know who uses it. It is the only architecture rule in the app.
 package ro.ase.ie.g1099.model;
 
 // ======================================================================================
 // IMPORT 1: java.io.Serializable
 // ======================================================================================
-// CE ESTE: o interfață MARKER — nu are nicio metodă de implementat.
-// DE CE AICI: `Intent.putExtra(String, Serializable)` este cea mai simplă cale de a
-//   trimite un obiect întreg către altă activitate. Fără `implements Serializable`,
-//   apelul `intent.putExtra(MOVIE_EXTRA, movie)` nu găsește nicio suprascriere
-//   potrivită și fișierul NU COMPILEAZĂ.
-// CE SE ÎNTÂMPLĂ LA RUNTIME: JVM-ul serializează graful de obiecte în bytes, îl pune
-//   în `Bundle`, iar activitatea destinatară primește o COPIE deserializată.
-// RISC: fără `serialVersionUID` declarat, JVM-ul calculează unul din structura clasei.
-//   Dacă adaugi un câmp între scriere și citire (procese diferite), primești
-//   `InvalidClassException`. Aici scrierea și citirea se întâmplă în ACELAȘI proces,
-//   la câteva milisecunde distanță, deci riscul este teoretic.
+// WHAT IT IS: a MARKER interface — it has no method to implement.
+// WHY HERE: `Intent.putExtra(String, Serializable)` is the simplest way to
+//   send a whole object to another activity. Without `implements Serializable`,
+//   the call `intent.putExtra(MOVIE_EXTRA, movie)` finds no matching
+//   override and the file DOES NOT COMPILE.
+// WHAT HAPPENS AT RUNTIME: the JVM serializes the object graph into bytes, puts it
+//   in the `Bundle`, and the receiving activity gets a deserialized COPY.
+// RISK: without a declared `serialVersionUID`, the JVM computes one from the class structure.
+//   If you add a field between writing and reading (different processes), you get
+//   `InvalidClassException`. Here the writing and the reading happen in the SAME process,
+//   a few milliseconds apart, so the risk is theoretical.
 // ======================================================================================
 import java.io.Serializable;
 
 // ======================================================================================
 // IMPORT 2: java.util.Date
 // ======================================================================================
-// CE ESTE: un moment în timp, stocat intern ca număr de milisecunde din 1 ianuarie 1970.
-// DE CE AICI: data de lansare trebuie să fie o DATĂ, nu un text. Ca `Date` poți
-//   sorta, compara și formata cu `SimpleDateFormat`.
-// DE CE NU `String`: ai stoca „16/07/2010" și ai pierde capacitatea de a calcula.
-//   `fillForm` ar trebui să parseze la fiecare afișare, iar `saveMovie` ar trebui
-//   să formateze la fiecare salvare — două locuri în care poți greși formatul.
-// DE CE NU `java.time.LocalDate`: este mai nou și mai curat, dar `Date` este
-//   `Serializable` din fabrică și este tipul folosit în tot proiectul.
-// RISC: `Date` este MUTABIL. `getRelease()` întoarce referința internă, nu o copie,
-//   deci un apelant neatent poate modifica data din obiect fără să treacă prin setter.
+// WHAT IT IS: a moment in time, stored internally as a number of milliseconds since 1 January 1970.
+// WHY HERE: the release date must be a DATE, not a text. As a `Date` you can
+//   sort, compare and format with `SimpleDateFormat`.
+// WHY NOT `String`: you would store "16/07/2010" and lose the ability to compute.
+//   `fillForm` would have to parse on every display, and `saveMovie` would have to
+//   format on every save — two places where you can get the format wrong.
+// WHY NOT `java.time.LocalDate`: it is newer and cleaner, but `Date` is
+//   `Serializable` out of the box and is the type used throughout the project.
+// RISK: `Date` is MUTABLE. `getRelease()` returns the internal reference, not a copy,
+//   so a careless caller can modify the date in the object without going through the setter.
 // ======================================================================================
 import java.util.Date;
 
 /*
  * ======================================================================================
- * BLOC DE TEORIE: DE CE UN MODEL SEPARAT (POJO)
+ * THEORY BLOCK: WHY A SEPARATE MODEL (POJO)
  * ======================================================================================
  *
- * 1. **Single Responsibility** — clasa are un singur motiv să se schimbe: se modifică
- *    structura datelor unui film. Nu se schimbă când se schimbă un layout, un buton
- *    sau o culoare. Dacă ai pune `getText().toString()` aici, clasa ar depinde de
- *    `android.widget.EditText` și ar avea două motive să se schimbe.
+ * 1. **Single Responsibility** — the class has a single reason to change: the
+ *    structure of a movie's data changes. It does not change when a layout, a button
+ *    or a colour changes. If you put `getText().toString()` here, the class would depend on
+ *    `android.widget.EditText` and would have two reasons to change.
  *
- * 2. **Serializability** — fiind `Serializable` și fără referințe către `Context`,
- *    obiectul poate traversa granița dintre două activități. Un `Movie` care ar ține
- *    un `EditText` nu ar putea fi serializat: `View` nu este `Serializable`.
+ * 2. **Serializability** — being `Serializable` and without references to `Context`,
+ *    the object can cross the boundary between two activities. A `Movie` that held
+ *    an `EditText` could not be serialized: `View` is not `Serializable`.
  *
- * 3. **Testability** — poți scrie un test JVM simplu care creează un `Movie` și
- *    verifică `getTitle()`. Fără emulator, fără Android. Asta se întâmplă pentru că
- *    în fișier nu există niciun `import android.*`.
+ * 3. **Testability** — you can write a simple JVM test that creates a `Movie` and
+ *    checks `getTitle()`. No emulator, no Android. This happens because
+ *    the file contains no `import android.*`.
  *
- * 4. **Fără câmp `id`** — identitatea filmului în listă este POZIȚIA, nu un ID.
- *    De aici vine tot mecanismul `POSITION_EXTRA` din celelalte două fișiere.
- *    Este o simplificare didactică: o bază de date reală ar avea un `id` stabil.
+ * 4. **No `id` field** — the identity of the movie in the list is the POSITION, not an ID.
+ *    From this comes the whole `POSITION_EXTRA` mechanism in the other two files.
+ *    It is a didactic simplification: a real database would have a stable `id`.
  *
- * 5. **Zece câmpuri, nu nouă** — posterul este al zecelea. El nu apare în `toString()`
- *    (vezi 31.0.4), dar există în model, are getter și setter, și este citit de
- *    `ItemActivity` la editare. Un câmp poate exista fără să fie afișat.
+ * 5. **Ten fields, not nine** — the poster is the tenth. It does not appear in `toString()`
+ *    (see 31.0.4), but it exists in the model, it has a getter and a setter, and it is read by
+ *    `ItemActivity` on edit. A field can exist without being displayed.
  *
- * VIZUAL: obiectul care traversează granița dintre activități
+ * VISUAL: the object that crosses the boundary between activities
  *
  *   [MainActivity]                    [Intent / Bundle]                [ItemActivity]
  *   movies: List<Movie>
@@ -110,172 +110,172 @@ import java.util.Date;
  *                                    |
  *                          deserialize -> Movie@A'
  *                                    |
- *                          (obiect NOU, adresă nouă)
+ *                          (NEW object, new address)
  *
- *   Movie@A rămâne în lista din MainActivity. Modificarea lui Movie@A' nu se vede
- *   în listă. De aceea MainActivity face `movies.set(position, movie)` la final.
+ *   Movie@A stays in the list in MainActivity. A change to Movie@A' is not visible
+ *   in the list. That is why MainActivity does `movies.set(position, movie)` at the end.
  * ======================================================================================
  */
 public class Movie implements Serializable {
 
     // ==================================================================================
-    // CÂMPUL 1: title
+    // FIELD 1: title
     // ==================================================================================
-    // TIP: String — text liber, de lungime arbitrară.
-    // WIDGET SURSĂ: `etTitle` (TextInputEditText) -> `getText().toString()`.
-    // DE CE String: titlul este text, nu are operații numerice sau de dată.
-    // CE SE RUPE DACĂ E GREȘIT: dacă ar fi `int`, „Inception" nu ar încăpea;
-    //   dacă ar fi `char[]`, `ArrayAdapter` ar afișa adresa array-ului.
+    // TYPE: String — free text, of arbitrary length.
+    // SOURCE WIDGET: `etTitle` (TextInputEditText) -> `getText().toString()`.
+    // WHY String: the title is text, it has no numeric or date operations.
+    // WHAT BREAKS IF IT IS WRONG: if it were `int`, "Inception" would not fit;
+    //   if it were `char[]`, `ArrayAdapter` would display the array's address.
     // ==================================================================================
     private String title; //EditText
 
     // ==================================================================================
-    // CÂMPUL 2: release
+    // FIELD 2: release
     // ==================================================================================
-    // TIP: Date — un moment în timp (aici, doar ziua contează).
-    // WIDGET SURSĂ: `etRelease` + `DatePickerDialog`; în model ajunge din
-    //   `releaseCal.getTime()`, NU din textul din EditText.
-    // DE CE Date: permite formatare cu `SimpleDateFormat` și comparare.
-    // CE SE RUPE DACĂ E GREȘIT: dacă ar fi `String`, `fillForm` ar trebui să parseze
-    //   la fiecare afișare, iar un text tastat greșit ar ajunge în model ca atare.
+    // TYPE: Date — a moment in time (here, only the day matters).
+    // SOURCE WIDGET: `etRelease` + `DatePickerDialog`; it reaches the model from
+    //   `releaseCal.getTime()`, NOT from the text in the EditText.
+    // WHY Date: it allows formatting with `SimpleDateFormat` and comparison.
+    // WHAT BREAKS IF IT IS WRONG: if it were `String`, `fillForm` would have to parse
+    //   on every display, and a mistyped text would reach the model as it is.
     // ==================================================================================
     private Date release; //EditText date
 
     // ==================================================================================
-    // CÂMPUL 3: genre
+    // FIELD 3: genre
     // ==================================================================================
-    // TIP: String — textul selectat din listă („Sci-Fi", „Animation", „Action").
-    // WIDGET SURSĂ: `spGenre` (Spinner) -> `getSelectedItem().toString()`.
-    // DE CE String și nu `enum`: genurile vin din `@array/movie_genre`, adică din XML.
-    //   Cu `enum`, adăugarea unui gen ar cere modificarea codului Java.
-    // CE SE RUPE DACĂ E GREȘIT: dacă ai stoca poziția (`int`), schimbarea ordinii
-    //   din `arrays.xml` ar schimba retroactiv genul tuturor filmelor salvate.
+    // TYPE: String — the text selected from the list ("Sci-Fi", "Animation", "Action").
+    // SOURCE WIDGET: `spGenre` (Spinner) -> `getSelectedItem().toString()`.
+    // WHY String and not `enum`: the genres come from `@array/movie_genre`, that is, from XML.
+    //   With an `enum`, adding a genre would require changing the Java code.
+    // WHAT BREAKS IF IT IS WRONG: if you stored the position (`int`), changing the order
+    //   in `arrays.xml` would retroactively change the genre of all the saved movies.
     // ==================================================================================
     private String genre; //Spinner
 
     // ==================================================================================
-    // CÂMPUL 4: budget
+    // FIELD 4: budget
     // ==================================================================================
-    // TIP: double — număr cu zecimale, precizie de ~15–16 cifre semnificative.
-    // WIDGET SURSĂ: `etBudget` (inputType=numberDecimal) -> `Double.parseDouble(...)`.
-    // DE CE double și nu float: `float` are ~7 cifre semnificative. Pentru 160 000 000
-    //   ambele sunt exacte, dar 160 000 001 nu ar fi reprezentabil exact în `float`.
-    //   În plus, `Double.parseDouble` întoarce `double` — un câmp `float` ar cere cast.
-    // CE SE RUPE DACĂ E GREȘIT: dacă ar fi `int`, zecimalele ar fi trunchiate;
-    //   dacă ar fi `String`, nu ai putea compara bugete.
+    // TYPE: double — a number with decimals, precision of ~15–16 significant digits.
+    // SOURCE WIDGET: `etBudget` (inputType=numberDecimal) -> `Double.parseDouble(...)`.
+    // WHY double and not float: `float` has ~7 significant digits. For 160 000 000
+    //   both are exact, but 160 000 001 would not be exactly representable in `float`.
+    //   In addition, `Double.parseDouble` returns a `double` — a `float` field would require a cast.
+    // WHAT BREAKS IF IT IS WRONG: if it were `int`, the decimals would be truncated;
+    //   if it were `String`, you could not compare budgets.
     // ==================================================================================
     private double budget; //EditText number
 
     // ==================================================================================
-    // CÂMPUL 5: duration
+    // FIELD 5: duration
     // ==================================================================================
-    // TIP: int — număr întreg de minute, 0..300.
-    // WIDGET SURSĂ: `sbDuration` (SeekBar) -> `getProgress()`.
-    // DE CE int: `SeekBar.getProgress()` întoarce `int`. Orice alt tip ar cere cast.
-    // CE SE RUPE DACĂ E GREȘIT: dacă ar fi `String`, `setProgress` ar cere parsare
-    //   și ai putea salva „abc" ca durată.
+    // TYPE: int — a whole number of minutes, 0..300.
+    // SOURCE WIDGET: `sbDuration` (SeekBar) -> `getProgress()`.
+    // WHY int: `SeekBar.getProgress()` returns an `int`. Any other type would require a cast.
+    // WHAT BREAKS IF IT IS WRONG: if it were `String`, `setProgress` would require parsing
+    //   and you could save "abc" as a duration.
     // ==================================================================================
     private int duration; //SeekBar
 
     // ==================================================================================
-    // CÂMPUL 6: rating
+    // FIELD 6: rating
     // ==================================================================================
-    // TIP: float — nota cu jumătăți de stea (0.0, 0.5, ..., 5.0).
-    // WIDGET SURSĂ: `rbRating` (RatingBar) -> `getRating()`.
-    // DE CE float: `RatingBar.getRating()` și `setRating(float)` lucrează cu `float`.
-    //   Un câmp `double` ar face `setRating(existing.getRating())` să NU compileze
-    //   fără cast explicit.
-    // ATENȚIE: tipul este `float`, nu `android.media.Rating`. Vezi 31.0.5 — importul
-    //   acela este mort, iar widget-ul este `RatingBar`.
-    // CE SE RUPE DACĂ E GREȘIT: dacă ar fi `int`, ai pierde jumătățile de stea;
-    //   dacă ar fi `String` („4.5"), comparațiile ar fi lexicografice.
+    // TYPE: float — the score in half stars (0.0, 0.5, ..., 5.0).
+    // SOURCE WIDGET: `rbRating` (RatingBar) -> `getRating()`.
+    // WHY float: `RatingBar.getRating()` and `setRating(float)` work with `float`.
+    //   A `double` field would make `setRating(existing.getRating())` NOT compile
+    //   without an explicit cast.
+    // WATCH OUT: the type is `float`, not `android.media.Rating`. See 31.0.5 — that
+    //   import is dead, and the widget is `RatingBar`.
+    // WHAT BREAKS IF IT IS WRONG: if it were `int`, you would lose the half stars;
+    //   if it were `String` ("4.5"), the comparisons would be lexicographic.
     // ==================================================================================
     private float rating; //RatingBar
 
     // ==================================================================================
-    // CÂMPUL 7: watched
+    // FIELD 7: watched
     // ==================================================================================
-    // TIP: boolean — true/false.
-    // WIDGET SURSĂ: `swWatched` (MaterialSwitch) -> `isChecked()`.
-    // DE CE boolean: starea unui switch este binară. `isChecked()` întoarce exact asta.
-    // CE SE RUPE DACĂ E GREȘIT: dacă ar fi `String` („Yes"/„No"), orice `if` ar cere
-    //   comparație de text, iar „yes" minuscul ar fi tratat ca false.
-    // OBSERVAȚIE: comentariul din sursă spune „Switch", dar tipul real al widget-ului
-    //   este `MaterialSwitch`. Comentariile nu se actualizează singure.
+    // TYPE: boolean — true/false.
+    // SOURCE WIDGET: `swWatched` (MaterialSwitch) -> `isChecked()`.
+    // WHY boolean: the state of a switch is binary. `isChecked()` returns exactly that.
+    // WHAT BREAKS IF IT IS WRONG: if it were `String` ("Yes"/"No"), every `if` would require
+    //   a text comparison, and a lowercase "yes" would be treated as false.
+    // NOTE: the comment in the source says "Switch", but the real type of the widget
+    //   is `MaterialSwitch`. Comments do not update themselves.
     // ==================================================================================
     private boolean watched; //Switch
 
     // ==================================================================================
-    // CÂMPUL 8: approval
+    // FIELD 8: approval
     // ==================================================================================
-    // TIP: String — TEXTUL butonului radio selectat („G", „PG", „PG-13", „R", „NC-17").
-    // WIDGET SURSĂ: `rgApproval` (RadioGroup) -> buclă peste copii + `getText()`.
-    // DE CE text și nu ID-ul resursei: textul supraviețuiește reordonării butoanelor
-    //   în XML. ID-ul este o valoare generată în `R.java`, stabilă doar cât timp
-    //   nu redenumești butonul.
-    // RISC: dacă schimbi eticheta în XML („PG13" în loc de „PG-13"), `fillForm`
-    //   nu mai găsește potrivirea și nu bifează nimic — silențios.
-    // CE SE RUPE DACĂ E GREȘIT: dacă ai stoca indexul (0..4), adăugarea unui buton
-    //   la începutul grupului ar schimba sensul tuturor valorilor salvate.
+    // TYPE: String — the TEXT of the selected radio button ("G", "PG", "PG-13", "R", "NC-17").
+    // SOURCE WIDGET: `rgApproval` (RadioGroup) -> loop over the children + `getText()`.
+    // WHY the text and not the resource ID: the text survives the reordering of the buttons
+    //   in XML. The ID is a value generated in `R.java`, stable only as long as
+    //   you do not rename the button.
+    // RISK: if you change the label in XML ("PG13" instead of "PG-13"), `fillForm`
+    //   no longer finds a match and checks nothing — silently.
+    // WHAT BREAKS IF IT IS WRONG: if you stored the index (0..4), adding a button
+    //   at the beginning of the group would change the meaning of all the saved values.
     // ==================================================================================
     private String approval; //RadioGroup | RadioButtons
 
     // ==================================================================================
-    // CÂMPUL 9: onWatchlist
+    // FIELD 9: onWatchlist
     // ==================================================================================
-    // TIP: boolean — true/false.
-    // WIDGET SURSĂ: `cbonWatchList` (MaterialCheckBox) -> `isChecked()`.
-    // DE CE boolean: o bifă este binară. Independentă de `watched`: poți să fi văzut
-    //   filmul ȘI să îl ții pe lista de revăzut.
-    // CE SE RUPE DACĂ E GREȘIT: dacă ai refolosi `watched` pentru amândouă, cele două
-    //   controale s-ar contrazice la salvare.
+    // TYPE: boolean — true/false.
+    // SOURCE WIDGET: `cbonWatchList` (MaterialCheckBox) -> `isChecked()`.
+    // WHY boolean: a check mark is binary. Independent of `watched`: you can have seen
+    //   the movie AND keep it on the rewatch list.
+    // WHAT BREAKS IF IT IS WRONG: if you reused `watched` for both, the two
+    //   controls would contradict each other on save.
     // ==================================================================================
     private boolean onWatchlist; //Checkbox
 
     // ==================================================================================
-    // CÂMPUL 10: posterUrl
+    // FIELD 10: posterUrl
     // ==================================================================================
-    // TIP: String — un URL (sau orice text) către afișul filmului.
-    // WIDGET SURSĂ: `etPoster` (inputType=textUri) -> `getText().toString()`.
-    // DE CE NU are `= null` explicit (diferența față de G1097): `String` este oricum
-    //   `null` implicit. Absența inițializatorului nu schimbă comportamentul, doar
-    //   nota de documentație. Vezi 31.0.2.
-    // DE CE se numește `posterUrl` și nu `poster`: sufixul declară că valoarea este
-    //   un LINK, nu o imagine. Getter-ul se numește, în consecință, `getPosterUrl()`.
-    // RISC: `null` ajunge în `etPoster.setText(null)` la editare — legal, dar afișează
-    //   câmp gol. Dacă ai apela `.length()` pe el, ai lua `NullPointerException`.
+    // TYPE: String — a URL (or any text) to the movie poster.
+    // SOURCE WIDGET: `etPoster` (inputType=textUri) -> `getText().toString()`.
+    // WHY it has NO explicit `= null` (the difference from G1097): `String` is
+    //   `null` by default anyway. The absence of the initializer does not change the behaviour, only
+    //   the documentation note. See 31.0.2.
+    // WHY it is called `posterUrl` and not `poster`: the suffix declares that the value is
+    //   a LINK, not an image. The getter is called, consequently, `getPosterUrl()`.
+    // RISK: `null` reaches `etPoster.setText(null)` on edit — legal, but it displays
+    //   an empty field. If you called `.length()` on it, you would get a `NullPointerException`.
     // ==================================================================================
     private String posterUrl;
 
     // ==================================================================================
-    // CONSTRUCTORUL FĂRĂ PARAMETRI — PRIMUL ÎN FIȘIER
+    // THE NO-ARGUMENT CONSTRUCTOR — THE FIRST IN THE FILE
     // ==================================================================================
-    // DE CE ESTE OBLIGATORIU SĂ FIE SCRIS EXPLICIT:
-    //   Regula Java: dacă definești ORICE constructor cu parametri, compilatorul
-    //   NU mai generează automat constructorul fără parametri.
-    //   `saveMovie()` din ItemActivity face `Movie movie = new Movie();`.
-    //   Fără acest constructor, fișierul NU COMPILEAZĂ.
+    // WHY IT IS MANDATORY TO WRITE IT EXPLICITLY:
+    //   Java rule: if you define ANY constructor with parameters, the compiler
+    //   NO LONGER generates the no-argument constructor automatically.
+    //   `saveMovie()` in ItemActivity does `Movie movie = new Movie();`.
+    //   Without this constructor, the file DOES NOT COMPILE.
     //
-    // DE CE CORPUL ESTE GOL: toate câmpurile primesc valorile implicite
-    //   (null / 0 / 0.0 / false). Obiectul este umplut imediat cu setter-e.
+    // WHY THE BODY IS EMPTY: all the fields receive the default values
+    //   (null / 0 / 0.0 / false). The object is filled immediately with setters.
     //
-    // DE CE ESTE PRIMUL (diferența față de G1097, unde este ultimul):
-    //   poziția nu contează pentru compilator, dar aici cititorul vede imediat că
-    //   `new Movie()` este legal. Vezi 31.0.3.
+    // WHY IT IS FIRST (the difference from G1097, where it is last):
+    //   the position does not matter to the compiler, but here the reader sees immediately that
+    //   `new Movie()` is legal. See 31.0.3.
     // ==================================================================================
     public Movie() {
     }
 
     // ==================================================================================
-    // CONSTRUCTORUL CU 10 PARAMETRI
+    // THE CONSTRUCTOR WITH 10 PARAMETERS
     // ==================================================================================
-    // DE CE EXISTĂ: `addSampleMovies()` din MainActivity creează cele 3 filme demo
-    //   într-o singură expresie. Fără el, ar fi 10 apeluri de setter pe fiecare film.
+    // WHY IT EXISTS: `addSampleMovies()` in MainActivity creates the 3 demo movies
+    //   in a single expression. Without it, there would be 10 setter calls per movie.
     //
-    // CAPCANA: ordinea parametrilor este POZIȚIONALĂ. Numele din semnătură nu ajută
-    //   la apel — compilatorul se uită doar la tipuri și la poziție.
+    // THE TRAP: the order of the parameters is POSITIONAL. The names in the signature do not help
+    //   at the call — the compiler looks only at the types and the position.
     //
-    //   POZIȚIA   TIP       NUME           WIDGET CARE PRODUCE VALOAREA
+    //   POSITION  TYPE      NAME           WIDGET THAT PRODUCES THE VALUE
     //   ---------------------------------------------------------------------------
     //      1      String    title          TextInputEditText etTitle
     //      2      Date      release        etRelease + DatePickerDialog
@@ -288,19 +288,19 @@ public class Movie implements Serializable {
     //      9      boolean   onWatchlist    MaterialCheckBox cbOnWatchList
     //     10      String    posterUrl      etPoster (textUri)
     //
-    //   Dacă inversezi pozițiile 1 și 3 (ambele String) sau 7 și 9 (ambele boolean),
-    //   codul COMPILEAZĂ. Filmul se creează. Doar că `title` primește genul și
-    //   `genre` primește titlul. Compilatorul nu te poate ajuta aici.
+    //   If you swap positions 1 and 3 (both String) or 7 and 9 (both boolean),
+    //   the code COMPILES. The movie is created. Only that `title` receives the genre and
+    //   `genre` receives the title. The compiler cannot help you here.
     // ==================================================================================
     public Movie(String title, Date release, String genre, double budget, int duration, float rating, boolean watched, String approval, boolean onWatchlist, String posterUrl) {
 
-        // `this.title` = câmpul clasei; `title` = parametrul.
-        // Fără `this.`, linia ar fi `title = title` — auto-atribuire, câmpul rămâne null.
+        // `this.title` = the class field; `title` = the parameter.
+        // Without `this.`, the line would be `title = title` — self-assignment, the field stays null.
         this.title = title;
 
-        // Același model pentru fiecare dintre cele 10 câmpuri. Toate cele 10 linii
-        // sunt identice structural; dacă una lipsește, câmpul rămâne cu valoarea
-        // implicită (null / 0 / 0.0 / false) și bug-ul apare abia la afișare.
+        // The same pattern for each of the 10 fields. All 10 lines
+        // are structurally identical; if one is missing, the field keeps its default
+        // value (null / 0 / 0.0 / false) and the bug appears only on display.
         this.release = release;
         this.genre = genre;
         this.budget = budget;
@@ -310,49 +310,49 @@ public class Movie implements Serializable {
         this.approval = approval;
         this.onWatchlist = onWatchlist;
 
-        // Ultimul câmp: aici se vede și diferența de nume față de G1097.
-        // `this.posterUrl` este câmpul; `posterUrl` este parametrul. Ambele au același nume.
+        // The last field: here you also see the naming difference from G1097.
+        // `this.posterUrl` is the field; `posterUrl` is the parameter. Both have the same name.
         this.posterUrl = posterUrl;
     }
 
     // ==================================================================================
-    // toString() — CONTRACTUL DE AFIȘARE ÎN LISTĂ
+    // toString() — THE DISPLAY CONTRACT IN THE LIST
     // ==================================================================================
-    // DE CE ESTE OBLIGATORIU AICI:
-    //   `ArrayAdapter` cu `android.R.layout.simple_list_item_1` primește un `TextView`
-    //   și îl umple cu `item.toString()`. Fără suprascriere, `Object.toString()` ar
-    //   întoarce `ro.ase.ie.g1099.model.Movie@a1b2c3d` — adresa din memorie.
+    // WHY IT IS MANDATORY HERE:
+    //   `ArrayAdapter` with `android.R.layout.simple_list_item_1` receives a `TextView`
+    //   and fills it with `item.toString()`. Without the override, `Object.toString()` would
+    //   return `ro.ase.ie.g1099.model.Movie@a1b2c3d` — the memory address.
     //
-    // FLUXUL EXACT:
+    // THE EXACT FLOW:
     //   ListView.getView(position) -> ArrayAdapter.getView(...) -> TextView.setText(
     //   movies.get(position).toString())
     //
-    // DE CE `@Override`: compilatorul verifică semnătura. Dacă scrii `tostring()`
-    //   cu literă mică, fără adnotare nu primești nicio eroare — doar metoda ta
-    //   nu este apelată niciodată.
+    // WHY `@Override`: the compiler checks the signature. If you write `tostring()`
+    //   with a lowercase letter, without the annotation you get no error — only your method
+    //   is never called.
     //
-    // DIFERENȚA FAȚĂ DE G1097: posterul NU apare aici. Nouă câmpuri, nu zece.
-    //   Vezi 31.0.4 — un câmp poate exista în model fără să fie afișat.
+    // THE DIFFERENCE FROM G1097: the poster does NOT appear here. Nine fields, not ten.
+    //   See 31.0.4 — a field can exist in the model without being displayed.
     // ==================================================================================
     @Override
     public String toString() {
 
-        // Concatenare de String-uri cu `+`. Fiecare `+` creează un obiect nou în memorie.
-        // Pentru 9 câmpuri, diferența este neglijabilă; pentru bucle mari s-ar folosi
+        // String concatenation with `+`. Each `+` creates a new object in memory.
+        // For 9 fields, the difference is negligible; for large loops you would use
         // `StringBuilder`.
         return "Movie{" +
 
-                // Câmpurile text sunt încadrate în apostrofuri, ca să se vadă limitele
-                // valorii: `title='Inception'`. Fără ele, `title=''` și `genre=''`
-                // ar fi indistinguibile de un câmp gol.
+                // The text fields are wrapped in single quotes, so the boundaries of the
+                // value are visible: `title='Inception'`. Without them, `title=''` and `genre=''`
+                // would be indistinguishable from an empty field.
                 "title='" + title + '\'' +
 
-                // `Date` nu este încadrat în apostrofuri: `toString()`-ul lui produce
-                // deja un format lizibil (`Sat Jul 16 00:00:00 GMT+03:00 2010`).
+                // `Date` is not wrapped in single quotes: its `toString()` already produces
+                // a readable format (`Sat Jul 16 00:00:00 GMT+03:00 2010`).
                 ", release=" + release +
 
-                // Virgula de la început, nu de la sfârșit: ultimul câmp nu are nevoie
-                // de separator, iar `}` se lipește corect.
+                // The comma at the beginning, not at the end: the last field does not need
+                // a separator, and `}` is glued on correctly.
                 ", genre='" + genre + '\'' +
                 ", budget=" + budget +
                 ", duration=" + duration +
@@ -361,145 +361,145 @@ public class Movie implements Serializable {
                 ", approval='" + approval + '\'' +
                 ", onWatchlist=" + onWatchlist +
 
-                // Acolada de închidere a obiectului, ca text.
-                // AICI S-AR FI AFIȘAT POSTERUL, în G1097: ", poster='" + poster + '\''.
-                // În G1099 lipsește, iar rândul din listă se termină după onWatchlist.
+                // The closing brace of the object, as text.
+                // THE POSTER WOULD BE DISPLAYED HERE, in G1097: ", poster='" + poster + '\''.
+                // In G1099 it is missing, and the row in the list ends after onWatchlist.
                 '}';
     }
 
     // ==================================================================================
-    // GETTERI ȘI SETTERI — 20 DE METODE, TOATE MECANICE
+    // GETTERS AND SETTERS — 20 METHODS, ALL MECHANICAL
     // ==================================================================================
-    // DE CE EXISTĂ: câmpurile sunt `private`. Codul din alte pachete (și chiar din
-    //   `activities`) nu le poate citi sau scrie direct. Getter-ele și setter-ele
-    //   sunt singura interfață.
+    // WHY THEY EXIST: the fields are `private`. Code from other packages (and even from
+    //   `activities`) cannot read or write them directly. The getters and setters
+    //   are the only interface.
     //
-    // DE CE ATÂT DE MULTE: 10 câmpuri x 2 = 20. Sunt generate automat de IntelliJ
-    //   (Alt+Insert -> Getter and Setter). Nu se scriu de mână la examen.
+    // WHY SO MANY: 10 fields x 2 = 20. They are generated automatically by IntelliJ
+    //   (Alt+Insert -> Getter and Setter). They are not written by hand in the exam.
     //
-    // CONVENȚIA DE NUME:
-    //   - `getX()` pentru obiecte și primitive, CU EXCEPȚIA lui boolean;
-    //   - `isX()` pentru boolean — convenția JavaBeans.
+    // THE NAMING CONVENTION:
+    //   - `getX()` for objects and primitives, EXCEPT for boolean;
+    //   - `isX()` for boolean — the JavaBeans convention.
     // ==================================================================================
 
-    // GETTER: întoarce referința la String. String este imutabil, deci nu există
-    // risc de modificare din exterior.
+    // GETTER: returns the reference to the String. String is immutable, so there is no
+    // risk of modification from the outside.
     public String getTitle() {
         return title;
     }
 
-    // SETTER: `this.title` = câmpul, `title` = parametrul. Aceeași capcană ca în
-    // constructorul cu 10 parametri.
+    // SETTER: `this.title` = the field, `title` = the parameter. The same trap as in
+    // the constructor with 10 parameters.
     public void setTitle(String title) {
         this.title = title;
     }
 
-    // GETTER pentru Date. ATENȚIE: întoarce REFERINȚA, nu o copie.
-    // RISC: `movie.getRelease().setTime(0)` ar modifica data din obiect fără setter.
-    //   O variantă corectă ar fi `return new Date(release.getTime());`.
+    // GETTER for Date. WATCH OUT: it returns the REFERENCE, not a copy.
+    // RISK: `movie.getRelease().setTime(0)` would modify the date in the object without the setter.
+    //   A correct variant would be `return new Date(release.getTime());`.
     public Date getRelease() {
         return release;
     }
 
-    // SETTER pentru Date. Nu validează `null` — un `Movie` cu dată null este acceptat
-    // de model și crapă abia în `fillForm`, la `dateFormat.format(null)`.
+    // SETTER for Date. It does not validate `null` — a `Movie` with a null date is accepted
+    // by the model and crashes only in `fillForm`, at `dateFormat.format(null)`.
     public void setRelease(Date release) {
         this.release = release;
     }
 
-    // GETTER pentru gen. Valoarea provine din Spinner, dar modelul nu știe asta.
+    // GETTER for the genre. The value comes from the Spinner, but the model does not know that.
     public String getGenre() {
         return genre;
     }
 
-    // SETTER pentru gen. Nu verifică dacă valoarea există în `@array/movie_genre`.
-    // Validarea este responsabilitatea UI-ului, nu a modelului.
+    // SETTER for the genre. It does not check whether the value exists in `@array/movie_genre`.
+    // Validation is the responsibility of the UI, not of the model.
     public void setGenre(String genre) {
         this.genre = genre;
     }
 
-    // GETTER pentru buget. `double` se copiază prin valoare — nu există probleme
-    // de aliasing ca la Date.
+    // GETTER for the budget. `double` is copied by value — there are no aliasing
+    // problems as with Date.
     public double getBudget() {
         return budget;
     }
 
-    // SETTER pentru buget. Nu respinge valori negative: un buget -5 ar fi acceptat.
-    // Validarea ar trebui făcută în `saveMovie`, înainte de apel.
+    // SETTER for the budget. It does not reject negative values: a budget of -5 would be accepted.
+    // Validation should be done in `saveMovie`, before the call.
     public void setBudget(double budget) {
         this.budget = budget;
     }
 
-    // GETTER pentru durată, în minute.
+    // GETTER for the duration, in minutes.
     public int getDuration() {
         return duration;
     }
 
-    // SETTER pentru durată. Nu limitează la 0..300 — limita există doar în XML
-    // (`android:max="300"`), adică doar în UI.
+    // SETTER for the duration. It does not limit to 0..300 — the limit exists only in XML
+    // (`android:max="300"`), that is, only in the UI.
     public void setDuration(int duration) {
         this.duration = duration;
     }
 
-    // GETTER pentru rating. `float` — nota cu jumătăți de stea.
+    // GETTER for the rating. `float` — the score in half stars.
     public float getRating() {
         return rating;
     }
 
-    // SETTER pentru rating. Parametrul este `float`, exact tipul cerut de
+    // SETTER for the rating. The parameter is `float`, exactly the type required by
     // `RatingBar.setRating(float)`.
     public void setRating(float rating) {
         this.rating = rating;
     }
 
     // ==================================================================================
-    // DE CE `isWatched()` ȘI NU `getWatched()`
+    // WHY `isWatched()` AND NOT `getWatched()`
     // ==================================================================================
-    // 1. CONVENȚIA JAVABEANS: pentru `boolean`, getter-ul se numește `isX()`, nu `getX()`.
-    //    Reflectarea (și framework-urile care citesc proprietăți) caută prefixul `is`.
-    // 2. CONSISTENȚA: `isOnWatchlist()` respectă aceeași regulă. Dacă unul ar fi
-    //    `getWatched()` și celălalt `isOnWatchlist()`, codul ar fi greu de citit.
-    // 3. CODUL DEPINDE DE NUME: `fillForm` apelează `existing.isWatched()`. Dacă ai
-    //    scris `getWatched()`, apelul nu compilează — și trebuie schimbat în două locuri.
+    // 1. THE JAVABEANS CONVENTION: for `boolean`, the getter is called `isX()`, not `getX()`.
+    //    Reflection (and the frameworks that read properties) look for the `is` prefix.
+    // 2. CONSISTENCY: `isOnWatchlist()` follows the same rule. If one were
+    //    `getWatched()` and the other `isOnWatchlist()`, the code would be hard to read.
+    // 3. THE CODE DEPENDS ON THE NAME: `fillForm` calls `existing.isWatched()`. If you
+    //    wrote `getWatched()`, the call does not compile — and it must be changed in two places.
     // ==================================================================================
     public boolean isWatched() {
         return watched;
     }
 
-    // Setter-ul rămâne `setWatched` — prefixul `set` este același pentru toate tipurile.
+    // The setter remains `setWatched` — the `set` prefix is the same for all types.
     public void setWatched(boolean watched) {
         this.watched = watched;
     }
 
-    // GETTER pentru ghidajul parental („PG-13" etc.).
+    // GETTER for the parental guidance ("PG-13" etc.).
     public String getApproval() {
         return approval;
     }
 
-    // SETTER pentru ghidaj. Valoarea este textul butonului radio, nu ID-ul lui.
+    // SETTER for the guidance. The value is the text of the radio button, not its ID.
     public void setApproval(String approval) {
         this.approval = approval;
     }
 
-    // GETTER pentru bifa „Watchlist". Prefix `is` — din nou convenția JavaBeans.
+    // GETTER for the "Watchlist" check mark. Prefix `is` — again the JavaBeans convention.
     public boolean isOnWatchlist() {
         return onWatchlist;
     }
 
-    // SETTER pentru bifă.
+    // SETTER for the check mark.
     public void setOnWatchlist(boolean onWatchlist) {
         this.onWatchlist = onWatchlist;
     }
 
-    // GETTER pentru URL-ul posterului. Poate întoarce `null`.
-    // NUMELE: `getPosterUrl`, nu `getPoster` — diferența față de G1097.
-    //   `ItemActivity.fillForm` apelează exact acest nume.
+    // GETTER for the poster URL. It can return `null`.
+    // THE NAME: `getPosterUrl`, not `getPoster` — the difference from G1097.
+    //   `ItemActivity.fillForm` calls exactly this name.
     public String getPosterUrl() {
         return posterUrl;
     }
 
-    // SETTER pentru poster. Acceptă `null` fără să se plângă.
-    // `ItemActivity.saveMovie` apelează exact acest nume.
+    // SETTER for the poster. It accepts `null` without complaining.
+    // `ItemActivity.saveMovie` calls exactly this name.
     public void setPosterUrl(String posterUrl) {
         this.posterUrl = posterUrl;
     }

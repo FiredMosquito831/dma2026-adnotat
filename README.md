@@ -1,88 +1,88 @@
-# dma2026 — cod adnotat
+# dma2026 — annotated code
 
-Proiectul **DMA2026** de la curs, cu **53 de fișiere adnotate** — codul comentat linie cu linie, ca să poți citi și înțelege orice fișier direct în Android Studio.
+The **DMA2026** course project with **53 annotated files** — the code commented line by line, so you can read and understand any file directly in Android Studio.
 
-> **Sursa:** [`mihaidoinea/dma2026`](https://github.com/mihaidoinea/dma2026), commitul `d719ffc`.
-> Codul este **identic, byte cu byte**. Singura diferență față de repo-ul original sunt liniile de comentariu.
+> **Source:** [`mihaidoinea/dma2026`](https://github.com/mihaidoinea/dma2026), commit `d719ffc`.
+> The code is **byte-identical**. The only difference from the original repo is the comment lines.
 
-## Două limbi, două branch-uri
+## Two languages, two branches
 
-| Branch | Comentariile |
+| Branch | The comments are in |
 |---|---|
-| **`main`** (default) | în **română** |
-| **`english`** | în **engleză** |
+| **`main`** (default) | **Romanian** |
+| **`english`** (this one) | **English** |
 
-Aceleași fișiere, același cod, doar comentariile diferă. Schimbi branch-ul și Android Studio reîncarcă:
+Same files, same code, only the comments differ. Switch the branch and Android Studio reloads:
 
 ```bash
-git checkout english     # comentarii în engleză
-git checkout main        # comentarii în română
+git checkout english     # comments in English
+git checkout main        # comments in Romanian
 ```
 
-## Ce conține
+## What it contains
 
-Opt module, exact ca în repo-ul profesorului. În fiecare, fișierele principale sunt adnotate:
+Eight modules, exactly like the professor's repo. In each, the main files are annotated:
 
-| Modul | Fișiere adnotate | Ce este |
+| Module | Annotated files | What it is |
 |---|---|---|
-| `G1097` | 6 | aplicația Movies — varianta de referință |
-| `G1096` | 6 | aceeași aplicație, altă variantă |
-| `G1098` | 6 | aceeași aplicație, altă variantă |
-| `G1099` | 6 | aceeași aplicație, altă variantă |
-| `DMA02` | 4 | `Application` și ciclul de viață |
-| `DMA03` | 8 | navigare, drawer, meniuri |
+| `G1097` | 6 | the Movies app — the reference variant |
+| `G1096` | 6 | the same app, another variant |
+| `G1098` | 6 | the same app, another variant |
+| `G1099` | 6 | the same app, another variant |
+| `DMA02` | 4 | `Application` and the lifecycle |
+| `DMA03` | 8 | navigation, drawer, menus |
 | `DMA05` | 3 | ViewBinding |
-| `DMA06` | 14 | listele, în trei trepte |
+| `DMA06` | 14 | the lists, in three steps |
 
-Fișierele care nu sunt adnotate (resursele secundare, testele, configurațiile) sunt **identice cu repo-ul original**.
+Files that are not annotated (secondary resources, tests, build configuration) are **identical to the original repo**.
 
-## Cum îl deschizi
+## How to open it
 
-**Din Android Studio:** *File → New → Project from Version Control* → `https://github.com/FiredMosquito831/dma2026-adnotat.git`
+**From Android Studio:** *File → New → Project from Version Control* → `https://github.com/FiredMosquito831/dma2026-adnotat.git`, then `git checkout english`.
 
-**Din terminal:**
+**From the terminal:**
 ```bash
-git clone https://github.com/FiredMosquito831/dma2026-adnotat.git
+git clone -b english https://github.com/FiredMosquito831/dma2026-adnotat.git
 ```
 
-## Cum rulezi un modul
+## How to run a module
 
-Repo-ul are **8 module** într-un singur proiect Gradle. Nu deschizi câte un proiect pentru fiecare — alegi modulul din configurația de run:
+The repo has **8 modules** in a single Gradle project. You do not open a separate project for each — you pick the module from the run configuration:
 
-1. În bara de sus, în stânga butonului **Run ▶**, e un dropdown cu configurații.
-2. Dacă nu apare nimic: **Add Configuration** (sau `Edit Configurations…`).
-3. **+** → **Android App** → la **Module** alegi, de exemplu, `dma2026.G1097.main`.
-4. **Apply**, apoi **Run ▶**.
+1. In the top bar, left of the **Run ▶** button, there is a configuration dropdown.
+2. If nothing is there: **Add Configuration** (or `Edit Configurations…`).
+3. **+** → **Android App** → under **Module** pick, for example, `dma2026.G1097.main`.
+4. **Apply**, then **Run ▶**.
 
-Repetă pentru fiecare modul pe care vrei să îl rulezi. Android Studio ține minte configurațiile.
+Repeat for each module you want to run. Android Studio remembers the configurations.
 
-## Ce îți trebuie
+## What you need
 
-- **Android Studio** — orice versiune recentă
-- **JDK 17+** — vine cu Android Studio
-- **Android SDK 37** — din *SDK Manager* dacă lipsește
-- Un **emulator cu API 33+** sau un telefon conectat
+- **Android Studio** — any recent version
+- **JDK 17+** — ships with Android Studio
+- **Android SDK 37** — from the *SDK Manager* if missing
+- An **API 33+ emulator** or a connected phone
 
-## De unde vin comentariile
+## Where the comments come from
 
-Fiecare fișier adnotat corespunde unui capitol din site-ul de pregătire, unde e explicat bloc cu bloc, cu diagrame și cu „de ce"-ul din spate:
+Every annotated file corresponds to a chapter of the study site, where it is explained block by block, with diagrams and the "why" behind it:
 
-**https://firedmosquito831.github.io/g1097-movies-walkthrough/**
+**https://firedmosquito831.github.io/g1097-movies-walkthrough/en/**
 
-| Modul | Capitol |
+| Module | Chapter |
 |---|---|
-| `G1097` | [22 — Codul adnotat](https://firedmosquito831.github.io/g1097-movies-walkthrough/cap-22.html) |
-| `G1096` | [29 — Codul G1096 adnotat](https://firedmosquito831.github.io/g1097-movies-walkthrough/cap-29.html) |
-| `G1098` | [30 — Codul G1098 adnotat](https://firedmosquito831.github.io/g1097-movies-walkthrough/cap-30.html) |
-| `G1099` | [31 — Codul G1099 adnotat](https://firedmosquito831.github.io/g1097-movies-walkthrough/cap-31.html) |
-| `DMA02` | [25 — Codul DMA02 adnotat](https://firedmosquito831.github.io/g1097-movies-walkthrough/cap-25.html) |
-| `DMA03` | [26 — Codul DMA03 adnotat](https://firedmosquito831.github.io/g1097-movies-walkthrough/cap-26.html) |
-| `DMA05` | [27 — Codul DMA05 adnotat](https://firedmosquito831.github.io/g1097-movies-walkthrough/cap-27.html) |
-| `DMA06` | [28 — Codul DMA06 adnotat](https://firedmosquito831.github.io/g1097-movies-walkthrough/cap-28.html) |
+| `G1097` | [22 — Annotated code](https://firedmosquito831.github.io/g1097-movies-walkthrough/en/cap-22.html) |
+| `G1096` | [29 — G1096 code annotated](https://firedmosquito831.github.io/g1097-movies-walkthrough/en/cap-29.html) |
+| `G1098` | [30 — G1098 code annotated](https://firedmosquito831.github.io/g1097-movies-walkthrough/en/cap-30.html) |
+| `G1099` | [31 — G1099 code annotated](https://firedmosquito831.github.io/g1097-movies-walkthrough/en/cap-31.html) |
+| `DMA02` | [25 — DMA02 code annotated](https://firedmosquito831.github.io/g1097-movies-walkthrough/en/cap-25.html) |
+| `DMA03` | [26 — DMA03 code annotated](https://firedmosquito831.github.io/g1097-movies-walkthrough/en/cap-26.html) |
+| `DMA05` | [27 — DMA05 code annotated](https://firedmosquito831.github.io/g1097-movies-walkthrough/en/cap-27.html) |
+| `DMA06` | [28 — DMA06 code annotated](https://firedmosquito831.github.io/g1097-movies-walkthrough/en/cap-28.html) |
 
-## Licență și sursă
+## Licence and source
 
-Codul aparține cursului **Dezvoltare aplicații mobile** (ASE). Acest repo doar adaugă comentarii peste el, pentru studiu. Versiunea fără comentarii: [`mihaidoinea/dma2026`](https://github.com/mihaidoinea/dma2026).
+The code belongs to the **Mobile Application Development** course (ASE). This repo only adds comments on top of it, for study. The version without comments: [`mihaidoinea/dma2026`](https://github.com/mihaidoinea/dma2026).
 
 ---
 

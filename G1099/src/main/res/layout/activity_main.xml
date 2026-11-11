@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- ================================================================================== -->
-<!-- FIȘIER: activity_main.xml — ECRANUL CU LISTA                                        -->
+<!-- FILE: activity_main.xml — THE LIST SCREEN                                          -->
 <!-- ================================================================================== -->
-<!-- CE ESTE: un FrameLayout cu exact doi copii: ListView (umple tot) și FAB (peste el). -->
-<!-- DE CE ATÂT DE PUȚIN: toată complexitatea este în `activity_item.xml` (formularul).  -->
-<!--   Aici doar scheletul.                                                              -->
-<!-- STRUCTURA:                                                                          -->
-<!--                                                                                     -->
-<!--   FrameLayout (id=main)                                                             -->
-<!--   |== ListView (id=listView)          -> primul copil = desenat primul = dedesubt   -->
-<!--   +== FloatingActionButton (id=...)   -> al doilea copil = desenat peste listă      -->
-<!--                                                                                     -->
-<!-- ORDINEA COPIILOR ESTE SEMNIFICAȚIE, NU STIL: în FrameLayout, fiecare copil este      -->
-<!--   desenat peste cel anterior. Inversate, lista ar acoperi butonul.                  -->
+<!-- WHAT IT IS: a FrameLayout with exactly two children: ListView (fills everything) and FAB (on top of it). -->
+<!-- WHY SO LITTLE: all the complexity is in `activity_item.xml` (the form).            -->
+<!--   Here only the skeleton.                                                          -->
+<!-- STRUCTURE:                                                                         -->
+<!--                                                                                    -->
+<!--   FrameLayout (id=main)                                                            -->
+<!--   |== ListView (id=listView)          -> first child = drawn first = underneath     -->
+<!--   +== FloatingActionButton (id=...)   -> second child = drawn over the list         -->
+<!--                                                                                    -->
+<!-- THE ORDER OF THE CHILDREN IS MEANING, NOT STYLE: in a FrameLayout, each child is    -->
+<!--   drawn over the previous one. Reversed, the list would cover the button.           -->
 <!-- ================================================================================== -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -24,14 +24,14 @@
     tools:context=".activities.MainActivity">
 
     <!-- ============================================================================== -->
-    <!-- LISTVIEW — lista derulantă.                                                    -->
-    <!-- `android:id="@+id/listView"` -> căutat în `initControls`.                      -->
-    <!-- `match_parent` pe ambele axe: lista ocupă tot ecranul, inclusiv zona de sub    -->
-    <!--   FAB. Butonul este desenat PESTE listă, nu listă pe lângă el.                 -->
-    <!-- `android:entries="@array/items"` -> umple lista din XML cu elementele din      -->
-    <!--   array-ul de demonstrație. LA RUNTIME, `listView.setAdapter(movieAdapter)`    -->
-    <!--   ÎNLOCUIEȘTE complet acest adapter. `entries` rămâne doar pentru preview.     -->
-    <!--   Costul la runtime este zero după `setAdapter`.                               -->
+    <!-- LISTVIEW — the scrollable list.                                                 -->
+    <!-- `android:id="@+id/listView"` -> looked up in `initControls`.                    -->
+    <!-- `match_parent` on both axes: the list fills the whole screen, including the     -->
+    <!--   area under the FAB. The button is drawn OVER the list, not the list beside it. -->
+    <!-- `android:entries="@array/items"` -> fills the list from XML with the elements   -->
+    <!--   of the demo array. AT RUNTIME, `listView.setAdapter(movieAdapter)`            -->
+    <!--   REPLACES this adapter completely. `entries` remains only for the preview.     -->
+    <!--   The runtime cost is zero after `setAdapter`.                                  -->
     <!-- ============================================================================== -->
     <ListView
         android:id="@+id/listView"
@@ -40,17 +40,17 @@
         android:entries="@array/items" />
 
     <!-- ============================================================================== -->
-    <!-- FLOATING ACTION BUTTON — butonul „+".                                          -->
-    <!-- Numele complet este necesar: este o clasă din biblioteca Material, nu din      -->
-    <!--   framework. Prefixul `com.google.android.material...` este calea clasei.      -->
-    <!-- `wrap_content` pe ambele axe: FAB-ul are dimensiune fixă din stil (56dp).      -->
-    <!--   `match_parent` l-ar întinde pe tot ecranul.                                  -->
-    <!-- `android:layout_gravity="bottom|end"` = poziția ACESTUI COPIL în părintele lui. -->
-    <!--   `end` respectă direcția de citire: în RTL devine stânga.                     -->
-    <!-- `android:layout_margin="16dp"` = 16dp față de marginea zonei de conținut.       -->
-    <!-- `android:contentDescription="Add"` = textul citit de TalkBack. Text literal,   -->
-    <!--   deci lint-ul dă avertisment (ar trebui `@string/...`).                       -->
-    <!-- `app:srcCompat` = varianta compatibilă pentru imagini vectoriale.              -->
+    <!-- FLOATING ACTION BUTTON — the "+" button.                                       -->
+    <!-- The full name is necessary: it is a class from the Material library, not from   -->
+    <!--   the framework. The `com.google.android.material...` prefix is the class path. -->
+    <!-- `wrap_content` on both axes: the FAB has a fixed size from the style (56dp).    -->
+    <!--   `match_parent` would stretch it over the whole screen.                        -->
+    <!-- `android:layout_gravity="bottom|end"` = the position of THIS CHILD in its       -->
+    <!--   parent. `end` respects the reading direction: in RTL it becomes left.         -->
+    <!-- `android:layout_margin="16dp"` = 16dp from the edge of the content area.        -->
+    <!-- `android:contentDescription="Add"` = the text read by TalkBack. A literal       -->
+    <!--   text, so lint gives a warning (it should be `@string/...`).                   -->
+    <!-- `app:srcCompat` = the compatible variant for vector images.                     -->
     <!-- ============================================================================== -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/floatingActionButton"

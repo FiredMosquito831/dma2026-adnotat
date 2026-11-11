@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- ==================================================================================
-     FIȘIER: layout_number_header.xml
+     FILE: layout_number_header.xml
      ==================================================================================
-     LOCAȚIE:  DMA06/src/main/res/layout/layout_number_header.xml
-     ROL:      antetul cu două coloane, refolosit de treptele 2 și 3.
-     CONȚINE:  2 × TextView („Decimal", „Binary")
-     ID-URI:   niciunul — nimic din cod nu îl atinge
+     LOCATION: DMA06/src/main/res/layout/layout_number_header.xml
+     ROLE:     the two-column header, reused by steps 2 and 3.
+     CONTAINS: 2 × TextView ("Decimal", "Binary")
+     IDS:      none — nothing in the code touches it
      ================================================================================== -->
 
-<!-- De ce un fișier fără id-uri are totuși antet: pentru că e refolosit. Un fișier
-     folosit de două ecrane se citește de două ori mai des decât unul folosit de unul
-     singur. Iar faptul că nu are id-uri e o informație: înseamnă că poți schimba orice
-     text din el fără să atingi Java. -->
+<!-- Why a file with no ids still has a header: because it is reused. A file
+     used by two screens is read twice as often as one used by a single
+     one. And the fact that it has no ids is information: it means you can change any
+     text in it without touching Java. -->
 
-<!-- Antetul cu două coloane. Nu are id-uri: codul nu îl atinge niciodată. -->
+<!-- The two-column header. It has no ids: the code never touches it. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -22,7 +22,7 @@
     android:paddingHorizontal="16dp"
     android:paddingVertical="12dp">
 
-    <!-- Coloana 1: „Decimal", aliniată la stânga (implicit) -->
+    <!-- Column 1: "Decimal", aligned to the left (default) -->
     <TextView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -31,8 +31,8 @@
         android:textAppearance="?attr/textAppearanceLabelLarge"
         android:textColor="?attr/colorOnSurfaceVariant" />
 
-    <!-- Coloana 2: „Binary", aliniată la dreapta.
-         gravity="end" respectă direcția de citire; "right" ar fi rămas mereu la dreapta. -->
+    <!-- Column 2: "Binary", aligned to the right.
+         gravity="end" respects the reading direction; "right" would always have stayed on the right. -->
     <TextView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -44,11 +44,11 @@
 </LinearLayout>
 
 <!-- ======================================================================================
-     CE TREBUIE REȚINUT DIN FIȘIER
+     WHAT TO REMEMBER FROM THE FILE
      ======================================================================================
-     background="?attr/colorSurfaceVariant"      nuanță diferită, funcționează în dark mode
-     textColor="?attr/colorOnSurfaceVariant"     perechea gândită împreună cu fundalul
-     textAppearanceLabelLarge                    etichetă, mai mică decât BodyLarge
-     paddingVertical="12dp"                      mai strâns decât rândul (14dp), intenționat
-     aliniere identică cu item_number.xml        padding 16dp, weight 1, gravity end
+     background="?attr/colorSurfaceVariant"      a different shade, works in dark mode
+     textColor="?attr/colorOnSurfaceVariant"     the pair designed together with the background
+     textAppearanceLabelLarge                    a label, smaller than BodyLarge
+     paddingVertical="12dp"                      tighter than the row (14dp), on purpose
+     alignment identical to item_number.xml      padding 16dp, weight 1, gravity end
      ====================================================================================== -->

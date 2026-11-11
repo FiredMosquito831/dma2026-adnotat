@@ -1,60 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ================================================================================== -->
-<!-- FIȘIER: AndroidManifest.xml — CONTRACTUL APLICAȚIEI CU SISTEMUL                    -->
+<!-- FILE: AndroidManifest.xml — THE APP'S CONTRACT WITH THE SYSTEM                     -->
 <!-- ================================================================================== -->
-<!-- CE ESTE: fișierul pe care Android îl citește ÎNAINTE să execute orice cod Java.     -->
-<!--   El declară ce componente are aplicația, care este cea de start, ce temă          -->
-<!--   folosește și ce permisiuni cere.                                                 -->
-<!-- DE CE EXISTĂ: fără el, sistemul nu știe că `MainActivity` există. O clasă Java      -->
-<!--   nu este „o activitate" prin simpla moștenire din AppCompatActivity; devine       -->
-<!--   activitate doar când este declarată aici.                                        -->
-<!-- CINE DEPINDE DE EL: procesul de build (îl fuzionează în APK), launcher-ul           -->
-<!--   sistemului, `PackageManager`.                                                    -->
-<!-- CE NU FACE: nu conține cod, nu conține layout-uri, nu conține logica de navigare.   -->
-<!-- CE S-AR RUPE FĂRĂ EL: aplicația nu s-ar instala deloc.                             -->
+<!-- WHAT IT IS: the file that Android reads BEFORE executing any Java code.            -->
+<!--   It declares which components the app has, which one is the start one, which      -->
+<!--   theme it uses and which permissions it asks for.                                 -->
+<!-- WHY IT EXISTS: without it, the system does not know that `MainActivity` exists.     -->
+<!--   A Java class is not "an activity" just by extending AppCompatActivity; it         -->
+<!--   becomes an activity only when it is declared here.                               -->
+<!-- WHO DEPENDS ON IT: the build process (it merges it into the APK), the system        -->
+<!--   launcher, `PackageManager`.                                                      -->
+<!-- WHAT IT DOES NOT DO: it contains no code, no layouts, no navigation logic.          -->
+<!-- WHAT BREAKS WITHOUT IT: the app would not install at all.                           -->
 <!-- ================================================================================== -->
 
 <!-- ================================================================================== -->
-<!-- MANIFESTUL RĂDĂCINĂ                                                                -->
+<!-- THE ROOT MANIFEST                                                                  -->
 <!-- ================================================================================== -->
-<!-- ATRIBUTE:                                                                          -->
-<!--   xmlns:android -> namespace-ul atributelor de framework                          -->
-<!--   xmlns:tools   -> namespace-ul atributelor pentru Android Studio                  -->
+<!-- ATTRIBUTES:                                                                        -->
+<!--   xmlns:android -> the namespace of the framework attributes                       -->
+<!--   xmlns:tools   -> the namespace of the attributes for Android Studio               -->
 <!--                                                                                    -->
-<!-- OBSERVAȚIE: NU există atribut `package`. În AGP 7+ pachetul se declară în          -->
-<!--   `build.gradle` prin `namespace = "ro.ase.ie.g1096"`. Tutorialele vechi arată     -->
-<!--   `package="ro.ase.ie.g1096"` aici; sintaxa a fost mutată.                         -->
+<!-- NOTE: there is NO `package` attribute. In AGP 7+ the package is declared in         -->
+<!--   `build.gradle` through `namespace = "ro.ase.ie.g1096"`. Old tutorials show       -->
+<!--   `package="ro.ase.ie.g1096"` here; the syntax was moved.                          -->
 <!--                                                                                    -->
-<!-- `xmlns:tools` este DECLARAT, dar în acest fișier NU este folosit: nu apare          -->
-<!--   niciun atribut `tools:...`. Declarația este inofensivă, dar inutilă.             -->
+<!-- `xmlns:tools` is DECLARED, but in this file it is NOT used: there is no             -->
+<!--   `tools:...` attribute. The declaration is harmless, but useless.                 -->
 <!-- ================================================================================== -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
     <!-- ============================================================================== -->
-    <!-- ELEMENTUL <application> — tot ce ține de aplicație în ansamblu                  -->
+    <!-- THE <application> ELEMENT — everything about the app as a whole                 -->
     <!-- ============================================================================== -->
-    <!-- ATRIBUTE, PE RÂND:                                                              -->
-    <!--   allowBackup="true"            -> sistemul poate salva datele aplicației       -->
+    <!-- ATTRIBUTES, IN ORDER:                                                           -->
+    <!--   allowBackup="true"            -> the system can save the app's data           -->
     <!--                                    (Android Auto Backup).                       -->
-    <!--   dataExtractionRules           -> regulile de backup pentru API 31+; trimite    -->
-    <!--                                    la `res/xml/data_extraction_rules.xml`.      -->
-    <!--   fullBackupContent             -> regulile de backup pentru API 30 și mai jos; -->
-    <!--                                    trimite la `res/xml/backup_rules.xml`.       -->
-    <!--   icon / roundIcon              -> iconițele din `res/mipmap`; cele două variante -->
-    <!--                                    acoperă lansatoarele care taie colțurile.     -->
-    <!--   label                         -> numele afișat sub iconiță, din `strings.xml`. -->
-    <!--   supportsRtl="true"            -> layout-urile se oglindesc în limbile RTL.     -->
-    <!--   theme                         -> tema aplicației. AICI este SINGURA valoare    -->
-    <!--                                    specifică grupei: `Theme.G1096`. În G1097      -->
-    <!--                                    este `Theme.G1097`. În rest, fișierul este    -->
-    <!--                                    identic.                                      -->
+    <!--   dataExtractionRules           -> the backup rules for API 31+; it points      -->
+    <!--                                    to `res/xml/data_extraction_rules.xml`.      -->
+    <!--   fullBackupContent             -> the backup rules for API 30 and below;       -->
+    <!--                                    it points to `res/xml/backup_rules.xml`.      -->
+    <!--   icon / roundIcon              -> the icons from `res/mipmap`; the two variants -->
+    <!--                                    cover the launchers that cut the corners.     -->
+    <!--   label                         -> the name shown under the icon, from `strings.xml`. -->
+    <!--   supportsRtl="true"            -> the layouts mirror in RTL languages.         -->
+    <!--   theme                         -> the app's theme. HERE is the ONLY value       -->
+    <!--                                    specific to the group: `Theme.G1096`. In G1097 -->
+    <!--                                    it is `Theme.G1097`. Otherwise the file is    -->
+    <!--                                    identical.                                   -->
     <!--                                                                                 -->
-    <!-- CE NU EXISTĂ AICI — și este important: NICIO permisiune. Nu există              -->
+    <!-- WHAT DOES NOT EXIST HERE — and it matters: NO permission. There is no           -->
     <!--   `<uses-permission android:name="android.permission.INTERNET" />`.             -->
-    <!--   Aplicația nu face nicio cerere de rețea: posterul este stocat ca text și       -->
-    <!--   nu este descărcat niciodată.                                                   -->
+    <!--   The app makes no network request: the poster is stored as text and            -->
+    <!--   is never downloaded.                                                          -->
     <!-- ============================================================================== -->
     <application
         android:allowBackup="true"
@@ -67,58 +67,58 @@
         android:theme="@style/Theme.G1096">
 
         <!-- ========================================================================== -->
-        <!-- ACTIVITATEA 1: MainActivity — ECRANUL DE START                              -->
+        <!-- ACTIVITY 1: MainActivity — THE START SCREEN                                 -->
         <!-- ========================================================================== -->
         <!-- android:name=".activities.MainActivity"                                     -->
-        <!--   Punctul de la început este RELATIV la namespace-ul aplicației.            -->
-        <!--   Forma completă ar fi `ro.ase.ie.g1096.activities.MainActivity`.           -->
+        <!--   The leading dot is RELATIVE to the app's namespace.                       -->
+        <!--   The full form would be `ro.ase.ie.g1096.activities.MainActivity`.         -->
         <!--                                                                             -->
         <!-- android:exported="true"                                                     -->
-        <!--   OBLIGATORIU din API 31 pentru orice componentă cu intent-filter.          -->
-        <!--   `true` = alte aplicații pot porni această activitate. Este necesar        -->
-        <!--   pentru launcher: sistemul trebuie să o poată porni.                       -->
-        <!--   Fără atribut, build-ul eșuează cu „Apps targeting Android 12 and higher   -->
-        <!--   are required to specify an explicit value for android:exported".          -->
+        <!--   MANDATORY since API 31 for any component with an intent-filter.           -->
+        <!--   `true` = other apps can start this activity. It is required               -->
+        <!--   for the launcher: the system must be able to start it.                    -->
+        <!--   Without the attribute, the build fails with "Apps targeting Android 12    -->
+        <!--   and higher are required to specify an explicit value for android:exported". -->
         <!--                                                                             -->
         <!-- android:windowSoftInputMode="adjustResize"                                  -->
-        <!--   Când apare tastatura, fereastra se MICȘOREZĂ, nu se acoperă. Lista         -->
-        <!--   rămâne vizibilă deasupra tastaturii.                                      -->
+        <!--   When the keyboard appears, the window SHRINKS, it is not covered. The     -->
+        <!--   list stays visible above the keyboard.                                    -->
         <!-- ========================================================================== -->
         <activity
             android:name=".activities.MainActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
 
-            <!-- INTENT-FILTER-UL DE LAUNCHER                                          -->
-            <!-- Perechea MAIN + LAUNCHER este ce face iconița din meniu să pornească -->
-            <!-- aplicația. Fără ea, activitatea ar exista, dar nu ar avea intrare.    -->
+            <!-- THE LAUNCHER INTENT-FILTER                                            -->
+            <!-- The MAIN + LAUNCHER pair is what makes the icon in the menu start the -->
+            <!-- app. Without it, the activity would exist, but it would have no entry. -->
             <!--                                                                       -->
-            <!-- `MAIN`     = punctul de intrare al aplicației.                        -->
-            <!-- `LAUNCHER` = apare în lista de aplicații a sistemului.                -->
+            <!-- `MAIN`     = the app's entry point.                                   -->
+            <!-- `LAUNCHER` = it appears in the system's app list.                     -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
-                <!-- Categoria: „arată-mă în launcher". -->
+                <!-- The category: "show me in the launcher". -->
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
         <!-- ========================================================================== -->
-        <!-- ACTIVITATEA 2: ItemActivity — FORMULARUL                                    -->
+        <!-- ACTIVITY 2: ItemActivity — THE FORM                                         -->
         <!-- ========================================================================== -->
         <!-- android:exported="false"                                                    -->
-        <!--   `false` = DOAR aplicația noastră o poate porni. Nicio altă aplicație      -->
-        <!--   nu poate deschide formularul direct. Este valoarea corectă pentru o       -->
-        <!--   activitate internă.                                                       -->
+        <!--   `false` = ONLY our app can start it. No other app                        -->
+        <!--   can open the form directly. It is the correct value for an               -->
+        <!--   internal activity.                                                       -->
         <!--                                                                             -->
-        <!-- NU are intent-filter: nu este punct de intrare, este deschisă din cod      -->
-        <!-- prin `launcher.launch(new Intent(this, ItemActivity.class))`.               -->
+        <!-- It has NO intent-filter: it is not an entry point, it is opened from code  -->
+        <!-- through `launcher.launch(new Intent(this, ItemActivity.class))`.            -->
         <!--                                                                             -->
-        <!-- `windowSoftInputMode="adjustResize"` din nou: formularul are câmpuri text   -->
-        <!-- în partea de jos a unui ScrollView, iar tastatura trebuie să micșoreze      -->
-        <!-- fereastra ca scroll-ul să funcționeze.                                      -->
+        <!-- `windowSoftInputMode="adjustResize"` again: the form has text fields       -->
+        <!-- at the bottom of a ScrollView, and the keyboard must shrink the            -->
+        <!-- window so that scrolling works.                                            -->
         <!--                                                                             -->
-        <!-- ATENȚIE: elementul se închide cu `/>` pentru că nu are copii.               -->
+        <!-- WATCH OUT: the element closes with `/>` because it has no children.        -->
         <!-- ========================================================================== -->
         <activity
             android:name=".activities.ItemActivity"

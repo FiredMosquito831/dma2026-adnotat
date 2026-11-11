@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- ==================================================================================
-     FIȘIER: activity_two_column.xml
+     FILE: activity_two_column.xml
      ==================================================================================
-     LOCAȚIE:  DMA06/src/main/res/layout/activity_two_column.xml
-     ROL:      layout-ul treptei 2: antet fix sus, ListView jos.
-     CONȚINE:  1 × include (layout_number_header), 1 × ListView
-     ID-URI:   lvNumbers
+     LOCATION: DMA06/src/main/res/layout/activity_two_column.xml
+     ROLE:     the step 2 layout: fixed header at the top, ListView below.
+     CONTAINS: 1 × include (layout_number_header), 1 × ListView
+     IDS:      lvNumbers
      ================================================================================== -->
 
-<!-- Coloană verticală: antetul sus (cât conținutul), lista jos (restul ecranului). -->
+<!-- A vertical column: the header at the top (as tall as its content), the list below (the rest of the screen). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!-- Antetul e un fișier separat, refolosit și de treapta 3.
-         Conținutul fișierului inclus e umflat ÎN LOCUL tag-ului: rezultatul e ca și
-         cum ai fi scris antetul direct aici, dar definiția există într-un singur loc. -->
+    <!-- The header is a separate file, reused by step 3 as well.
+         The content of the included file is inflated IN PLACE OF the tag: the result is as if
+         you had written the header directly here, but the definition exists in a single place. -->
     <include layout="@layout/layout_number_header" />
 
-    <!-- ListView-ul ia tot spațiul rămas după antet.
-         0dp + weight="1" = „dimensiunea mea de bază e zero; ia din spațiul liber".
-         Cu match_parent, lista ar cere toată înălțimea părintelui, ar depăși marginea
-         de jos și s-ar tăia. -->
+    <!-- The ListView takes all the space left after the header.
+         0dp + weight="1" = "my base size is zero; take from the free space".
+         With match_parent, the list would ask for the parent's whole height, would overflow the
+         bottom edge and would be clipped. -->
     <ListView
         android:id="@+id/lvNumbers"
         android:layout_width="match_parent"
@@ -31,30 +31,30 @@
 </LinearLayout>
 
 <!-- ======================================================================================
-     CUM SE ÎMPARTE SPAȚIUL, CONCRET
+     HOW THE SPACE IS DIVIDED, CONCRETELY
      ======================================================================================
-     Ecran: 800dp înălțime.
-       antetul: wrap_content → măsoară textul + padding 12dp × 2 ≈ 60dp
-       lista:   0dp + weight 1 → primește 800 − 60 = 740dp
+     Screen: 800dp tall.
+       the header: wrap_content → measures the text + padding 12dp × 2 ≈ 60dp
+       the list:   0dp + weight 1 → receives 800 − 60 = 740dp
 
-     Dacă lista ar avea match_parent:
-       antetul: 60dp
-       lista:   cere 800dp → total 860dp → depășește cu 60dp
-       rezultat: ultimele rânduri ies sub marginea ecranului și nu pot fi derulate
-                 până la capăt, pentru că ListView crede că are loc
+     If the list had match_parent:
+       the header: 60dp
+       the list:   asks for 800dp → total 860dp → overflows by 60dp
+       result: the last rows go under the screen edge and cannot be scrolled
+               to the end, because ListView believes it has room
 
-     De ce 0dp și nu wrap_content cu weight: weight se aplică pe spațiul RĂMAS după
-     dimensiunea de bază. Cu 0dp, baza e zero, deci toată înălțimea disponibilă intră
-     în calculul weight-ului. Cu wrap_content, lista ar primi „înălțimea conținutului
-     + parte din rest", ceea ce nu e ce vrei.
+     Why 0dp and not wrap_content with weight: weight is applied to the space REMAINING after
+     the base size. With 0dp, the base is zero, so the whole available height enters
+     the weight calculation. With wrap_content, the list would receive "the height of the content
+     + a share of the rest", which is not what you want.
      ====================================================================================== -->
 
 <!-- ======================================================================================
-     CE TREBUIE REȚINUT DIN FIȘIER
+     WHAT TO REMEMBER FROM THE FILE
      ======================================================================================
-     <include>                antetul e definit o singură dată, folosit de 2 ecrane
-     0dp + weight="1"         lista ia restul după antet
-     match_parent + weight    GREȘIT: lista ar depăși marginea de jos
-     antetul în afara listei  rămâne fix la scroll; în listă ar fi derulat cu ea
-     ordinea copiilor        antetul primul, lista a doua; weight nu schimbă ordinea
+     <include>                the header is defined once, used by 2 screens
+     0dp + weight="1"         the list takes the rest after the header
+     match_parent + weight    WRONG: the list would overflow the bottom edge
+     header outside the list  stays fixed on scroll; inside the list it would scroll with it
+     child order              the header first, the list second; weight does not change the order
      ====================================================================================== -->

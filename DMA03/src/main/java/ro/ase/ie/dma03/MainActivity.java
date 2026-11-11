@@ -1,97 +1,97 @@
 /*
  * ======================================================================================
- * FIȘIER: MainActivity.java
+ * FILE: MainActivity.java
  * ======================================================================================
- * ROL:
- *   Ecranul principal al aplicației DMA03. Un singur `onCreate` care leagă cinci
- *   componente: lista, meniul contextual, sertarul, bara de sus și butonul Back.
+ * ROLE:
+ *   The main screen of the DMA03 app. A single `onCreate` that ties together five
+ *   components: the list, the context menu, the drawer, the top bar and the Back button.
  *
- * CE DEMONSTREAZĂ:
- *   1. DrawerLayout + NavigationView   — meniu lateral glisant peste conținut.
- *   2. MaterialToolbar                 — titlu, iconiță hamburger, meniu de acțiuni.
- *   3. PopupMenu                       — meniu contextual ancorat pe un rând.
- *   4. OnBackPressedCallback           — interceptarea butonului Back.
+ * WHAT IT DEMONSTRATES:
+ *   1. DrawerLayout + NavigationView   — side menu sliding over the content.
+ *   2. MaterialToolbar                 — title, hamburger icon, actions menu.
+ *   3. PopupMenu                       — context menu anchored to a row.
+ *   4. OnBackPressedCallback           — intercepting the Back button.
  *
- * DEPINDE DE:
+ * DEPENDS ON:
  *   - androidx.activity           → EdgeToEdge, OnBackPressedCallback
  *   - com.google.android.material → MaterialToolbar, NavigationView
- *   - androidx.drawerlayout       → DrawerLayout (adus tranzitiv de `material`)
+ *   - androidx.drawerlayout       → DrawerLayout (brought in transitively by `material`)
  *
- * CE NU FACE:
- *   - nu pornește SecondActivity (nu există niciun `startActivity` în tot fișierul);
- *   - nu salvează nimic în `savedInstanceState`;
- *   - nu are adapter scris de mână — lista se hrănește din `@array/items`.
+ * WHAT IT DOES NOT DO:
+ *   - it does not start SecondActivity (there is no `startActivity` anywhere in the file);
+ *   - it saves nothing in `savedInstanceState`;
+ *   - it has no hand-written adapter — the list is fed from `@array/items`.
  *
- * REF: cap. 14 — DMA03: navigare, meniuri și dialoguri.
+ * REF: ch. 14 — DMA03: navigation, menus and dialogs.
  * ======================================================================================
  */
 
 package ro.ase.ie.dma03;
 
 // ======================================================================================
-// IMPORT 1: android.content.Intent — IMPORTAT, DAR NEFOLOSIT
+// IMPORT 1: android.content.Intent — IMPORTED BUT UNUSED
 // ======================================================================================
-// CE ESTE: descrierea unei acțiuni sau a unui ecran de pornit.
-// DE CE E AICI: singurul mod de a deschide SecondActivity ar fi
+// WHAT IT IS: the description of an action or of a screen to start.
+// WHY IT IS HERE: the only way to open SecondActivity would be
 //   `startActivity(new Intent(this, SecondActivity.class))`.
-// DE CE E O PROBLEMĂ: în tot fișierul nu există niciun `new Intent(...)`, niciun
-//   `startActivity`. Importul e SINGURA urmă a legăturii care lipsește.
-// CUM VERIFICI: Ctrl+F după „Intent" în tot proiectul → un singur rezultat, linia asta.
+// WHY IT IS A PROBLEM: there is no `new Intent(...)` anywhere in the file, no
+//   `startActivity`. The import is the ONLY trace of the missing link.
+// HOW TO CHECK: Ctrl+F for "Intent" across the whole project → a single result, this line.
 // ======================================================================================
 import android.content.Intent;
 
 // ======================================================================================
-// IMPORT 2: android.os.Bundle — starea salvată la recreare
+// IMPORT 2: android.os.Bundle — the state saved on recreation
 // ======================================================================================
-// CE ESTE: un dicționar cheie-valoare pe care sistemul îl păstrează între instanțe.
-// DE CE E AICI: semnătura lui `onCreate(Bundle)` o cere.
-// DE CE E INUTIL AICI: codul nu citește niciodată `savedInstanceState`. La rotire,
-//   totul revine la starea inițială: titlu „Inbox", „Inbox" bifat, lista sus.
+// WHAT IT IS: a key-value dictionary that the system keeps between instances.
+// WHY IT IS HERE: the signature of `onCreate(Bundle)` requires it.
+// WHY IT IS USELESS HERE: the code never reads `savedInstanceState`. On rotation,
+//   everything returns to the initial state: the title "Inbox", "Inbox" checked, the list at the top.
 // ======================================================================================
 import android.os.Bundle;
 
 // ======================================================================================
-// IMPORT 3: android.widget.ListView — lista de 20 de rânduri
+// IMPORT 3: android.widget.ListView — the list of 20 rows
 // ======================================================================================
-// CE ESTE: un `ViewGroup` care afișează o listă verticală derulabilă.
-// DE CE E AICI: ecranul principal e, practic, o listă cu un meniu contextual.
-// DE CE NU `RecyclerView`: 20 de rânduri statice, fără animații, fără view-uri
-//   reciclate complicate. `ListView` e suficient și cere zero cod de adapter.
+// WHAT IT IS: a `ViewGroup` that displays a scrollable vertical list.
+// WHY IT IS HERE: the main screen is, in practice, a list with a context menu.
+// WHY NOT `RecyclerView`: 20 static rows, no animations, no complicated recycled
+//   views. `ListView` is enough and requires zero adapter code.
 // ======================================================================================
 import android.widget.ListView;
 
 // ======================================================================================
-// IMPORT 4: android.widget.PopupMenu — meniul ancorat pe rând
+// IMPORT 4: android.widget.PopupMenu — the menu anchored to a row
 // ======================================================================================
-// CE ESTE: un meniu plutitor, atașat de un view anume (ancora).
-// DE CE E AICI: apăsarea lungă pe un rând trebuie să deschidă Open / Rename / Delete
-//   lângă rândul respectiv, nu în colțul ecranului.
-// DE CE NU `androidx.appcompat.widget.PopupMenu`: ar fi mers, dar varianta de
-//   platformă e suficientă. Diferența se vede doar la stilul fundalului și la ripple.
+// WHAT IT IS: a floating menu, attached to a specific view (the anchor).
+// WHY IT IS HERE: a long press on a row must open Open / Rename / Delete
+//   next to that row, not in the corner of the screen.
+// WHY NOT `androidx.appcompat.widget.PopupMenu`: it would have worked, but the platform
+//   variant is enough. The difference only shows in the background style and the ripple.
 // ======================================================================================
 import android.widget.PopupMenu;
 
 // ======================================================================================
-// IMPORT 5: android.widget.Toast — mesajul scurt, fără acțiune
+// IMPORT 5: android.widget.Toast — the short message, with no action
 // ======================================================================================
-// CE ESTE: un text care apare și dispare singur, fără să blocheze ecranul.
-// DE CE E AICI: toate ramurile de meniu sunt demonstrații — un `Toast` e suficient.
-// DE CE NU `Snackbar`: `Snackbar` are nevoie de un view părinte și de un `.show()`
-//   suplimentar. Pentru o confirmare fără acțiune, `Toast` e mai direct.
+// WHAT IT IS: a text that appears and disappears on its own, without blocking the screen.
+// WHY IT IS HERE: all the menu branches are demonstrations — a `Toast` is enough.
+// WHY NOT `Snackbar`: `Snackbar` needs a parent view and an extra `.show()`
+//   call. For a confirmation with no action, `Toast` is more direct.
 // ======================================================================================
 import android.widget.Toast;
 
 // ======================================================================================
-// IMPORT 6-13: androidx.* — infrastructura activității
+// IMPORTS 6-13: androidx.* — the activity infrastructure
 // ======================================================================================
-// EdgeToEdge              → desenare sub barele de sistem (API 21+).
-// OnBackPressedCallback   → mecanismul modern pentru butonul Back.
-// AppCompatActivity       → activitatea de bază, cu suport AppCompat.
-// Insets                  → dreptunghiurile barelor de sistem, în pixeli.
-// GravityCompat           → START/END, sigure pentru RTL.
-// ViewCompat              → listener-ul de insets, compatibil pe toate API-urile.
-// WindowInsetsCompat      → tipurile de insets (systemBars, ime, displayCutout).
-// DrawerLayout            → containerul cu sertar (vine tranzitiv prin `material`).
+// EdgeToEdge              → drawing under the system bars (API 21+).
+// OnBackPressedCallback   → the modern mechanism for the Back button.
+// AppCompatActivity       → the base activity, with AppCompat support.
+// Insets                  → the rectangles of the system bars, in pixels.
+// GravityCompat           → START/END, safe for RTL.
+// ViewCompat              → the insets listener, compatible on all API levels.
+// WindowInsetsCompat      → the insets types (systemBars, ime, displayCutout).
+// DrawerLayout            → the drawer container (comes in transitively through `material`).
 // ======================================================================================
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
@@ -103,86 +103,86 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 // ======================================================================================
-// IMPORT 14-15: Material — bara și sertarul
+// IMPORTS 14-15: Material — the bar and the drawer
 // ======================================================================================
-// MaterialToolbar  → `Toolbar` cu stilizare Material 3 aplicată automat.
-// NavigationView   → conținutul sertarului: meniu, iconițe, bifare, insets proprii.
+// MaterialToolbar  → `Toolbar` with Material 3 styling applied automatically.
+// NavigationView   → the drawer contents: menu, icons, check marks, its own insets.
 // ======================================================================================
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.navigation.NavigationView;
 
 /*
  * ======================================================================================
- * THEORY BLOCK: ACTIVITY ȘI CICLUL DE VIAȚĂ
+ * THEORY BLOCK: ACTIVITY AND THE LIFECYCLE
  * ======================================================================================
  *
- * 1. CE E O ACTIVITY
- *    -   O componentă Android cu o fereastră proprie. Sistemul o creează, o afișează,
- *        o ascunde și o distruge după propriile reguli.
- *    -   Nu o instanțiezi tu cu `new MainActivity()`. O pornește sistemul, pe baza
- *        unui `Intent` sau a iconiței din lansator.
- *    -   Are un ciclu de viață cu stări: CREATED → STARTED → RESUMED → PAUSED →
- *        STOPPED → DESTROYED. Între stări, sistemul cheamă metode de callback.
+ * 1. WHAT AN ACTIVITY IS
+ *    -   An Android component with its own window. The system creates it, shows it,
+ *        hides it and destroys it by its own rules.
+ *    -   You do not instantiate it with `new MainActivity()`. The system starts it,
+ *        based on an `Intent` or on the launcher icon.
+ *    -   It has a lifecycle with states: CREATED → STARTED → RESUMED → PAUSED →
+ *        STOPPED → DESTROYED. Between states, the system calls callback methods.
  *
- * 2. `onCreate` — PRIMUL CALLBACK, O SINGURĂ DATĂ PER INSTANȚĂ
- *    -   Aici se construiește interfața: `setContentView`, `findViewById`, listenere.
- *    -   Se cheamă la pornire și la fiecare recreare (rotire, schimbare de temă,
- *        schimbare de limbă). La recreare primește `savedInstanceState` cu datele
- *        salvate anterior — aici e `null` prima dată și e ignorat mereu.
- *    -   Nu e locul pentru operații lungi: blocul rulează pe thread-ul principal,
- *        iar sistemul așteaptă să termine înainte să deseneze primul cadru.
+ * 2. `onCreate` — THE FIRST CALLBACK, ONCE PER INSTANCE
+ *    -   This is where the interface is built: `setContentView`, `findViewById`, listeners.
+ *    -   It is called at startup and at every recreation (rotation, theme change,
+ *        language change). On recreation it receives `savedInstanceState` with the data
+ *        saved previously — here it is `null` the first time and is always ignored.
+ *    -   It is not the place for long operations: the block runs on the main thread,
+ *        and the system waits for it to finish before drawing the first frame.
  *
- * 3. ORDINEA OBLIGATORIE ÎN `onCreate`
- *    -   `super.onCreate(...)` PRIMUL. Părintele inițializează infrastructura
- *        (inclusiv `OnBackPressedDispatcher`-ul folosit mai jos).
- *    -   `setContentView(...)` ÎNAINTE de orice `findViewById`. Altfel primești
- *        `null`, nu excepție — și `NullPointerException` apare mai târziu, pe o
- *        linie fără legătură aparentă.
- *    -   `findViewById` și listenere DUPĂ `setContentView`.
+ * 3. THE MANDATORY ORDER IN `onCreate`
+ *    -   `super.onCreate(...)` FIRST. The parent initializes the infrastructure
+ *        (including the `OnBackPressedDispatcher` used below).
+ *    -   `setContentView(...)` BEFORE any `findViewById`. Otherwise you get
+ *        `null`, not an exception — and the `NullPointerException` appears later, on a
+ *        line with no apparent connection.
+ *    -   `findViewById` and listeners AFTER `setContentView`.
  *
- * 4. DE CE UN SINGUR `onCreate` E O PROBLEMĂ DIDACTICĂ, NU UNA TEHNICĂ
- *    -   Funcționează perfect. Dar șapte responsabilități într-o metodă de 100 de
- *        linii se citesc greu și se testează și mai greu.
- *    -   Într-o aplicație reală: metode private `setupToolbar()`, `setupDrawer()`,
- *        `setupList()`. Aici sunt lăsate inline ca să vezi ordinea reală a apelurilor.
+ * 4. WHY A SINGLE `onCreate` IS A DIDACTIC PROBLEM, NOT A TECHNICAL ONE
+ *    -   It works perfectly. But seven responsibilities in a 100-line method
+ *        are hard to read and even harder to test.
+ *    -   In a real application: private methods `setupToolbar()`, `setupDrawer()`,
+ *        `setupList()`. Here they are left inline so that you see the real order of the calls.
  *
- * 5. CE ÎNSEAMNĂ „CONTEXT"
- *    -   `this` dintr-o activitate e un `Context` (mai exact `ContextThemeWrapper`):
- *        dă acces la resurse, la tema aplicației și la serviciile sistemului.
- *    -   Widget-urile cer un context TEMATIZAT. `getApplicationContext()` nu are
- *        tema activității — de aceea `new Button(SecondActivity.this)` și nu
+ * 5. WHAT "CONTEXT" MEANS
+ *    -   `this` from an activity is a `Context` (more precisely a `ContextThemeWrapper`):
+ *        it gives access to resources, to the app theme and to the system services.
+ *    -   Widgets require a THEMED context. `getApplicationContext()` does not have the
+ *        activity theme — that is why `new Button(SecondActivity.this)` and not
  *        `new Button(getApplicationContext())`.
  *
- * REF: cap. 15 — DMA02: Application și ciclu de viață; documentația
- *      `android.app.Activity` și `androidx.activity.ComponentActivity`.
+ * REF: ch. 15 — DMA02: Application and lifecycle; the documentation of
+ *      `android.app.Activity` and `androidx.activity.ComponentActivity`.
  * ======================================================================================
  */
 
 public class MainActivity extends AppCompatActivity {
 
     // ==================================================================================
-    // CÂMP 1: drawerLayout
+    // FIELD 1: drawerLayout
     // ==================================================================================
-    // CE ESTE: referința la `DrawerLayout`-ul din XML.
-    // UNDE E FOLOSIT: în trei locuri — listener-ul sertarului (`closeDrawer`),
-    //   callback-ul Back (`isDrawerOpen` + `closeDrawer`) și hamburger (`openDrawer`).
-    // DE CE E CÂMP ȘI NU LOCALĂ: toate cele trei utilizări sunt în `onCreate`, deci
-    //   ar fi mers și locală. E câmp din obișnuință, ca să fie la îndemână dacă
-    //   adaugi metode noi.
-    // `private` — nimic din afară nu are nevoie de el.
+    // WHAT IT IS: the reference to the `DrawerLayout` from the XML.
+    // WHERE IT IS USED: in three places — the drawer listener (`closeDrawer`),
+    //   the Back callback (`isDrawerOpen` + `closeDrawer`) and the hamburger (`openDrawer`).
+    // WHY IT IS A FIELD AND NOT A LOCAL: all three uses are in `onCreate`, so
+    //   a local would have worked too. It is a field out of habit, so that it is at hand if
+    //   you add new methods.
+    // `private` — nothing outside needs it.
     // ==================================================================================
     private DrawerLayout drawerLayout;
 
     // ==================================================================================
-    // CÂMP 2: listView
+    // FIELD 2: listView
     // ==================================================================================
-    // CE ESTE: referința la lista din XML.
-    // UNDE E FOLOSIT: în listener-ul de apăsare lungă, ca să citească textul rândului
-    //   apăsat (`getItemAtPosition(position)`).
-    // DE CE E CÂMP: lambda de long press se execută DUPĂ ce `onCreate` s-a terminat.
-    //   O variabilă locală ar fi prinsă în closure (lambda capturează doar variabile
-    //   effectively final), dar un câmp e mai clar și supraviețuiește cât trăiește
-    //   activitatea.
+    // WHAT IT IS: the reference to the list from the XML.
+    // WHERE IT IS USED: in the long-press listener, to read the text of the pressed
+    //   row (`getItemAtPosition(position)`).
+    // WHY IT IS A FIELD: the long-press lambda runs AFTER `onCreate` has finished.
+    //   A local variable would be captured in the closure (a lambda captures only
+    //   effectively final variables), but a field is clearer and lives as long as
+    //   the activity does.
     // ==================================================================================
     private ListView listView;
 
@@ -191,186 +191,186 @@ public class MainActivity extends AppCompatActivity {
      * METHOD: onCreate(Bundle savedInstanceState)
      * ----------------------------------------------------------------------------------
      * THEORY:
-     *   Callback-ul de creare al activității. Rulează o dată per instanță, pe thread-ul
-     *   principal, înainte ca primul cadru să fie desenat. Aici se construiește tot
-     *   arborele de view-uri și se leagă toate listenerele.
+     *   The creation callback of the activity. It runs once per instance, on the main
+     *   thread, before the first frame is drawn. This is where the whole view tree is
+     *   built and all the listeners are bound.
      *
-     * LOGIC (ordinea reală din cod):
-     *   1. `super.onCreate`                — inițializează părintele (inclusiv dispatcher-ul Back)
-     *   2. `EdgeToEdge.enable`             — fereastra se întinde sub barele de sistem
-     *   3. `setContentView`                — umflă `activity_main.xml`
-     *   4. insets pe `R.id.main`           — padding ca să nu stai sub ceas
-     *   5. `listView` + apăsare lungă      — `PopupMenu` ancorat pe rând
-     *   6. `drawerLayout`/`toolbar`/`nav`  — cele trei componente găsite după id
-     *   7. listener sertar                 — schimbă titlul, închide sertarul
-     *   8. callback Back                   — închide sertarul sau deleagă
-     *   9. hamburger                       — deschide sertarul
-     *  10. meniu toolbar                   — Search / Share / Settings
+     * LOGIC (the real order in the code):
+     *   1. `super.onCreate`                — initializes the parent (including the Back dispatcher)
+     *   2. `EdgeToEdge.enable`             — the window extends under the system bars
+     *   3. `setContentView`                — inflates `activity_main.xml`
+     *   4. insets on `R.id.main`           — padding so you don't sit under the clock
+     *   5. `listView` + long press         — `PopupMenu` anchored to the row
+     *   6. `drawerLayout`/`toolbar`/`nav`  — the three components found by id
+     *   7. drawer listener                 — changes the title, closes the drawer
+     *   8. Back callback                   — closes the drawer or delegates
+     *   9. hamburger                       — opens the drawer
+     *  10. toolbar menu                    — Search / Share / Settings
      *
      * REF:
-     *   cap. 14 (secțiunile 14.1–14.6), documentația `Activity#onCreate`.
+     *   ch. 14 (sections 14.1–14.6), the documentation of `Activity#onCreate`.
      *
      * RISK:
-     *   - `findViewById` înainte de `setContentView` → `null`, apoi NPE într-un listener.
-     *   - `super.onCreate` omis → `SuperNotCalledException` la runtime.
-     *   - listenerii mutați înainte de `setContentView` → primesc view-uri `null`.
+     *   - `findViewById` before `setContentView` → `null`, then an NPE in a listener.
+     *   - `super.onCreate` omitted → `SuperNotCalledException` at runtime.
+     *   - listeners moved before `setContentView` → they receive `null` views.
      * ----------------------------------------------------------------------------------
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // PASUL 1: super.onCreate — lansează ciclul de viață al părintelui.
-        // Fără el, `getOnBackPressedDispatcher()` de mai jos ar primi un dispatcher
-        // neconfigurat. `@Override` e și o verificare: dacă semnătura greșește,
-        // compilatorul te avertizează.
+        // STEP 1: super.onCreate — starts the parent's lifecycle.
+        // Without it, `getOnBackPressedDispatcher()` below would receive an unconfigured
+        // dispatcher. `@Override` is also a check: if the signature is wrong,
+        // the compiler warns you.
         super.onCreate(savedInstanceState);
 
-        // PASUL 2: EdgeToEdge — fereastra se întinde sub status bar și sub bara de
-        // navigare. Cheamă `WindowCompat.setDecorFitsSystemWindows(window, false)`.
-        // Fără el, aplicația ar avea bare de sistem opace și nu ai avea nevoie de
-        // blocul de insets de mai jos. Cu el, AI nevoie — altfel primul rând din
-        // listă intră sub ceas.
+        // STEP 2: EdgeToEdge — the window extends under the status bar and under the
+        // navigation bar. It calls `WindowCompat.setDecorFitsSystemWindows(window, false)`.
+        // Without it, the app would have opaque system bars and you would not need the
+        // insets block below. With it, you DO need it — otherwise the first row in the
+        // list goes under the clock.
         EdgeToEdge.enable(this);
 
-        // PASUL 3: setContentView — `LayoutInflater` citește XML-ul, creează
-        // obiectele Java pentru fiecare tag și le atașează la fereastră.
-        // Din acest moment, `findViewById` poate găsi ceva. Înainte, arborele nu există.
-        // `R.layout` e resursa de layout (fișierul întreg); `R.id` e un identificator
-        // dintr-un view. Două spații de nume diferite, generate în același `R.java`.
+        // STEP 3: setContentView — `LayoutInflater` reads the XML, creates the
+        // Java objects for every tag and attaches them to the window.
+        // From this moment, `findViewById` can find something. Before, the tree does not exist.
+        // `R.layout` is the layout resource (the whole file); `R.id` is an identifier
+        // inside a view. Two different namespaces, generated in the same `R.java`.
         setContentView(R.layout.activity_main);
 
-        // PASUL 4: insets — când sistemul calculează cât ocupă barele, aplică pe
-        // view-ul cu `id=main` un padding egal cu ele. Conținutul se mută în zona
-        // sigură, fundalul rămâne întins pe tot ecranul.
+        // STEP 4: insets — when the system calculates how much the bars occupy, it applies
+        // to the view with `id=main` a padding equal to them. The content moves into the
+        // safe area, the background stays stretched across the whole screen.
         //
-        // `ViewCompat.setOnApplyWindowInsetsListener` înregistrează un listener
-        // compatibil: pe API vechi folosește metodele vechi, pe API nou pe cele noi.
-        // Listener-ul rulează imediat după `setContentView` și apoi la fiecare
-        // schimbare (rotire, tastatură, bare care apar/dispar). Nu rulează o singură
-        // dată — de aceea codul din interior trebuie să fie idempotent.
+        // `ViewCompat.setOnApplyWindowInsetsListener` registers a compatible listener:
+        // on old APIs it uses the old methods, on new APIs the new ones.
+        // The listener runs immediately after `setContentView` and then on every
+        // change (rotation, keyboard, bars appearing/disappearing). It does not run once
+        // — that is why the code inside it must be idempotent.
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             // `Type.systemBars()` = status bar + navigation bar + caption bar.
-            // Nu include tastatura (`Type.ime()`) și nici decupajul (`Type.displayCutout()`).
+            // It does not include the keyboard (`Type.ime()`) nor the cutout (`Type.displayCutout()`).
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
 
-            // `setPadding` SUPRASCRIE padding-ul existent. Dacă `CoordinatorLayout`-ul
-            // ar avea `android:padding="8dp"` în XML, cele 8dp ar dispărea la primul
-            // insets. Corect ar fi `v.setPadding(base + insets.left, ...)`, cu valorile
-            // de bază salvate într-un câmp. Aici XML-ul nu are padding, deci nu se vede.
+            // `setPadding` OVERWRITES the existing padding. If the `CoordinatorLayout`
+            // had `android:padding="8dp"` in the XML, those 8dp would disappear at the first
+            // insets pass. The correct way would be `v.setPadding(base + insets.left, ...)`, with the base
+            // values saved in a field. Here the XML has no padding, so it does not show.
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
 
-            // `return insets` — NU `WindowInsetsCompat.CONSUMED`. Insets-urile merg mai
-            // departe, la copii. Dacă le-ai consuma, `AppBarLayout` nu ar mai ști de ele
-            // și `liftOnScroll` ar primi valori greșite. Consumi doar când ai tratat tu
-            // complet zona și vrei să oprești propagarea.
+            // `return insets` — NOT `WindowInsetsCompat.CONSUMED`. The insets go further,
+            // to the children. If you consumed them, `AppBarLayout` would no longer know about them
+            // and `liftOnScroll` would receive wrong values. You consume only when you have fully
+            // handled the area yourself and want to stop the propagation.
             return insets;
         });
 
-        // PASUL 5: lista. Metoda e generică (`<T extends View> T findViewById(int)`),
-        // deci compilatorul deduce tipul din atribuire; nu e nevoie de cast.
-        // Căutarea se face pe activitate, adică în tot arborele ferestrei. Dacă ai avea
-        // două view-uri cu același id în layout-uri diferite, ai primi primul găsit —
-        // de aceea id-urile trebuie să fie unice într-un layout.
+        // STEP 5: the list. The method is generic (`<T extends View> T findViewById(int)`),
+        // so the compiler infers the type from the assignment; no cast is needed.
+        // The search is done on the activity, that is, across the whole window tree. If you had
+        // two views with the same id in different layouts, you would get the first one found —
+        // that is why ids must be unique within a layout.
         listView = findViewById(R.id.listView);
 
-        // `setOnItemLongClickListener` înregistrează un listener pentru apăsare lungă
-        // pe ORICE rând al listei. Nu există un listener „pe rând": `ListView` are unul
-        // singur, pentru toate rândurile, și îți spune în parametri pe care rând s-a apăsat.
+        // `setOnItemLongClickListener` registers a listener for a long press
+        // on ANY row of the list. There is no "per-row" listener: `ListView` has a single
+        // one, for all the rows, and it tells you in the parameters which row was pressed.
         //
-        // Lambda cu patru parametri pentru `AdapterView.OnItemLongClickListener`:
-        //   parent   : AdapterView<?> — `ListView`-ul însuși (aici nu e folosit)
-        //   view     : View           — RÂNDUL apăsat; devine ancora meniului
-        //   position : int            — indexul rândului în listă, 0-based
-        //   id       : long           — id-ul elementului; pentru `ArrayAdapter` e
-        //                               egal cu `position`. Tipul e `long` pentru că
-        //                               `AdapterView` poate lucra și cu id-uri din
-        //                               baze de date (`SQLite` folosește `long`).
+        // Lambda with four parameters for `AdapterView.OnItemLongClickListener`:
+        //   parent   : AdapterView<?> — the `ListView` itself (not used here)
+        //   view     : View           — the pressed ROW; it becomes the anchor of the menu
+        //   position : int            — the index of the row in the list, 0-based
+        //   id       : long           — the id of the item; for `ArrayAdapter` it is
+        //                               equal to `position`. The type is `long` because
+        //                               `AdapterView` can also work with ids from
+        //                               databases (`SQLite` uses `long`).
         //
-        // NU există `setOnItemClickListener` nicăieri în fișier. Un tap simplu pe rând
-        // nu face nimic. Doar apăsarea lungă reacționează. E o alegere didactică:
-        // proiectul demonstrează meniul contextual, nu navigarea.
+        // There is NO `setOnItemClickListener` anywhere in the file. A simple tap on a row
+        // does nothing. Only the long press reacts. It is a didactic choice:
+        // the project demonstrates the context menu, not navigation.
         //
-        // Ce se întâmplă la un tap simplu, concret: `ListView` primește `ACTION_DOWN`,
-        // pornește un `CheckForLongPress` cu timeout-ul sistemului (~500 ms), iar la
-        // `ACTION_UP` fără listener de click nu se întâmplă nimic. Rândul nici măcar
-        // nu rămâne evidențiat — `ListView` în modul `CHOICE_MODE_NONE` nu ține selecție.
+        // What happens on a simple tap, concretely: `ListView` receives `ACTION_DOWN`,
+        // starts a `CheckForLongPress` with the system timeout (~500 ms), and on
+        // `ACTION_UP` without a click listener nothing happens. The row does not even
+        // stay highlighted — `ListView` in `CHOICE_MODE_NONE` mode keeps no selection.
         //
-        // De ce listener-ul e pe listă și nu pe adapter: adapterul produce view-uri,
-        // nu evenimente. `ListView` e cel care știe poziția și rândul apăsat.
+        // Why the listener is on the list and not on the adapter: the adapter produces views,
+        // not events. `ListView` is the one that knows the position and the pressed row.
         //
         // ------------------------------------------------------------------------------
         // METHOD (lambda): onItemLongClick(parent, view, position, id)
-        // THEORY: callback pentru apăsarea lungă pe un rând de listă.
-        // LOGIC:  1. construiește un `PopupMenu` ancorat pe `view`;
-        //         2. umflă `list_item_menu`;
-        //         3. înregistrează listener-ul de element;
-        //         4. `show()` și `return true`.
+        // THEORY: callback for a long press on a list row.
+        // LOGIC:  1. builds a `PopupMenu` anchored to `view`;
+        //         2. inflates `list_item_menu`;
+        //         3. registers the item listener;
+        //         4. `show()` and `return true`.
         // REF:    26.1.9–26.1.11
-        // RISK:   fără `return true`, se declanșează și click-ul normal.
+        // RISK:   without `return true`, the normal click fires as well.
         // ------------------------------------------------------------------------------
         // Long press shows the popup menu
         listView.setOnItemLongClickListener((parent, view, position, id) -> {
-            // `new PopupMenu(this, view)` — `this` e contextul (activitatea, pentru
-            // temă), `view` e ancora. `PopupWindow` calculează poziția pornind de la
-            // dreptunghiul view-ului și îl plasează dedesubt, dacă încape, sau deasupra,
-            // dacă nu. De aceea meniul apare lipit de rând, nu în colțul ecranului.
+            // `new PopupMenu(this, view)` — `this` is the context (the activity, for the
+            // theme), `view` is the anchor. `PopupWindow` calculates the position starting from
+            // the view's rectangle and places it below if it fits, or above
+            // if it does not. That is why the menu appears attached to the row, not in the corner of the screen.
             //
-            // De ce NU `listView` ca ancoră: `ListView` e un dreptunghi mare, cât tot
-            // ecranul. Meniul ar apărea la marginea lui — adică sus, lângă bară — și ar
-            // acoperi rândul apăsat. De ce NU `toolbar`: ar arăta ca un meniu de overflow
-            // al barei, nu ca un meniu contextual.
+            // Why NOT `listView` as the anchor: `ListView` is a large rectangle, as big as the whole
+            // screen. The menu would appear at its edge — that is, at the top, next to the bar — and would
+            // cover the pressed row. Why NOT `toolbar`: it would look like an overflow menu
+            // of the bar, not like a context menu.
             PopupMenu popup = new PopupMenu(this, view);   // anchored to the pressed row
 
-            // `getMenuInflater()` vine din `Context` (activitatea) și întoarce un
-            // `MenuInflater` — un parser pentru `<menu>`, nu pentru layout-uri.
-            // `inflate(resursă, meniu)` — al doilea argument e `Menu`-ul DESTINAȚIE,
-            // obținut cu `popup.getMenu()`. Nu e ca la `setContentView`, unde dai doar
-            // resursa. De ce `R.menu.list_item_menu` și nu `top_app_bar`: sunt două
-            // meniuri diferite, pentru două contexte diferite. `list_item_menu` are
-            // „Open / Rename / Delete" — acțiuni pe un rând. `top_app_bar` are
-            // „Search / Share / Settings" — acțiuni pe ecran.
+            // `getMenuInflater()` comes from `Context` (the activity) and returns a
+            // `MenuInflater` — a parser for `<menu>`, not for layouts.
+            // `inflate(resource, menu)` — the second argument is the DESTINATION `Menu`,
+            // obtained with `popup.getMenu()`. It is not like `setContentView`, where you pass only
+            // the resource. Why `R.menu.list_item_menu` and not `top_app_bar`: they are two
+            // different menus, for two different contexts. `list_item_menu` has
+            // "Open / Rename / Delete" — actions on a row. `top_app_bar` has
+            // "Search / Share / Settings" — actions on the screen.
             //
-            // Ce se întâmplă dacă uiți `inflate`: meniul e gol. `popup.show()` afișează
-            // un dreptunghi fără elemente, iar listener-ul nu se apelează niciodată.
+            // What happens if you forget `inflate`: the menu is empty. `popup.show()` displays
+            // a rectangle with no items, and the listener is never called.
             popup.getMenuInflater().inflate(R.menu.list_item_menu, popup.getMenu());
 
-            // `setOnMenuItemClickListener` se apelează ÎNAINTE de `popup.show()`;
-            // dacă îl înregistrezi după, meniul e deja afișat și click-urile din prima
-            // secundă se pierd.
+            // `setOnMenuItemClickListener` is called BEFORE `popup.show()`;
+            // if you register it afterwards, the menu is already displayed and the clicks in the first
+            // second are lost.
             popup.setOnMenuItemClickListener(menuItem -> {
-                // `getItemId()` — id-ul din XML (`R.id.action_open` etc.). Nu poziția:
-                // dacă reordonezi elementele în XML, id-urile rămân aceleași, pozițiile nu.
+                // `getItemId()` — the id from the XML (`R.id.action_open` etc.). Not the position:
+                // if you reorder the items in the XML, the ids stay the same, the positions do not.
                 int itemId = menuItem.getItemId();
 
-                // `position` e capturat din lambda exterioară. E un parametru de metodă,
-                // deci effectively final — Java permite capturarea. Dacă ai încerca să-l
-                // modifici între timp (`position++`), compilatorul ar refuza.
+                // `position` is captured from the outer lambda. It is a method parameter,
+                // hence effectively final — Java allows capturing it. If you tried to
+                // modify it in the meantime (`position++`), the compiler would refuse.
                 //
-                // `getItemAtPosition(position)` întoarce un `CharSequence` — textul din
-                // `@array/items`, pentru că `ListView` și-a construit singur un
-                // `ArrayAdapter` din atributul `android:entries` din XML. Nu ai scris
-                // niciun adapter în cod.
+                // `getItemAtPosition(position)` returns a `CharSequence` — the text from
+                // `@array/items`, because `ListView` built its own
+                // `ArrayAdapter` from the `android:entries` attribute in the XML. You wrote
+                // no adapter in the code.
                 //
-                // `.toString()` e redundant pentru un `String`, dar inofensiv. Devine
-                // necesar în momentul în care pui obiecte în listă: acolo `toString()`
-                // e contractul de afișare.
+                // `.toString()` is redundant for a `String`, but harmless. It becomes
+                // necessary the moment you put objects in the list: there `toString()`
+                // is the display contract.
                 String selected = listView.getItemAtPosition(position).toString();
 
-                // `return true` = „am tratat eu click-ul". Meniul se închide și
-                // evenimentul nu mai circulă. `return false` = „nu mă interesează" —
-                // sistemul încearcă handler-ul implicit.
+                // `return true` = "I handled the click". The menu closes and
+                // the event no longer circulates. `return false` = "I don't care" —
+                // the system tries the default handler.
                 //
-                // Ce se întâmplă exact cu `return false` pe `PopupMenu`: `PopupMenu`
-                // închide meniul oricum, la click. Valoarea se propagă la
-                // `MenuBuilder.performItemAction`, care, dacă nu e consumată, continuă
-                // cu acțiunea implicită a elementului — de exemplu un `Intent` setat pe
-                // item. La noi elementele nu au `Intent`, deci `false` nu schimbă nimic
-                // vizibil. Dar contractul rămâne: `true` = tratat.
+                // What exactly happens with `return false` on a `PopupMenu`: `PopupMenu`
+                // closes the menu anyway, on click. The value propagates to
+                // `MenuBuilder.performItemAction`, which, if it is not consumed, continues
+                // with the item's default action — for example an `Intent` set on
+                // the item. Here the items have no `Intent`, so `false` changes nothing
+                // visible. But the contract remains: `true` = handled.
                 if (itemId == R.id.action_open) {
-                    // `Toast.makeText(...).show()` — două apeluri. `makeText`
-                    // CONSTRUIEȘTE, `show()` AFIȘEAZĂ. Fără `.show()`, nu se întâmplă
-                    // nimic, fără eroare. E cea mai frecventă greșeală la început.
-                    // `LENGTH_SHORT` ≈ 2 secunde; `LENGTH_LONG` ≈ 3,5 secunde. Valorile
-                    // sunt indicii, nu garanții: producătorul poate ajusta durata.
+                    // `Toast.makeText(...).show()` — two calls. `makeText`
+                    // BUILDS, `show()` DISPLAYS. Without `.show()`, nothing happens,
+                    // with no error. It is the most frequent mistake at the beginning.
+                    // `LENGTH_SHORT` ≈ 2 seconds; `LENGTH_LONG` ≈ 3.5 seconds. The values
+                    // are hints, not guarantees: the manufacturer can adjust the duration.
                     Toast.makeText(this, "Open: " + selected, Toast.LENGTH_SHORT).show();
                     return true;
                 } else if (itemId == R.id.action_rename) {
@@ -380,75 +380,75 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, "Delete: " + selected, Toast.LENGTH_SHORT).show();
                     return true;
                 }
-                // `return false` la final e cod mort — toate cele trei id-uri sunt
-                // acoperite mai sus. Rămâne corect: dacă adaugi un al patrulea element
-                // în `list_item_menu.xml` și uiți să-l tratezi, click-ul cade frumos în
-                // handler-ul implicit în loc să facă ceva imprevizibil.
+                // The final `return false` is dead code — all three ids are
+                // covered above. It stays correct: if you add a fourth item
+                // in `list_item_menu.xml` and forget to handle it, the click falls nicely into
+                // the default handler instead of doing something unpredictable.
                 return false;
             });
 
-            // `popup.show()` — până aici doar ai configurat meniul. Abia acum apare pe
-            // ecran. Ordinea e: construiești → umfli → înregistrezi listener → afișezi.
+            // `popup.show()` — up to here you have only configured the menu. Only now does it appear
+            // on screen. The order is: build → inflate → register listener → display.
             popup.show();
 
-            // `return true` din listener-ul de apăsare lungă — spune listei „apăsarea
-            // lungă a fost tratată". Dacă ai întoarce `false`, sistemul ar considera
-            // apăsarea lungă netratată și ar putea declanșa și un click normal în urma
-            // ei. Rezultatul: meniul apare și, simultan, se execută acțiunea de click.
+            // `return true` from the long-press listener — tells the list "the long
+            // press was handled". If you returned `false`, the system would consider the
+            // long press unhandled and could also trigger a normal click after
+            // it. The result: the menu appears and, at the same time, the click action runs.
             //
-            // Mecanismul din spate: `AdapterView` ține un flag intern
-            // (`mHasPerformedLongPress`). Listener-ul îl setează doar dacă întoarce
-            // `true`. La `ACTION_UP`, dacă flagul e setat, click-ul e ignorat. Dacă nu,
-            // `performClick()` rulează normal.
+            // The mechanism behind it: `AdapterView` keeps an internal flag
+            // (`mHasPerformedLongPress`). The listener sets it only if it returns
+            // `true`. At `ACTION_UP`, if the flag is set, the click is ignored. If not,
+            // `performClick()` runs normally.
             //
-            // Ordinea contează: `popup.show()` ÎNAINTE de `return true`. Invers nu se
-            // poate — `return` încheie lambda.
+            // The order matters: `popup.show()` BEFORE `return true`. The reverse is not
+            // possible — `return` ends the lambda.
             return true;   // true = long press handled, so the normal click doesn't also fire
         });
 
 
-        // PASUL 6: legarea celor trei componente. Toate trei id-urile trebuie să existe
-        // în `activity_main.xml`, altfel primești `null` și un `NullPointerException`
-        // la primul apel. Ordinea celor trei linii nu contează — sunt independente.
-        // Contează doar să fie după `setContentView`.
+        // STEP 6: binding the three components. All three ids must exist
+        // in `activity_main.xml`, otherwise you get `null` and a `NullPointerException`
+        // on the first call. The order of the three lines does not matter — they are independent.
+        // All that matters is that they come after `setContentView`.
         //
-        // `toolbar` și `navigationView` sunt LOCALE, `drawerLayout` e CÂMP.
-        // Inconsecvență reală în cod: toate trei sunt folosite doar în `onCreate`.
-        // Merge și cu toate trei locale; merge și cu toate trei câmpuri. Alege o
-        // variantă și ține-te de ea.
+        // `toolbar` and `navigationView` are LOCAL, `drawerLayout` is a FIELD.
+        // A real inconsistency in the code: all three are used only in `onCreate`.
+        // It works with all three local; it works with all three as fields. Pick one
+        // variant and stick to it.
         drawerLayout = findViewById(R.id.drawerLayout);
         MaterialToolbar toolbar = findViewById(R.id.topAppBar);
         NavigationView navigationView = findViewById(R.id.navigationView);
 
 
-        // PASUL 7: listener-ul sertarului.
+        // STEP 7: the drawer listener.
         //
-        // Ce face fiecare ramură: schimbă TITLUL barei de sus. Conținutul listei
-        // rămâne același — cele 20 de „Item N". Aplicația e o demonstrație de
-        // navigare, nu una de date.
+        // What each branch does: it changes the TITLE of the top bar. The contents of the list
+        // stay the same — the 20 "Item N" entries. The app is a demonstration of
+        // navigation, not of data.
         //
-        // `toolbar.setTitle("Inbox")` suprascrie `app:title="Inbox"` din XML.
-        // Valoarea din XML e doar cea inițială; după primul click, titlul vine din cod.
+        // `toolbar.setTitle("Inbox")` overwrites `app:title="Inbox"` from the XML.
+        // The value in the XML is only the initial one; after the first click, the title comes from the code.
         //
-        // `nav_settings` e tratat diferit — un `Toast`, nu un titlu. E singurul element
-        // din submeniul „Other", deci nu are sens să schimbe titlul ecranului.
+        // `nav_settings` is treated differently — a `Toast`, not a title. It is the only item
+        // in the "Other" submenu, so it makes no sense for it to change the screen title.
         //
-        // De ce `item.getItemId()` și nu `item.getTitle()`: titlul e text vizibil,
-        // care se poate traduce sau schimba. Id-ul e stabil. Comparația cu `R.id.*`
-        // e singura care rezistă la o schimbare de limbă.
+        // Why `item.getItemId()` and not `item.getTitle()`: the title is visible text,
+        // which can be translated or changed. The id is stable. The comparison with `R.id.*`
+        // is the only one that survives a language change.
         //
-        // Ce se întâmplă dacă niciun `if` nu se potrivește: listener-ul continuă,
-        // cheamă `item.setChecked(true)` și închide sertarul. Elementul necunoscut
-        // rămâne bifat, dar titlul nu se schimbă. Nu e o eroare — e un comportament
-        // implicit.
+        // What happens if no `if` matches: the listener continues,
+        // calls `item.setChecked(true)` and closes the drawer. The unknown item
+        // stays checked, but the title does not change. It is not an error — it is a default
+        // behaviour.
         //
         // ------------------------------------------------------------------------------
-        // METHOD (lambda): onMenuItemClick(item) — selecția din sertar
-        // THEORY: callback pentru un element din `NavigationView`.
-        // LOGIC:  1. citește id-ul; 2. actualizează titlul; 3. setează bifa;
-        //         4. închide sertarul; 5. `return true`.
+        // METHOD (lambda): onMenuItemClick(item) — the drawer selection
+        // THEORY: callback for an item in the `NavigationView`.
+        // LOGIC:  1. reads the id; 2. updates the title; 3. sets the check mark;
+        //         4. closes the drawer; 5. `return true`.
         // REF:    26.1.13
-        // RISK:   fără `closeDrawer`, sertarul rămâne peste ecran.
+        // RISK:   without `closeDrawer`, the drawer stays over the screen.
         // ------------------------------------------------------------------------------
         // Drawer item clicks
         navigationView.setNavigationItemSelectedListener(item -> {
@@ -464,95 +464,95 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show();
             }
 
-            // `item.setChecked(true)` — meniul are `android:checkableBehavior="single"`
-            // (vezi 26.6), deci se comportă ca un grup de radio butoane: un singur
-            // element bifat. Apelul explicit garantează starea după ce sertarul se
-            // închide și după redeschidere.
+            // `item.setChecked(true)` — the menu has `android:checkableBehavior="single"`
+            // (see 26.6), so it behaves like a group of radio buttons: a single
+            // checked item. The explicit call guarantees the state after the drawer
+            // closes and after it is reopened.
             //
-            // De ce e nevoie de `setChecked` explicit dacă meniul e deja „single":
-            // `checkableBehavior` face grupul exclusiv, dar nu înseamnă că
-            // `NavigationView` marchează automat elementul la click. Codul nu se
-            // bazează pe comportamentul implicit — îl setează singur. E o alegere
-            // defensivă, bună.
+            // Why `setChecked` is needed explicitly if the menu is already "single":
+            // `checkableBehavior` makes the group exclusive, but it does not mean that
+            // `NavigationView` marks the item automatically on click. The code does not
+            // rely on the default behaviour — it sets it itself. It is a defensive
+            // choice, a good one.
             item.setChecked(true);
 
-            // `closeDrawer(GravityCompat.START)` — închide sertarul din partea `start`.
-            // Trebuie să corespundă cu `android:layout_gravity="start"` din XML. Dacă
-            // în XML e `start` și în cod `end`, sertarul rămâne deschis.
+            // `closeDrawer(GravityCompat.START)` — closes the drawer from the `start` side.
+            // It must match `android:layout_gravity="start"` from the XML. If
+            // the XML says `start` and the code says `end`, the drawer stays open.
             //
-            // De ce `setNavigationItemSelectedListener` NU închide sertarul singur:
-            // `NavigationView` e un container de meniu. Nu are referință la
-            // `DrawerLayout` și nu știe că există unul. Sunt vecini în arbore, nu
-            // părinte-copil. Listener-ul e doar un callback: „s-a apăsat elementul X".
-            // Ce faci cu informația — schimbi titlul, închizi sertarul, pornești un
-            // ecran — e decizia ta, în codul tău.
+            // Why `setNavigationItemSelectedListener` does NOT close the drawer itself:
+            // `NavigationView` is a menu container. It has no reference to
+            // `DrawerLayout` and does not know that one exists. They are neighbours in the tree, not
+            // parent-child. The listener is only a callback: "item X was pressed".
+            // What you do with the information — change the title, close the drawer, start a
+            // screen — is your decision, in your code.
             //
-            // Consecința practică: dacă uiți `closeDrawer`, sertarul rămâne peste
-            // ecran după selecție. Utilizatorul vede titlul schimbat, dar nu vede
-            // conținutul. E primul lucru care lipsește dintr-o implementare grăbită.
+            // The practical consequence: if you forget `closeDrawer`, the drawer stays over
+            // the screen after the selection. The user sees the changed title but does not see
+            // the content. It is the first thing missing from a hasty implementation.
             drawerLayout.closeDrawer(GravityCompat.START);
 
-            // `return true` — spune `NavigationView` că click-ul a fost tratat. Dacă
-            // întorci `false`, elementul nu se marchează vizual ca selectat. Contractul
-            // documentat al variantei vechi (`OnNavigationItemSelectedListener`) e
-            // explicit: „true to display the item as the selected item". Varianta nouă
-            // (`MenuItem.OnMenuItemClickListener`) propagă valoarea în `MenuBuilder`,
-            // iar `NavigationView` o folosește la fel.
+            // `return true` — tells `NavigationView` that the click was handled. If you
+            // return `false`, the item is not marked visually as selected. The documented contract
+            // of the old variant (`OnNavigationItemSelectedListener`) is explicit:
+            // "true to display the item as the selected item". The new variant
+            // (`MenuItem.OnMenuItemClickListener`) propagates the value into `MenuBuilder`,
+            // and `NavigationView` uses it the same way.
             //
-            // De ce codul cheamă totuși `setChecked(true)`: pentru că se bazează pe
-            // contract, nu pe implementare. Dacă `NavigationView` s-ar schimba, bifarea
-            // rămâne corectă.
+            // Why the code still calls `setChecked(true)`: because it relies on the
+            // contract, not on the implementation. If `NavigationView` changed, the check mark
+            // would remain correct.
             return true;
         });
 
-        // PASUL 8: butonul Back. De ce nu `@Override public void onBackPressed()`:
-        // metoda a fost marcată deprecated din API 33, iar `OnBackPressedDispatcher`
-        // e mecanismul oficial. Pe lângă asta, dispatcher-ul permite MAI MULTE
-        // callback-uri în lanț, fiecare cu prioritatea lui — o singură suprascriere
-        // nu poate face asta.
+        // STEP 8: the Back button. Why not `@Override public void onBackPressed()`:
+        // the method was marked deprecated starting with API 33, and `OnBackPressedDispatcher`
+        // is the official mechanism. On top of that, the dispatcher allows SEVERAL
+        // callbacks in a chain, each with its own priority — a single override
+        // cannot do that.
         //
-        // `new OnBackPressedCallback(true)` — argumentul e starea inițială:
-        // `true` = activ. Un callback dezactivat nu primește evenimente.
+        // `new OnBackPressedCallback(true)` — the argument is the initial state:
+        // `true` = active. A disabled callback receives no events.
         //
-        // `addCallback(this, ...)` — primul argument e `LifecycleOwner` (activitatea).
-        // Dispatcher-ul ține callback-ul doar cât timp activitatea e în `STARTED`.
-        // La `onStop`, callback-ul e scos automat; la `onStart`, revine. Nu trebuie
-        // să-l elimini manual. Varianta fără `LifecycleOwner` lasă callback-ul în
-        // listă până îl scoți tu — dacă uiți, ține o referință la activitate.
+        // `addCallback(this, ...)` — the first argument is the `LifecycleOwner` (the activity).
+        // The dispatcher keeps the callback only while the activity is in `STARTED`.
+        // At `onStop`, the callback is removed automatically; at `onStart`, it comes back. You do not
+        // have to remove it manually. The variant without a `LifecycleOwner` leaves the callback in
+        // the list until you remove it — if you forget, it holds a reference to the activity.
         //
-        // Logica, pas cu pas:
-        //   1. S-a apăsat Back.
-        //   2. Sertarul e deschis? → închide-l. Sfârșit. Utilizatorul rămâne pe ecran.
-        //   3. Sertarul e închis? → `setEnabled(false)`, apoi re-trimite evenimentul.
+        // The logic, step by step:
+        //   1. Back was pressed.
+        //   2. Is the drawer open? → close it. Done. The user stays on the screen.
+        //   3. Is the drawer closed? → `setEnabled(false)`, then re-send the event.
         //
-        // De ce `setEnabled(false)` înainte de re-trimitere: fără el,
-        // `onBackPressed()` ar intra din nou în ACELAȘI callback, care ar vedea
-        // sertarul închis și ar re-trimite evenimentul — recursie infinită,
-        // `StackOverflowError`. Dezactivându-te pe tine însuți, lași următorul handler
-        // din lanț (cel implicit, care închide activitatea) să primească evenimentul.
+        // Why `setEnabled(false)` before re-sending: without it,
+        // `onBackPressed()` would enter the SAME callback again, which would see the
+        // drawer closed and re-send the event — infinite recursion,
+        // `StackOverflowError`. By disabling yourself, you let the next handler
+        // in the chain (the default one, which closes the activity) receive the event.
         //
-        // Mecanismul exact: `OnBackPressedDispatcher` ține callback-urile într-o
-        // colecție ordonată. `onBackPressed()` o parcurge de la ultimul adăugat spre
-        // primul și se oprește la primul callback ACTIV care tratează evenimentul.
-        // Dacă callback-ul tău se reapelează fără să se dezactiveze, parcurgerea îl
-        // găsește tot pe el. `setEnabled(false)` îl scoate din colecția de callback-uri
-        // active, deci parcurgerea trece mai departe.
+        // The exact mechanism: `OnBackPressedDispatcher` keeps the callbacks in an
+        // ordered collection. `onBackPressed()` walks it from the last added to
+        // the first and stops at the first ACTIVE callback that handles the event.
+        // If your callback re-enters without disabling itself, the walk finds it
+        // again. `setEnabled(false)` removes it from the collection of active
+        // callbacks, so the walk moves on.
         //
-        // Ce e „handler-ul implicit": `ComponentActivity` înregistrează un fallback
-        // care cheamă `super.onBackPressed()` — adică `finish()` pe activitate. Dacă
-        // nu ar exista, Back ar fi ignorat.
+        // What the "default handler" is: `ComponentActivity` registers a fallback
+        // that calls `super.onBackPressed()` — that is, `finish()` on the activity. If
+        // it did not exist, Back would be ignored.
         //
-        // De ce nu `finish()` direct: `finish()` ar închide activitatea, dar ar sări
-        // peste orice alt callback din lanț (de exemplu un `NavController` care ar
-        // trebui să gestioneze Back întâi). Delegarea păstrează lanțul intact.
+        // Why not `finish()` directly: `finish()` would close the activity, but it would skip
+        // any other callback in the chain (for example a `NavController` that should
+        // handle Back first). Delegating keeps the chain intact.
         //
         // ------------------------------------------------------------------------------
         // METHOD: handleOnBackPressed()
-        // THEORY: callback-ul care interceptează Back înaintea sistemului.
-        // LOGIC:  1. dacă sertarul e deschis, închide-l;
-        //         2. altfel dezactivează-te și delegă evenimentul.
+        // THEORY: the callback that intercepts Back before the system.
+        // LOGIC:  1. if the drawer is open, close it;
+        //         2. otherwise disable yourself and delegate the event.
         // REF:    26.1.14
-        // RISK:   fără `setEnabled(false)`, recursie infinită.
+        // RISK:   without `setEnabled(false)`, infinite recursion.
         // ------------------------------------------------------------------------------
         // Back button closes the drawer first if it's open
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -568,58 +568,58 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        // PASUL 9: hamburger-ul. Iconița din stânga barei (cele trei linii) deschide
-        // sertarul. Iconița există deja în XML — `app:navigationIcon="@drawable/ic_menu"`.
-        // Fără listener, e doar decorativă: se vede, se apasă, nu se întâmplă nimic.
-        // Listener-ul e cel care o transformă în buton.
+        // STEP 9: the hamburger. The icon on the left of the bar (the three lines) opens
+        // the drawer. The icon already exists in the XML — `app:navigationIcon="@drawable/ic_menu"`.
+        // Without a listener, it is purely decorative: it is visible, it can be pressed, nothing happens.
+        // The listener is what turns it into a button.
         //
-        // `setNavigationOnClickListener` — un singur listener pentru iconița de
-        // navigare a toolbar-ului. Nu primește poziție sau id: e un singur buton.
+        // `setNavigationOnClickListener` — a single listener for the toolbar's navigation
+        // icon. It receives no position or id: it is a single button.
         //
-        // De ce nu `ActionBarDrawerToggle`: varianta clasică leagă automat iconița,
-        // sertarul și accesibilitatea, dar cere ca toolbar-ul să fie setat ca
-        // `ActionBar` (`setSupportActionBar`). Aici toolbar-ul e folosit ca view
-        // obișnuit, deci legătura se face manual. E mai puțin cod, dar și mai puțin
-        // automatism — de exemplu, iconița nu se animă în săgeată când sertarul e
-        // deschis, iar descrierea de accesibilitate nu se actualizează automat.
+        // Why not `ActionBarDrawerToggle`: the classic variant binds the icon, the drawer
+        // and accessibility automatically, but it requires the toolbar to be set as
+        // the `ActionBar` (`setSupportActionBar`). Here the toolbar is used as an ordinary
+        // view, so the binding is done manually. It is less code, but also less
+        // automation — for example, the icon does not animate into an arrow when the drawer is
+        // open, and the accessibility description is not updated automatically.
         //
-        // `GravityCompat.START` — aceeași direcție ca `layout_gravity` din XML.
-        // A patra apariție în fișier.
+        // `GravityCompat.START` — the same direction as `layout_gravity` in the XML.
+        // The fourth occurrence in the file.
         // Hamburger (navigation) icon
         toolbar.setNavigationOnClickListener(v -> {
             drawerLayout.openDrawer(GravityCompat.START);
         });
 
-        // PASUL 10: meniul din toolbar. Meniul e deja umflat —
-        // `app:menu="@menu/top_app_bar"` din XML. Aici doar reacționezi la click.
-        // Dacă ai fi folosit `setSupportActionBar(toolbar)`, ai fi suprascris
-        // `onCreateOptionsMenu` și `onOptionsItemSelected`; cu toolbar-ul ca view
-        // simplu, ăsta e cârligul corect.
+        // STEP 10: the toolbar menu. The menu is already inflated —
+        // `app:menu="@menu/top_app_bar"` from the XML. Here you only react to clicks.
+        // If you had used `setSupportActionBar(toolbar)`, you would have overridden
+        // `onCreateOptionsMenu` and `onOptionsItemSelected`; with the toolbar as a plain
+        // view, this is the right hook.
         //
-        // `action_settings` are `app:showAsAction="never"` — de aceea ajunge în
-        // meniul „⋮" (overflow), nu pe bară. `action_search` și `action_share` au
-        // `ifRoom` — apar direct pe bară dacă încap.
+        // `action_settings` has `app:showAsAction="never"` — that is why it ends up in the
+        // "⋮" menu (overflow), not on the bar. `action_search` and `action_share` have
+        // `ifRoom` — they appear directly on the bar if they fit.
         //
-        // Comentariul `// open settings` marchează un loc gol. Ramura afișează un
-        // `Toast`, dar intenția era deschiderea unui ecran de setări. E un TODO
-        // deghizat.
+        // The comment `// open settings` marks an empty spot. The branch displays a
+        // `Toast`, but the intention was to open a settings screen. It is a disguised
+        // TODO.
         //
-        // `return false` la final e cod mort — toate cele trei id-uri sunt acoperite
-        // mai sus. Rămâne corect: dacă adaugi un al patrulea element în meniu și uiți
-        // să-l tratezi, click-ul cade frumos în handler-ul implicit în loc să arunce
-        // excepție.
+        // The final `return false` is dead code — all three ids are covered
+        // above. It stays correct: if you add a fourth item to the menu and forget
+        // to handle it, the click falls nicely into the default handler instead of throwing
+        // an exception.
         //
-        // Ce se întâmplă cu `return false` pe un element din overflow: `Toolbar`
-        // propagă valoarea la `MenuBuilder`, care încearcă acțiunea implicită a
-        // elementului (un `Intent`, un `ActionProvider`). La noi nu există niciuna,
-        // deci meniul se închide și atât.
+        // What happens with `return false` on an overflow item: `Toolbar`
+        // propagates the value to `MenuBuilder`, which tries the item's default
+        // action (an `Intent`, an `ActionProvider`). Here there is neither,
+        // so the menu closes and that is all.
         //
         // ------------------------------------------------------------------------------
-        // METHOD (lambda): onMenuItemClick(item) — meniul barei
-        // THEORY: callback pentru Search / Share / Settings.
-        // LOGIC:  1. citește id-ul; 2. afișează un `Toast`; 3. `return true`.
+        // METHOD (lambda): onMenuItemClick(item) — the bar menu
+        // THEORY: callback for Search / Share / Settings.
+        // LOGIC:  1. reads the id; 2. shows a `Toast`; 3. `return true`.
         // REF:    26.1.16
-        // RISK:   `return false` pe un id necunoscut lasă evenimentul să circule.
+        // RISK:   `return false` on an unknown id lets the event circulate.
         // ------------------------------------------------------------------------------
         // Search, share and overflow menu items
         toolbar.setOnMenuItemClickListener(item -> {

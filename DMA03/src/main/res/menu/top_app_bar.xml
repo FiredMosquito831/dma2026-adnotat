@@ -1,66 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   ======================================================================================
-  FIȘIER: top_app_bar.xml
+  FILE: top_app_bar.xml
   ======================================================================================
-  ROL:
-    Meniul barei de sus: Search, Share și Settings. Umflat de `MaterialToolbar`
-    prin `app:menu="@menu/top_app_bar"`.
+  ROLE:
+    The top bar menu: Search, Share and Settings. Inflated by `MaterialToolbar`
+    through `app:menu="@menu/top_app_bar"`.
 
-  CE DEMONSTREAZĂ:
-    1. `app:showAsAction` — toate valorile și efectul lor la runtime.
-    2. `app:` vs `android:` — de ce namespace-ul contează.
-    3. Overflow-ul — unde ajung elementele care nu încap.
+  WHAT IT DEMONSTRATES:
+    1. `app:showAsAction` — all the values and their effect at runtime.
+    2. `app:` vs `android:` — why the namespace matters.
+    3. The overflow — where the items that do not fit end up.
 
-  REF: cap. 14 (secțiunea despre meniuri), documentația `Menu`, `MenuItem`,
+  REF: ch. 14 (the section on menus), the documentation of `Menu`, `MenuItem`,
        `android:showAsAction`.
   ======================================================================================
 -->
 
 <!--
   ======================================================================================
-  ELEMENT: <menu> cu xmlns:app
+  ELEMENT: <menu> with xmlns:app
   ======================================================================================
-  `xmlns:app` e OBLIGATORIU aici: `showAsAction` e un atribut definit de biblioteca
-    AppCompat, nu de platformă. Fără namespace-ul `app`, atributul nu ar fi recunoscut.
+  `xmlns:app` is MANDATORY here: `showAsAction` is an attribute defined by the AppCompat
+    library, not by the platform. Without the `app` namespace, the attribute would not be recognised.
 
-  `app:showAsAction` ȘI NU `android:showAsAction` — atributul e definit de biblioteca
-    AppCompat, nu de platformă. Cu `android:` ar fi ignorat silențios pe versiunile
-    noi. De ce e ignorat: `android:showAsAction` e citit doar de `ActionBar`-ul de
-    framework (API 11+). Aplicația folosește `Theme.Material3.DayNight.NoActionBar`
-    și un `MaterialToolbar` ca view simplu — nu există `ActionBar` de framework care
-    să citească atributul.
+  `app:showAsAction` AND NOT `android:showAsAction` — the attribute is defined by the AppCompat
+    library, not by the platform. With `android:` it would be silently ignored on the new
+    versions. Why it is ignored: `android:showAsAction` is read only by the framework
+    `ActionBar` (API 11+). The app uses `Theme.Material3.DayNight.NoActionBar`
+    and a `MaterialToolbar` as a plain view — there is no framework `ActionBar` to
+    read the attribute.
 
-  TOATE VALORILE `showAsAction` ȘI CE SE ÎNTÂMPLĂ LA RUNTIME:
+  ALL THE `showAsAction` VALUES AND WHAT HAPPENS AT RUNTIME:
 
-    never                (0) → elementul stă MEREU în overflow (meniul „⋮"),
-                               indiferent de spațiu;
-    ifRoom               (1) → elementul apare pe bară DACĂ ÎNCAPE; altfel în overflow;
-    always               (2) → elementul apare MEREU pe bară, chiar dacă înghesuie
-                               titlul;
-    withText             (4) → MODIFICATOR: afișează și titlul, nu doar iconița
-                               (se combină cu `ifRoom`/`always`);
-    collapseActionView   (8) → elementul are un `ActionView` care se strânge la
-                               iconiță și se extinde la click (ex. `SearchView`).
+    never                (0) → the item ALWAYS sits in the overflow (the "⋮" menu),
+                               regardless of space;
+    ifRoom               (1) → the item appears on the bar IF IT FITS; otherwise in the overflow;
+    always               (2) → the item ALWAYS appears on the bar, even if it crowds
+                               the title;
+    withText             (4) → MODIFIER: it also displays the title, not only the icon
+                               (it combines with `ifRoom`/`always`);
+    collapseActionView   (8) → the item has an `ActionView` that collapses to an
+                               icon and expands on click (e.g. `SearchView`).
 
-  CUM SE COMBINĂ: `withText` și `collapseActionView` sunt FLAG-URI, nu stări. Se
-    scriu cu `|`:
-      app:showAsAction="ifRoom|withText"          → pe bară, cu iconiță ȘI text
-      app:showAsAction="always|collapseActionView" → mereu pe bară, cu ActionView
-                                                     colapsabil
+  HOW THEY COMBINE: `withText` and `collapseActionView` are FLAGS, not states. They are
+    written with `|`:
+      app:showAsAction="ifRoom|withText"          → on the bar, with icon AND text
+      app:showAsAction="always|collapseActionView" → always on the bar, with a collapsible
+                                                     ActionView
 
-  CE FACE TOOLBAR-UL CONCRET, ÎN ORDINE:
-    1. Măsoară lățimea disponibilă (ecranul minus iconița de navigare minus titlul).
-    2. Parcurge elementele în ordinea din XML.
-    3. Pentru fiecare `always`: îl pune pe bară, indiferent de spațiu.
-    4. Pentru fiecare `ifRoom`: îl pune pe bară dacă mai încape; altfel în overflow.
-    5. Pentru fiecare `never`: îl pune direct în overflow.
-    6. Overflow-ul apare doar dacă are cel puțin un element.
+  WHAT THE TOOLBAR DOES CONCRETELY, IN ORDER:
+    1. It measures the available width (the screen minus the navigation icon minus the title).
+    2. It walks the items in the XML order.
+    3. For every `always`: it puts it on the bar, regardless of space.
+    4. For every `ifRoom`: it puts it on the bar if there is still room; otherwise in the overflow.
+    5. For every `never`: it puts it directly in the overflow.
+    6. The overflow appears only if it has at least one item.
 
-  ORDINEA ÎN XML = ORDINEA PE BARĂ, de la stânga la dreapta (după iconița de
-    navigare). În overflow, ordinea se păstrează.
+  THE ORDER IN THE XML = THE ORDER ON THE BAR, from left to right (after the navigation
+    icon). In the overflow, the order is preserved.
 
-  TITLURILE SUNT LITERALE, nu resurse — aceeași observație ca la `drawer_menu.xml`.
+  THE TITLES ARE LITERAL, not resources — the same observation as for `drawer_menu.xml`.
   ======================================================================================
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
@@ -70,11 +70,11 @@
       ================================================================================
       ELEMENT: action_search — ifRoom
       ================================================================================
-      `ifRoom` — apare pe bară dacă încape; altfel în overflow. Pe un telefon îngust,
-      unul dintre Search și Share poate cădea în overflow. Pe tabletă apar amândouă.
-      Comportamentul depinde de lățimea ecranului, de orientare și de lungimea
-      titlului.
-      `android:icon="@drawable/ic_search"` — iconița vectorială din `res/drawable/`.
+      `ifRoom` — it appears on the bar if it fits; otherwise in the overflow. On a narrow phone,
+      one of Search and Share may fall into the overflow. On a tablet both appear.
+      The behaviour depends on the screen width, on the orientation and on the length of the
+      title.
+      `android:icon="@drawable/ic_search"` — the vector icon from `res/drawable/`.
       ================================================================================
     -->
     <item
@@ -87,8 +87,8 @@
       ================================================================================
       ELEMENT: action_share — ifRoom
       ================================================================================
-      A doua acțiune `ifRoom`. Dacă bara nu are loc pentru amândouă, cea de-a doua
-      (în ordinea din XML) cade prima în overflow.
+      The second `ifRoom` action. If the bar has no room for both, the second one
+      (in the XML order) falls into the overflow first.
       ================================================================================
     -->
     <item
@@ -101,15 +101,15 @@
       ================================================================================
       ELEMENT: action_settings — never
       ================================================================================
-      `never` — stă MEREU în overflow, indiferent de spațiu. Nu are iconiță: în
-      overflow, textul e suficient. Elementele cu iconiță în overflow își afișează
-      iconița; cele fără, doar textul.
+      `never` — it ALWAYS sits in the overflow, regardless of space. It has no icon: in the
+      overflow, the text is enough. The items with an icon in the overflow display their
+      icon; the ones without, only the text.
 
-      CE SE ÎNTÂMPLĂ DACĂ PUI `always` PE TOATE TREI: bara devine aglomerată, titlul
-      „Inbox" se trunchiază, iar pe ecrane mici elementele se suprapun peste titlu.
-      `always` se folosește doar pentru acțiuni critice, maximum una-două.
-      CE SE ÎNTÂMPLĂ DACĂ PUI `withText` FĂRĂ `ifRoom`: `withText` singur nu spune
-      unde să stea elementul. În practică, se combină mereu cu `ifRoom` sau `always`.
+      WHAT HAPPENS IF YOU PUT `always` ON ALL THREE: the bar becomes crowded, the title
+      "Inbox" is truncated, and on small screens the items overlap the title.
+      `always` is used only for critical actions, at most one or two.
+      WHAT HAPPENS IF YOU PUT `withText` WITHOUT `ifRoom`: `withText` alone does not say
+      where the item should sit. In practice, it is always combined with `ifRoom` or `always`.
       ================================================================================
     -->
     <!-- Items with "never" go into the ⋮ overflow menu -->

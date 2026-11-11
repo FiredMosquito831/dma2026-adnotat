@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- ==================================================================================
-     FIȘIER: AndroidManifest.xml
+     FILE: AndroidManifest.xml
      ==================================================================================
-     LOCAȚIE:  DMA06/src/main/AndroidManifest.xml
-     ROL:      declară aplicația, tema și cele patru activități.
-     CONȚINE:  1 × <application>, 4 × <activity>, 1 × <intent-filter>
-     ATENȚIE:  nu are atribut `package`; numele vine din `namespace` în build.gradle.kts.
+     LOCATION: DMA06/src/main/AndroidManifest.xml
+     ROLE:     declares the application, the theme and the four activities.
+     CONTAINS: 1 × <application>, 4 × <activity>, 1 × <intent-filter>
+     WATCH OUT: it has no `package` attribute; the name comes from `namespace` in build.gradle.kts.
      ================================================================================== -->
 
-<!-- Fără `package=` — versiunile moderne de Android Gradle Plugin iau numele din
-     `namespace` (ro.ase.ie.dma06). De aceea numele relative `.activities.MainActivity`
-     se rezolvă în ro.ase.ie.dma06.activities.MainActivity. Punctul de la început
-     înseamnă „lipește numele aplicației în față". -->
+<!-- No `package=` — modern versions of the Android Gradle Plugin take the name from
+     `namespace` (ro.ase.ie.dma06). That is why the relative names `.activities.MainActivity`
+     resolve to ro.ase.ie.dma06.activities.MainActivity. The leading dot
+     means "prepend the application name". -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
@@ -21,9 +21,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AdaptersDemo">
 
-        <!-- Singura activitate care poate fi pornită din exterior: cea din launcher.
-             exported="true" e obligatoriu din Android 12 (API 31) pentru orice
-             componentă cu intent-filter. -->
+        <!-- The only activity that can be started from outside: the launcher one.
+             exported="true" is mandatory from Android 12 (API 31) for any
+             component with an intent-filter. -->
         <activity
             android:name=".activities.MainActivity"
             android:exported="true">
@@ -33,8 +33,8 @@
             </intent-filter>
         </activity>
 
-        <!-- Treptele: pornite doar din MainActivity, deci exported="false".
-             android:label dă titlul din bara de sus a fiecărui ecran. -->
+        <!-- The steps: started only from MainActivity, hence exported="false".
+             android:label gives the title in the top bar of each screen. -->
         <activity
             android:name=".activities.SingleColumnActivity"
             android:exported="false"
@@ -53,28 +53,28 @@
 </manifest>
 
 <!-- ======================================================================================
-     CE TREBUIE REȚINUT DIN FIȘIER
+     WHAT TO REMEMBER FROM THE FILE
      ======================================================================================
-     fără package=            numele vine din namespace (build.gradle.kts)
-     .activities.MainActivity punctul = lipește applicationId-ul în față
-     exported="true"          doar pe MainActivity, singura cu MAIN + LAUNCHER
-     exported="false"         cele trei trepte: nicio altă aplicație nu le poate porni
-     android:label            titlul din ActionBar, per activitate
-     supportsRtl="true"       de aceea gravity="end" în item_number.xml, nu "right"
-     allowBackup="true"       valoarea implicită generată; aici nu există date de salvat
-     fără <uses-permission>   aplicația nu atinge rețeaua, fișierele sau senzorii
-     fără android:icon        se folosește iconița implicită a proiectului
-     ordinea activităților    nu contează; contează doar care are MAIN + LAUNCHER
+     no package=              the name comes from namespace (build.gradle.kts)
+     .activities.MainActivity the dot = prepends the applicationId
+     exported="true"          only on MainActivity, the only one with MAIN + LAUNCHER
+     exported="false"         the three steps: no other app can start them
+     android:label            the ActionBar title, per activity
+     supportsRtl="true"       that is why item_number.xml uses gravity="end", not "right"
+     allowBackup="true"       the generated default; there is no data to save here
+     no <uses-permission>     the app does not touch the network, the files or the sensors
+     no android:icon          the project's default icon is used
+     activity order           does not matter; only which one has MAIN + LAUNCHER matters
      ====================================================================================== -->
 
-<!-- Ce se întâmplă dacă uiți o activitate din manifest: compilatorul nu zice nimic,
-     pentru că el nu știe ce clase extind Activity. La runtime, startActivity caută
-     componenta în PackageManager, nu o găsește și aruncă:
+<!-- What happens if you forget an activity in the manifest: the compiler says nothing,
+     because it does not know which classes extend Activity. At runtime, startActivity looks
+     for the component in PackageManager, does not find it and throws:
 
        android.content.ActivityNotFoundException:
        Unable to find explicit activity class
        {ro.ase.ie.dma06/ro.ase.ie.dma06.activities.SingleColumnActivity};
        have you declared this activity in your AndroidManifest.xml?
 
-     Mesajul e explicit și apare imediat la click — deci eroarea e ușor de găsit,
-     spre deosebire de cea de la RecyclerView fără LayoutManager. -->
+     The message is explicit and appears immediately on the click — so the error is easy to find,
+     unlike the one from a RecyclerView without a LayoutManager. -->

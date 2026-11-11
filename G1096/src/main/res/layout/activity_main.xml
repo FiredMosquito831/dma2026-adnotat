@@ -1,45 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- ================================================================================== -->
-<!-- FIȘIER: activity_main.xml — ECRANUL CU LISTA                                       -->
+<!-- FILE: activity_main.xml — THE SCREEN WITH THE LIST                                 -->
 <!-- ================================================================================== -->
-<!-- CE ESTE: un FrameLayout cu exact doi copii: ListView (umple tot) și FAB (peste el). -->
-<!-- DE CE ATÂT DE PUȚIN: toată complexitatea este în `activity_item.xml` (formularul). -->
-<!--   Aici doar scheletul.                                                             -->
-<!-- STRUCTURA:                                                                         -->
+<!-- WHAT IT IS: a FrameLayout with exactly two children: the ListView (fills it all) and the FAB (over it). -->
+<!-- WHY SO LITTLE: all the complexity is in `activity_item.xml` (the form).            -->
+<!--   Here only the skeleton.                                                          -->
+<!-- STRUCTURE:                                                                         -->
 <!--                                                                                    -->
 <!--   FrameLayout (id=main)                                                            -->
-<!--   |== ListView (id=listView)            <- primul copil = desenat primul = dedesubt -->
-<!--   +== FloatingActionButton (id=...)     <- al doilea copil = desenat peste listă    -->
+<!--   |== ListView (id=listView)            <- first child = drawn first = underneath   -->
+<!--   +== FloatingActionButton (id=...)     <- second child = drawn over the list       -->
 <!--                                                                                    -->
-<!-- ORDINEA COPIILOR ESTE SEMNIFICAȚIE, NU STIL: în FrameLayout, fiecare copil este     -->
-<!--   desenat peste cel anterior. Inversate, lista ar acoperi butonul.                 -->
+<!-- THE ORDER OF THE CHILDREN IS MEANING, NOT STYLE: in a FrameLayout, each child is    -->
+<!--   drawn over the previous one. Reversed, the list would cover the button.          -->
 <!-- ================================================================================== -->
 
 <!-- ================================================================================== -->
-<!-- FRAMELAYOUT — containerul rădăcină                                                  -->
+<!-- FRAMELAYOUT — the root container                                                    -->
 <!-- ================================================================================== -->
-<!-- DE CE FrameLayout și nu LinearLayout: copiii trebuie să se SUPRApună. Un           -->
-<!--   LinearLayout i-ar pune unul lângă altul, iar FAB-ul nu ar mai pluti peste listă. -->
-<!-- DE CE nu ConstraintLayout: pentru doi copii, un FrameLayout este mai simplu.       -->
+<!-- WHY FrameLayout and not LinearLayout: the children must OVERLAP. A LinearLayout     -->
+<!--   would place them next to each other, and the FAB would no longer float over it.   -->
+<!-- WHY not ConstraintLayout: for two children, a FrameLayout is simpler.              -->
 <!--                                                                                    -->
-<!-- ATRIBUTE:                                                                          -->
-<!--   xmlns:android   -> atributele framework-ului                                     -->
-<!--   xmlns:app       -> atributele bibliotecilor (Material, AndroidX)                 -->
-<!--   xmlns:tools     -> atribute care există DOAR în preview și sunt eliminate la     -->
-<!--                      build. Nu ajung niciodată în APK.                             -->
-<!--   android:id      -> @+id/main; `@+id/` CREEAZĂ ID-ul, `@id/` îl REFERĂ            -->
-<!--   layout_width    -> match_parent: ocupă toată lățimea părintelui                  -->
-<!--   layout_height   -> match_parent: ocupă toată înălțimea                          -->
-<!--   orientation     -> ATRIBUT INVALID pe FrameLayout; există doar pe LinearLayout.  -->
-<!--                      Este IGNORAT de Android și produce un warning de lint         -->
-<!--                      („Unknown attribute"). Rămășiță de la un LinearLayout anterior. -->
-<!--   tools:context   -> doar pentru preview; îi spune lui Android Studio ce           -->
-<!--                      activitate să folosească pentru temă.                         -->
+<!-- ATTRIBUTES:                                                                        -->
+<!--   xmlns:android   -> the framework attributes                                      -->
+<!--   xmlns:app       -> the library attributes (Material, AndroidX)                   -->
+<!--   xmlns:tools     -> attributes that exist ONLY in the preview and are removed at  -->
+<!--                      build time. They never reach the APK.                         -->
+<!--   android:id      -> @+id/main; `@+id/` CREATES the ID, `@id/` REFERS to it        -->
+<!--   layout_width    -> match_parent: it takes the parent's full width                 -->
+<!--   layout_height   -> match_parent: it takes the full height                        -->
+<!--   orientation     -> INVALID ATTRIBUTE on FrameLayout; it exists only on LinearLayout. -->
+<!--                      It is IGNORED by Android and produces a lint warning          -->
+<!--                      ("Unknown attribute"). A leftover from a previous LinearLayout. -->
+<!--   tools:context   -> only for the preview; it tells Android Studio which            -->
+<!--                      activity to use for the theme.                                -->
 <!--                                                                                    -->
-<!-- DE CE `android:id="@+id/main"` ESTE OBLIGATORIU: codul face                        -->
-<!--   `findViewById(R.id.main)` pentru listener-ul de insets. Fără acest ID, apelul    -->
-<!--   ar întoarce null și `setOnApplyWindowInsetsListener(null, ...)` ar arunca NPE.   -->
+<!-- WHY `android:id="@+id/main"` IS MANDATORY: the code does                           -->
+<!--   `findViewById(R.id.main)` for the insets listener. Without this ID, the call     -->
+<!--   would return null and `setOnApplyWindowInsetsListener(null, ...)` would throw an NPE. -->
 <!-- ================================================================================== -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -51,25 +51,25 @@
     tools:context=".activities.MainActivity">
 
     <!-- ============================================================================== -->
-    <!-- LISTVIEW — lista derulantă                                                      -->
+    <!-- LISTVIEW — the scrolling list                                                   -->
     <!-- ============================================================================== -->
-    <!-- DE CE ListView și nu RecyclerView: la acest commit se predă ListView-ul clasic. -->
-    <!--   RecyclerView apare în laboratorul următor, împreună cu un layout de rând      -->
-    <!--   propriu. G1096 nu are nici măcar `movie_item.xml`.                            -->
+    <!-- WHY ListView and not RecyclerView: at this commit the classic ListView is taught. -->
+    <!--   RecyclerView appears in the next lab, together with a row layout of its own.  -->
+    <!--   G1096 does not even have `movie_item.xml`.                                    -->
     <!--                                                                                 -->
-    <!-- ATRIBUTE:                                                                       -->
-    <!--   android:id            -> listView; folosit de `findViewById` în initControls   -->
-    <!--   layout_width/height   -> match_parent pe ambele axe: lista ocupă tot ecranul, -->
-    <!--                            inclusiv zona de sub FAB. FAB-ul este desenat PESTE   -->
-    <!--                            listă, nu listă pe lângă el.                         -->
-    <!--   android:entries       -> umple lista din XML cu elementele din `@array/items`. -->
-    <!--                            LA RUNTIME, `listView.setAdapter(movieAdapter)`      -->
-    <!--                            ÎNLOCUIEȘTE complet acest adapter. `entries` rămâne  -->
-    <!--                            doar pentru ca preview-ul să arate o listă plină.     -->
-    <!--                            Costul la runtime este zero după `setAdapter`.        -->
+    <!-- ATTRIBUTES:                                                                     -->
+    <!--   android:id            -> listView; used by `findViewById` in initControls      -->
+    <!--   layout_width/height   -> match_parent on both axes: the list fills the whole  -->
+    <!--                            screen, including the area under the FAB. The FAB is  -->
+    <!--                            drawn OVER the list, not the list next to it.         -->
+    <!--   android:entries       -> fills the list from the XML with the elements from    -->
+    <!--                            `@array/items`. AT RUNTIME, `listView.setAdapter`    -->
+    <!--                            (movieAdapter) COMPLETELY REPLACES this adapter.      -->
+    <!--                            `entries` remains only so that the preview shows a    -->
+    <!--                            full list. The runtime cost is zero after `setAdapter`. -->
     <!--                                                                                 -->
-    <!-- RISC: ultimul rând din listă poate sta sub FAB. Lista nu are padding de jos,     -->
-    <!--   iar butonul este desenat peste ea. Cu 3 filme nu se observă; cu 30, da.        -->
+    <!-- RISK: the last row in the list can sit under the FAB. The list has no bottom     -->
+    <!--   padding, and the button is drawn over it. With 3 movies you miss it; with 30, not. -->
     <!-- ============================================================================== -->
     <ListView
         android:id="@+id/listView"
@@ -78,33 +78,33 @@
         android:entries="@array/items" />
 
     <!-- ============================================================================== -->
-    <!-- FLOATING ACTION BUTTON — butonul „+"                                            -->
+    <!-- FLOATING ACTION BUTTON — the "+" button                                         -->
     <!-- ============================================================================== -->
-    <!-- Numele complet este necesar pentru că este o clasă din biblioteca Material,     -->
-    <!--   nu una din framework. Prefixul `com.google.android.material...` este calea.   -->
+    <!-- The full name is needed because it is a class from the Material library,        -->
+    <!--   not one from the framework. The `com.google.android.material...` prefix is the path. -->
     <!--                                                                                 -->
-    <!-- ATRIBUTE:                                                                       -->
-    <!--   android:id          -> floatingActionButton; căutat în initControls            -->
-    <!--   layout_width/height -> wrap_content: FAB-ul are o dimensiune fixă impusă de   -->
-    <!--                          stil (56dp implicit). `match_parent` l-ar întinde.      -->
-    <!--   android:layout_gravity -> poziția ACESTUI COPIL în PĂRINTELE lui (FrameLayout).-->
-    <!--   android:layout_margin  -> 16dp pe toate laturile. Împreună cu padding-ul de    -->
-    <!--                          insets aplicat pe `R.id.main`, butonul stă la 16dp de   -->
-    <!--                          zona sigură, nu de marginea fizică.                     -->
-    <!--   android:contentDescription -> textul citit de TalkBack. OBLIGATORIU pentru     -->
-    <!--                          elementele fără text vizibil; fără el, lint-ul          -->
-    <!--                          semnalează („ContentDescription"), iar utilizatorii cu  -->
-    <!--                          cititor de ecran aud doar „buton".                     -->
-    <!--   app:srcCompat       -> varianta compatibilă pentru imagini vectoriale.         -->
-    <!--                          `android:src` ar funcționa pe API 21+, dar `srcCompat`  -->
-    <!--                          este recomandarea AndroidX.                             -->
+    <!-- ATTRIBUTES:                                                                     -->
+    <!--   android:id          -> floatingActionButton; looked up in initControls         -->
+    <!--   layout_width/height -> wrap_content: the FAB has a fixed size imposed by       -->
+    <!--                          the style (56dp by default). `match_parent` would stretch it. -->
+    <!--   android:layout_gravity -> the position of THIS CHILD in ITS PARENT (the FrameLayout). -->
+    <!--   android:layout_margin  -> 16dp on all sides. Together with the insets padding  -->
+    <!--                          applied on `R.id.main`, the button sits 16dp from the   -->
+    <!--                          safe area, not from the physical edge.                  -->
+    <!--   android:contentDescription -> the text read by TalkBack. MANDATORY for         -->
+    <!--                          elements with no visible text; without it, lint         -->
+    <!--                          warns ("ContentDescription"), and users with a          -->
+    <!--                          screen reader hear only "button".                       -->
+    <!--   app:srcCompat       -> the compatible variant for vector images.               -->
+    <!--                          `android:src` would work on API 21+, but `srcCompat`    -->
+    <!--                          is the AndroidX recommendation.                         -->
     <!--                                                                                 -->
     <!-- layout_gravity  vs  gravity:                                                    -->
-    <!--   gravity         = cum își aranjează ELEMENTUL copiii lui în interior          -->
-    <!--   layout_gravity  = cum este aranjat ELEMENTUL în părintele lui                 -->
+    <!--   gravity         = how the ELEMENT arranges ITS children inside itself          -->
+    <!--   layout_gravity  = how the ELEMENT is arranged in its parent                    -->
     <!--                                                                                 -->
-    <!-- `bottom|end` = jos, dreapta. `end` respectă direcția de citire: în RTL devine    -->
-    <!--   stânga. `right` ar fi fost fix și ar fi greșit în RTL.                        -->
+    <!-- `bottom|end` = bottom, right. `end` respects the reading direction: in RTL it    -->
+    <!--   becomes left. `right` would have been fixed and would be wrong in RTL.         -->
     <!-- ============================================================================== -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/floatingActionButton"

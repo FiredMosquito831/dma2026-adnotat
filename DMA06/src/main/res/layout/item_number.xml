@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- ==================================================================================
-     FIȘIER: item_number.xml
+     FILE: item_number.xml
      ==================================================================================
-     LOCAȚIE:  DMA06/src/main/res/layout/item_number.xml
-     ROL:      rândul cu două coloane. Folosit de NumberListAdapter ȘI de
-               NumberRecyclerAdapter. Este dovada că diferența dintre trepte nu e în
-               layout, ci în adapter.
-     CONȚINE:  1 × LinearLayout orizontal, 2 × TextView
-     ID-URI:   tvDecimal, tvBinary   ← contractul ambelor adaptoare
+     LOCATION: DMA06/src/main/res/layout/item_number.xml
+     ROLE:     the two-column row. Used by NumberListAdapter AND by
+               NumberRecyclerAdapter. It is the proof that the difference between steps is
+               not in the layout, but in the adapter.
+     CONTAINS: 1 × horizontal LinearLayout, 2 × TextView
+     IDS:      tvDecimal, tvBinary   ← the contract of both adapters
      ================================================================================== -->
 
-<!-- De ce antetul e cel mai important din capitol: pentru că fișierul e folosit de
-     DOUĂ adaptoare. Dacă schimbi un id aici, trebuie să îl schimbi în două fișiere
-     Java. Dacă schimbi un padding, se schimbă în ambele trepte. Un layout partajat
-     e un contract partajat. -->
+<!-- Why the header is the most important one in the chapter: because the file is used by
+     TWO adapters. If you change an id here, you must change it in two Java
+     files. If you change a padding, it changes in both steps. A shared layout
+     is a shared contract. -->
 
 <!-- One row with two columns. Steps 2 and 3 both use this layout. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -23,9 +23,9 @@
     android:paddingHorizontal="16dp"
     android:paddingVertical="14dp">
 
-    <!-- Coloana 1: numărul zecimal, aliniat la stânga.
-         0dp + weight="1" = jumătate din lățime. Cu wrap_content, fiecare coloană ar fi
-         lată cât textul ei, iar coloanele nu s-ar mai alinia între rânduri. -->
+    <!-- Column 1: the decimal number, aligned to the left.
+         0dp + weight="1" = half the width. With wrap_content, each column would be
+         as wide as its text, and the columns would no longer line up between rows. -->
     <TextView
         android:id="@+id/tvDecimal"
         android:layout_width="0dp"
@@ -33,9 +33,9 @@
         android:layout_weight="1"
         android:textAppearance="?attr/textAppearanceBodyLarge" />
 
-    <!-- Coloana 2: numărul binar, aliniat la dreapta, cu font monospațiat.
-         monospace = cifre de aceeași lățime, deci numerele binare se aliniază frumos.
-         gravity="end" respectă direcția de citire (supportsRtl="true" în manifest). -->
+    <!-- Column 2: the binary number, aligned to the right, with a monospaced font.
+         monospace = digits of the same width, so the binary numbers line up nicely.
+         gravity="end" respects the reading direction (supportsRtl="true" in the manifest). -->
     <TextView
         android:id="@+id/tvBinary"
         android:layout_width="0dp"
@@ -47,27 +47,27 @@
 </LinearLayout>
 
 <!-- ======================================================================================
-     CE TREBUIE REȚINUT DIN FIȘIER
+     WHAT TO REMEMBER FROM THE FILE
      ======================================================================================
-     match_parent × wrap_content      lat cât lista, înalt cât conținutul
-     paddingHorizontal 16dp           spațiu interior; există din API 26, minSdk 33
-     paddingVertical 14dp             mai generos decât antetul (12dp)
-     0dp + weight="1" pe ambele       echivalentul a 50% / 50%
-     fontFamily="monospace"           doar pe coloana binară
-     gravity="end"                    aliniere care respectă RTL
-     fără android:text                rândul e gol până îl umple adapterul
-     tvDecimal / tvBinary             contractul ambelor adaptoare
+     match_parent × wrap_content      as wide as the list, as tall as the content
+     paddingHorizontal 16dp           inner space; available since API 26, minSdk 33
+     paddingVertical 14dp             more generous than the header (12dp)
+     0dp + weight="1" on both         the equivalent of 50% / 50%
+     fontFamily="monospace"           only on the binary column
+     gravity="end"                    alignment that respects RTL
+     no android:text                  the row is empty until the adapter fills it
+     tvDecimal / tvBinary             the contract of both adapters
      ======================================================================================
-     CUM SE MĂSOARĂ UN RÂND
+     HOW A ROW IS MEASURED
      ======================================================================================
-     LinearLayout orizontal, doi copii cu 0dp + weight 1:
-       1. părintele primește lățimea listei (match_parent)
-       2. scade padding-ul orizontal: 16dp + 16dp = 32dp
-       3. împarte restul la suma weight-urilor: (L − 32) / 2 pentru fiecare
-       4. fiecare TextView primește exact jumătate, indiferent cât text are
-       5. înălțimea: wrap_content → cea mai înaltă dintre cele două, plus padding 14dp × 2
+     Horizontal LinearLayout, two children with 0dp + weight 1:
+       1. the parent receives the width of the list (match_parent)
+       2. it subtracts the horizontal padding: 16dp + 16dp = 32dp
+       3. it divides the rest by the sum of the weights: (L − 32) / 2 for each
+       4. each TextView receives exactly half, no matter how much text it has
+       5. the height: wrap_content → the taller of the two, plus padding 14dp × 2
 
-     De aceea cele două coloane se aliniază perfect între rânduri, deși textele au
-     lungimi diferite: lățimea nu depinde de conținut. Cu wrap_content ar depinde, iar
-     coloana a doua ar „sări" la fiecare rând.
+     That is why the two columns line up perfectly between rows, although the texts have
+     different lengths: the width does not depend on the content. With wrap_content it would
+     depend, and the second column would "jump" on every row.
      ====================================================================================== -->

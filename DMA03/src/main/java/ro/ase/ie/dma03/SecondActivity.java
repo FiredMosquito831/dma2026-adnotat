@@ -1,29 +1,29 @@
 /*
  * ======================================================================================
- * FIȘIER: SecondActivity.java
+ * FILE: SecondActivity.java
  * ======================================================================================
- * ROL:
- *   Ecran de laborator pentru trei lucruri care nu încap în MainActivity:
- *     1. un dialog de confirmare construit cu `AlertDialog.Builder`;
- *     2. un `Snackbar` cu acțiune de anulare;
- *     3. un view creat din cod (`new Button`) și adăugat în arbore.
+ * ROLE:
+ *   A lab screen for three things that do not fit in MainActivity:
+ *     1. a confirmation dialog built with `AlertDialog.Builder`;
+ *     2. a `Snackbar` with an undo action;
+ *     3. a view created from code (`new Button`) and added to the tree.
  *
- * CE DEMONSTREAZĂ:
- *   1. AlertDialog.Builder   — lanț de settere + `show()`.
- *   2. Snackbar.make(...)    — feedback tranzitoriu cu buton de acțiune.
+ * WHAT IT DEMONSTRATES:
+ *   1. AlertDialog.Builder   — a chain of setters + `show()`.
+ *   2. Snackbar.make(...)    — transient feedback with an action button.
  *   3. addButton()           — `new Button(ctx)`, `setId`, `LayoutParams`, `addView`.
  *
- * DEPINDE DE:
- *   - android.app.AlertDialog        → varianta de PLATFORMĂ (nu AppCompat)
+ * DEPENDS ON:
+ *   - android.app.AlertDialog        → the PLATFORM variant (not AppCompat)
  *   - com.google.android.material    → Snackbar
- *   - android:onClick="btnClick"     → legătura din XML, prin reflecție
+ *   - android:onClick="btnClick"     → the link from the XML, through reflection
  *
- * CE NU FACE:
- *   - nu e pornită din MainActivity (niciun `Intent` în tot proiectul);
- *   - nu salvează butoanele adăugate la rotire;
- *   - nu validează nimic — orice click pe „Do it!" adaugă un buton.
+ * WHAT IT DOES NOT DO:
+ *   - it is not started from MainActivity (no `Intent` in the whole project);
+ *   - it does not save the added buttons across rotation;
+ *   - it validates nothing — any click on "Do it!" adds a button.
  *
- * REF: cap. 14 (secțiunea despre dialoguri), documentația `AlertDialog.Builder`,
+ * REF: ch. 14 (the section on dialogs), the documentation of `AlertDialog.Builder`,
  *      `Snackbar`, `ViewGroup.LayoutParams`.
  * ======================================================================================
  */
@@ -31,77 +31,77 @@
 package ro.ase.ie.dma03;
 
 // ======================================================================================
-// IMPORT 1: android.app.AlertDialog — ATENȚIE, varianta de PLATFORMĂ
+// IMPORT 1: android.app.AlertDialog — CAREFUL, the PLATFORM variant
 // ======================================================================================
-// CE ESTE: dialogul standard al sistemului Android.
-// DE CE E O ALEGERE DISCUTABILĂ: există și `androidx.appcompat.app.AlertDialog`.
-//   Varianta de platformă folosește `android.R.attr.alertDialogTheme` al temei
-//   curente; varianta AppCompat forțează tema și stilul bibliotecii. Cu
-//   `Theme.Material3.DayNight.NoActionBar`, diferența vizuală poate fi mică sau
-//   nulă, dar varianta AppCompat e cea care respectă tema aplicației în toate
-//   cazurile. Funcțional sunt identice.
-// DE CE CONTEAZĂ TOTUȘI: dacă tema aplicației ar fi una AppCompat pură (fără
-//   Material3), `android.app.AlertDialog` ar cădea pe stilul de sistem — butoane
-//   altfel colorate, alt font, altă umbră.
+// WHAT IT IS: the standard dialog of the Android system.
+// WHY IT IS A DEBATABLE CHOICE: there is also `androidx.appcompat.app.AlertDialog`.
+//   The platform variant uses `android.R.attr.alertDialogTheme` of the current
+//   theme; the AppCompat variant forces the library's theme and style. With
+//   `Theme.Material3.DayNight.NoActionBar`, the visual difference may be small or
+//   nil, but the AppCompat variant is the one that respects the app theme in all
+//   cases. Functionally they are identical.
+// WHY IT MATTERS ANYWAY: if the app theme were a pure AppCompat one (without
+//   Material3), `android.app.AlertDialog` would fall back to the system style — buttons
+//   coloured differently, another font, another shadow.
 // ======================================================================================
 import android.app.AlertDialog;
 
 // ======================================================================================
-// IMPORT 2: android.content.DialogInterface — interfața butoanelor dialogului
+// IMPORT 2: android.content.DialogInterface — the interface of the dialog buttons
 // ======================================================================================
-// CE ESTE: interfața care conține `OnClickListener`-ul dialogului.
-// DE CE E IMPORTATĂ SEPARAT: `OnClickListener` e o interfață IMBRICATĂ în ea:
-//   `DialogInterface.OnClickListener`. Fără import, ar trebui scris numele complet.
+// WHAT IT IS: the interface that contains the dialog's `OnClickListener`.
+// WHY IT IS IMPORTED SEPARATELY: `OnClickListener` is an interface NESTED inside it:
+//   `DialogInterface.OnClickListener`. Without the import, you would have to write the full name.
 // ======================================================================================
 import android.content.DialogInterface;
 
 // ======================================================================================
-// IMPORT 3: android.os.Bundle — starea salvată la recreare
+// IMPORT 3: android.os.Bundle — the state saved on recreation
 // ======================================================================================
-// Semnătura lui `onCreate(Bundle)` o cere. Codul nu îl citește niciodată.
+// The signature of `onCreate(Bundle)` requires it. The code never reads it.
 // ======================================================================================
 import android.os.Bundle;
 
 // ======================================================================================
-// IMPORT 4-5: android.util.DisplayMetrics + android.util.TypedValue
+// IMPORTS 4-5: android.util.DisplayMetrics + android.util.TypedValue
 // ======================================================================================
-// FOLOSITE DOAR ÎN `addButton`, pentru conversia 50dp → pixeli.
-// `DisplayMetrics` = densitatea ecranului (câți pixeli are un dp).
-// `TypedValue.applyDimension` = conversia propriu-zisă, pentru orice unitate.
-// REZULTATUL E COD MORT (vezi 26.2.7). Importurile rămân pentru că linia care le
-// folosește există.
+// USED ONLY IN `addButton`, for the 50dp → pixels conversion.
+// `DisplayMetrics` = the screen density (how many pixels one dp has).
+// `TypedValue.applyDimension` = the conversion itself, for any unit.
+// THE RESULT IS DEAD CODE (see 26.2.7). The imports stay because the line that uses
+// them exists.
 // ======================================================================================
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 
 // ======================================================================================
-// IMPORT 6-7: android.view.View + android.view.ViewGroup
+// IMPORTS 6-7: android.view.View + android.view.ViewGroup
 // ======================================================================================
-// `View` — tipul parametrului din `btnClick(View view)`. Semnătura e impusă de
-//   `android:onClick` din XML.
-// `ViewGroup` — clasa de bază pentru `LayoutParams`. `ViewGroup.LayoutParams` e
-//   tipul cerut de `setLayoutParams`; `LinearLayout.LayoutParams` ar fi subtipul
-//   cu `weight`.
+// `View` — the type of the parameter in `btnClick(View view)`. The signature is imposed by
+//   `android:onClick` in the XML.
+// `ViewGroup` — the base class for `LayoutParams`. `ViewGroup.LayoutParams` is
+//   the type required by `setLayoutParams`; `LinearLayout.LayoutParams` would be the subtype
+//   with `weight`.
 // ======================================================================================
 import android.view.View;
 import android.view.ViewGroup;
 
 // ======================================================================================
-// IMPORT 8-10: android.widget.Button + LinearLayout + Toast
+// IMPORTS 8-10: android.widget.Button + LinearLayout + Toast
 // ======================================================================================
-// `Button`        — widget-ul creat din cod.
-// `LinearLayout`  — containerul în care se adaugă butoanele.
-// `Toast`         — mesajul de anulare din butonul negativ.
+// `Button`        — the widget created from code.
+// `LinearLayout`  — the container into which the buttons are added.
+// `Toast`         — the cancellation message from the negative button.
 // ======================================================================================
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 // ======================================================================================
-// IMPORT 11-15: androidx.* — infrastructura activității
+// IMPORTS 11-15: androidx.* — the activity infrastructure
 // ======================================================================================
-// Identice cu cele din MainActivity: EdgeToEdge, AppCompatActivity, Insets,
-// ViewCompat, WindowInsetsCompat. Blocul de insets e copiat cuvânt cu cuvânt.
+// Identical to the ones in MainActivity: EdgeToEdge, AppCompatActivity, Insets,
+// ViewCompat, WindowInsetsCompat. The insets block is copied word for word.
 // ======================================================================================
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -112,58 +112,58 @@ import androidx.core.view.WindowInsetsCompat;
 // ======================================================================================
 // IMPORT 16: com.google.android.material.snackbar.Snackbar
 // ======================================================================================
-// CE ESTE: bara de feedback de la baza ecranului, cu text + acțiune opțională.
-// DE CE VINE DIN MATERIAL: `Snackbar` nu face parte din platformă. De aceea
-//   `SecondActivity` are nevoie de `libs.material` în dependențe — la fel ca
-//   `MainActivity` pentru toolbar.
-// CE S-AR ÎNTÂMPLA CU `Toast`: ai pierde butonul de acțiune. `Toast` nu are
-//   `setAction`, nu poate fi închis de utilizator și nu are durată indefinită.
-//   Pentru „anulează ultima acțiune", `Snackbar` e singura variantă din platformă.
+// WHAT IT IS: the feedback bar at the bottom of the screen, with text + an optional action.
+// WHY IT COMES FROM MATERIAL: `Snackbar` is not part of the platform. That is why
+//   `SecondActivity` needs `libs.material` in the dependencies — just like
+//   `MainActivity` for the toolbar.
+// WHAT WOULD HAPPEN WITH `Toast`: you would lose the action button. `Toast` has no
+//   `setAction`, cannot be closed by the user and has no indefinite duration.
+//   For "undo the last action", `Snackbar` is the only option in the platform.
 // ======================================================================================
 import com.google.android.material.snackbar.Snackbar;
 
 /*
  * ======================================================================================
- * THEORY BLOCK: TREI MODALITĂȚI DE FEEDBACK ȘI UN VIEW CONSTRUIT DIN COD
+ * THEORY BLOCK: THREE KINDS OF FEEDBACK AND A VIEW BUILT FROM CODE
  * ======================================================================================
  *
- * 1. DIALOG — BLOCHEAZĂ, CERE O DECIZIE
- *    -   `AlertDialog` apare peste ecran, într-o fereastră separată. Utilizatorul
- *        trebuie să răspundă înainte să continue.
- *    -   Se construiește cu `AlertDialog.Builder`: un obiect care adună configurația
- *        (titlu, mesaj, butoane) și abia la `show()` creează dialogul.
- *    -   Fiecare setter întoarce ACELAȘI builder → lanț de apeluri.
+ * 1. DIALOG — BLOCKS, DEMANDS A DECISION
+ *    -   `AlertDialog` appears over the screen, in a separate window. The user
+ *        must answer before continuing.
+ *    -   It is built with `AlertDialog.Builder`: an object that gathers the configuration
+ *        (title, message, buttons) and only at `show()` creates the dialog.
+ *    -   Every setter returns THE SAME builder → a chain of calls.
  *
- * 2. TOAST — TREACE, NU CERE NIMIC
- *    -   Text scurt, fără acțiune, fără layout. Apare și dispare singur.
- *    -   Nu are nevoie de un view părinte: e desenat într-o fereastră proprie.
+ * 2. TOAST — PASSES BY, DEMANDS NOTHING
+ *    -   Short text, no action, no layout. It appears and disappears on its own.
+ *    -   It does not need a parent view: it is drawn in its own window.
  *
- * 3. SNACKBAR — TREACE, DAR POATE FI ANULAT
- *    -   Bară la baza ecranului, cu text + un buton de acțiune opțional.
- *    -   SPRE DEOSEBIRE DE TOAST, are nevoie de un VIEW: se inserează în arborele
- *        de view-uri, nu într-o fereastră separată. De aici al doilea argument
- *        din `make(...)`.
- *    -   Cu un `CoordinatorLayout` părinte, poate fi glisat pentru închidere și
- *        poate împinge un FAB în sus. Cu un `LinearLayout`, funcționează, dar
- *        fără aceste bonusuri.
+ * 3. SNACKBAR — PASSES BY, BUT CAN BE UNDONE
+ *    -   A bar at the bottom of the screen, with text + an optional action button.
+ *    -   UNLIKE TOAST, it needs a VIEW: it is inserted into the view tree,
+ *        not into a separate window. Hence the second argument
+ *        in `make(...)`.
+ *    -   With a `CoordinatorLayout` parent, it can be swiped away and
+ *        can push a FAB upwards. With a `LinearLayout`, it works, but
+ *        without those bonuses.
  *
- * 4. VIEW CONSTRUIT DIN COD
- *    -   Orice widget are un constructor care cere un `Context` TEMATIZAT.
- *    -   Un view creat din cod nu are id, nu are `LayoutParams` și nu e în arbore.
- *        Trei operații separate:
- *          a) `setId(...)`            → ca să poată fi găsit cu `findViewById`;
- *          b) `setLayoutParams(...)`  → ca părintele să știe cum să-l măsoare;
- *          c) `parent.addView(...)`   → ca să intre în arbore și să fie desenat.
- *    -   Ordinea contează: `addView` fără `LayoutParams` funcționează (părintele
- *        generează unele implicite), dar `findViewById` fără `setId` nu găsește nimic.
+ * 4. A VIEW BUILT FROM CODE
+ *    -   Every widget has a constructor that requires a THEMED `Context`.
+ *    -   A view created from code has no id, no `LayoutParams` and is not in the tree.
+ *        Three separate operations:
+ *          a) `setId(...)`            → so that it can be found with `findViewById`;
+ *          b) `setLayoutParams(...)`  → so that the parent knows how to measure it;
+ *          c) `parent.addView(...)`   → so that it enters the tree and is drawn.
+ *    -   The order matters: `addView` without `LayoutParams` works (the parent
+ *        generates some defaults), but `findViewById` without `setId` finds nothing.
  *
- * 5. DE CE UN VIEW ADĂUGAT DIN COD DISPARE LA ROTIRE
- *    -   Arborele de view-uri se reconstruiește din XML la fiecare recreare.
- *    -   Butonul adăugat trăiește doar în instanța veche a activității.
- *    -   Ca să supraviețuiască, ar trebui salvat în `savedInstanceState` (o listă de
- *        id-uri/text) și reconstruit în `onCreate`.
+ * 5. WHY A VIEW ADDED FROM CODE DISAPPEARS ON ROTATION
+ *    -   The view tree is rebuilt from the XML at every recreation.
+ *    -   The added button lives only in the old instance of the activity.
+ *    -   To survive, it would have to be saved in `savedInstanceState` (a list of
+ *        ids/texts) and rebuilt in `onCreate`.
  *
- * REF: cap. 14 (dialoguri și Snackbar), documentația `AlertDialog.Builder`,
+ * REF: ch. 14 (dialogs and Snackbar), the documentation of `AlertDialog.Builder`,
  *      `Snackbar`, `ViewGroup.addView`.
  * ======================================================================================
  */
@@ -171,16 +171,16 @@ import com.google.android.material.snackbar.Snackbar;
 public class SecondActivity extends AppCompatActivity {
 
     // ==================================================================================
-    // CÂMP: inflatedLayout
+    // FIELD: inflatedLayout
     // ==================================================================================
-    // CE ESTE: rădăcina din `activity_second.xml` — un `LinearLayout` vertical.
-    // DE CE E CÂMP ȘI NU LOCALĂ: e folosit în TREI metode — `onCreate` (inițializare),
-    //   `btnClick` (Snackbar) și `addButton` (`addView`).
-    // FĂRĂ `private` — inconsecvență față de `MainActivity`, unde câmpurile sunt
-    //   `private`. Nu strică nimic (suntem în același pachet), dar convenția e `private`.
-    // NUMELE E ÎNȘELĂTOR: nu e un layout „umflat" la runtime, e layout-ul din XML.
-    //   Umflarea a făcut-o `setContentView`. Numele sugerează intenția — un container
-    //   în care se adaugă view-uri — nu mecanismul.
+    // WHAT IT IS: the root from `activity_second.xml` — a vertical `LinearLayout`.
+    // WHY IT IS A FIELD AND NOT A LOCAL: it is used in THREE methods — `onCreate` (initialization),
+    //   `btnClick` (Snackbar) and `addButton` (`addView`).
+    // WITHOUT `private` — an inconsistency compared to `MainActivity`, where the fields are
+    //   `private`. It breaks nothing (we are in the same package), but the convention is `private`.
+    // THE NAME IS MISLEADING: it is not a layout "inflated" at runtime, it is the layout from the XML.
+    //   The inflation was done by `setContentView`. The name suggests the intention — a container
+    //   into which views are added — not the mechanism.
     // ==================================================================================
     LinearLayout inflatedLayout;
 
@@ -189,21 +189,21 @@ public class SecondActivity extends AppCompatActivity {
      * METHOD: onCreate(Bundle savedInstanceState)
      * ----------------------------------------------------------------------------------
      * THEORY:
-     *   Callback-ul de creare. Aici se umflă `activity_second.xml` și se obține
-     *   referința la containerul în care vor fi adăugate butoanele.
+     *   The creation callback. This is where `activity_second.xml` is inflated and the
+     *   reference to the container into which the buttons will be added is obtained.
      *
      * LOGIC:
-     *   1. `super.onCreate` — părintele.
-     *   2. `EdgeToEdge.enable` — desenare sub bare.
-     *   3. `setContentView` — umflă layout-ul.
-     *   4. insets pe `R.id.main` — padding pentru barele de sistem.
-     *   5. `inflatedLayout = findViewById(R.id.main)` — referința la container.
+     *   1. `super.onCreate` — the parent.
+     *   2. `EdgeToEdge.enable` — drawing under the bars.
+     *   3. `setContentView` — inflates the layout.
+     *   4. insets on `R.id.main` — padding for the system bars.
+     *   5. `inflatedLayout = findViewById(R.id.main)` — the reference to the container.
      *
-     * REF: cap. 14, documentația `Activity#onCreate`.
+     * REF: ch. 14, the documentation of `Activity#onCreate`.
      *
      * RISK:
-     *   - `inflatedLayout` inițializat înainte de `setContentView` → `null`, apoi
-     *     `NullPointerException` la primul `addView`.
+     *   - `inflatedLayout` initialized before `setContentView` → `null`, then
+     *     `NullPointerException` on the first `addView`.
      * ----------------------------------------------------------------------------------
      */
     @Override
@@ -212,28 +212,28 @@ public class SecondActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_second);
 
-        // Blocul de insets e IDENTIC cu cel din MainActivity — copiat. Aici
-        // `R.id.main` e pe `LinearLayout`-ul rădăcină, nu pe un `CoordinatorLayout`.
-        // Funcționează la fel: padding pe rădăcină, copiii se mută în zona sigură.
+        // The insets block is IDENTICAL to the one in MainActivity — copied. Here
+        // `R.id.main` is on the root `LinearLayout`, not on a `CoordinatorLayout`.
+        // It works the same way: padding on the root, the children move into the safe area.
         //
-        // De ce e copiat și nu extras într-o funcție utilitară: într-un proiect de
-        // laborator, copierea e acceptabilă. Într-o aplicație reală, ai avea o funcție
-        // `applyInsets(View root)` într-o clasă de utilitare — sau ai folosi
-        // `ViewCompat.setOnApplyWindowInsetsListener` o singură dată, într-o clasă
-        // de bază.
+        // Why it is copied and not extracted into a utility function: in a lab
+        // project, copying is acceptable. In a real application, you would have a function
+        // `applyInsets(View root)` in a utility class — or you would use
+        // `ViewCompat.setOnApplyWindowInsetsListener` once, in a base
+        // class.
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        // ULTIMA linie — după `setContentView`. Dacă ar fi înainte, ar primi `null`
-        // și primul `addView` ar arunca `NullPointerException`.
+        // The LAST line — after `setContentView`. If it came before, it would receive `null`
+        // and the first `addView` would throw `NullPointerException`.
         //
-        // Ce face `findViewById(R.id.main)` aici: caută în arborele
-        // `activity_second.xml`. Id-ul `main` există și în `activity_main.xml`, dar
-        // cele două layout-uri nu coexistă niciodată în același arbore — fiecare
-        // activitate are fereastra ei. Nu e o coliziune.
+        // What `findViewById(R.id.main)` does here: it searches the tree of
+        // `activity_second.xml`. The id `main` also exists in `activity_main.xml`, but
+        // the two layouts never coexist in the same tree — each
+        // activity has its own window. It is not a collision.
         inflatedLayout = findViewById(R.id.main);
     }
 
@@ -242,178 +242,178 @@ public class SecondActivity extends AppCompatActivity {
      * METHOD: btnClick(View view)
      * ----------------------------------------------------------------------------------
      * THEORY:
-     *   Metodă publică, cu semnătură fixă, chemată prin REFLECȚIE de platformă atunci
-     *   când se apasă butonul cu `android:onClick="btnClick"` din XML. Nu există
-     *   `setOnClickListener` nicăieri în cod — toată legătura e în XML.
+     *   A public method, with a fixed signature, called through REFLECTION by the platform when
+     *   the button with `android:onClick="btnClick"` from the XML is pressed. There is no
+     *   `setOnClickListener` anywhere in the code — the whole link is in the XML.
      *
      * LOGIC:
-     *   1. Creează un `AlertDialog.Builder` cu contextul activității.
-     *   2. Înlănțuie: titlu → mesaj → cancelable → buton pozitiv → buton negativ.
-     *   3. În butonul pozitiv: `addButton()` întoarce id-ul noului buton.
-     *   4. Afișează un `Snackbar` cu acțiunea „Cancel", care șterge butonul după id.
-     *   5. În butonul negativ: doar un `Toast`.
-     *   6. `builder.show()` — abia aici dialogul apare pe ecran.
+     *   1. Creates an `AlertDialog.Builder` with the activity context.
+     *   2. Chains: title → message → cancelable → positive button → negative button.
+     *   3. In the positive button: `addButton()` returns the id of the new button.
+     *   4. Shows a `Snackbar` with the "Cancel" action, which deletes the button by id.
+     *   5. In the negative button: only a `Toast`.
+     *   6. `builder.show()` — only here does the dialog appear on screen.
      *
      * REF:
-     *   cap. 14 (secțiunea despre dialoguri), documentația `android:onClick`,
+     *   ch. 14 (the section on dialogs), the documentation of `android:onClick`,
      *   `AlertDialog.Builder`, `Snackbar.make`.
      *
      * RISK:
-     *   - metoda făcută `private` → compilează, dar la click:
+     *   - the method made `private` → it compiles, but on click:
      *     `IllegalStateException: Could not find method btnClick(View) ...`
-     *   - parametrul schimbat din `View` în alt tip → aceeași excepție, la runtime.
-     *   - `builder.show()` uitat → dialogul e construit și niciodată afișat.
+     *   - the parameter changed from `View` to another type → the same exception, at runtime.
+     *   - `builder.show()` forgotten → the dialog is built and never displayed.
      * ----------------------------------------------------------------------------------
      */
     public void btnClick(View view) {
-        // Semnătura e IMPUSĂ de XML. În `activity_second.xml`, butonul are
-        // `android:onClick="btnClick"`. Android caută la runtime, prin reflecție, o
-        // metodă `public void btnClick(View)` în contextul activității.
+        // The signature is IMPOSED by the XML. In `activity_second.xml`, the button has
+        // `android:onClick="btnClick"`. At runtime, Android looks, through reflection, for a
+        // method `public void btnClick(View)` in the activity context.
         //
-        // CONSECINȚA: dacă o faci `private`, sau îi schimbi parametrul în `Object`,
-        // sau o redenumești fără să modifici XML-ul, COMPILAREA TRECE. Eroarea apare
-        // la click: `IllegalStateException: Could not find method btnClick(View) in a
-        // parent or ancestor Context`. Unul dintre puținele locuri din Android unde
-        // greșeala nu se vede la build.
+        // THE CONSEQUENCE: if you make it `private`, or change its parameter to `Object`,
+        // or rename it without modifying the XML, COMPILATION PASSES. The error appears
+        // on click: `IllegalStateException: Could not find method btnClick(View) in a
+        // parent or ancestor Context`. One of the few places in Android where
+        // the mistake is not visible at build time.
         //
-        // `view` e butonul apăsat. Aici nu e folosit — codul nu are nevoie să știe
-        // care buton a fost. Dar parametrul e obligatoriu: reflecția caută exact
-        // semnătura cu un `View`.
+        // `view` is the pressed button. It is not used here — the code does not need to know
+        // which button it was. But the parameter is mandatory: reflection looks for exactly
+        // the signature with a `View`.
         //
-        // De ce `public` și nu `protected`: reflecția caută metode publice.
-        // `protected` sau package-private nu sunt găsite din `View`-ul care face
-        // apelul (alt pachet).
+        // Why `public` and not `protected`: reflection looks for public methods.
+        // `protected` or package-private are not found from the `View` that makes
+        // the call (another package).
         //
-        // ALTERNATIVA MODERNĂ: `setOnClickListener` în `onCreate`. E mai sigur
-        // (compilatorul verifică), dar mai verbose. `android:onClick` e acceptat
-        // pentru demonstrații; Google îl consideră depășit pentru cod nou.
+        // THE MODERN ALTERNATIVE: `setOnClickListener` in `onCreate`. It is safer
+        // (the compiler checks), but more verbose. `android:onClick` is accepted
+        // for demonstrations; Google considers it outdated for new code.
 
-        // `AlertDialog.Builder` — construiește dialogul bucată cu bucată. Fiecare
-        // setter întoarce ACELAȘI builder, de aceea se pot înlănțui. Lanțul se
-        // încheie cu `setNegativeButton`, iar `builder.show()` de la finalul metodei
-        // afișează dialogul.
+        // `AlertDialog.Builder` — builds the dialog piece by piece. Every
+        // setter returns THE SAME builder, that is why they can be chained. The chain
+        // ends with `setNegativeButton`, and `builder.show()` at the end of the method
+        // displays the dialog.
         //
-        // De ce funcționează lanțul: `setTitle`, `setMessage`, `setCancelable`,
-        // `setPositiveButton`, `setNegativeButton` au toate `return this;` în
-        // implementare. Nu e magie — e convenția „fluent builder".
+        // Why the chain works: `setTitle`, `setMessage`, `setCancelable`,
+        // `setPositiveButton`, `setNegativeButton` all have `return this;` in
+        // their implementation. It is not magic — it is the "fluent builder" convention.
         //
-        // `SecondActivity.this` și nu `this`: în interiorul unui listener, `this` ar
-        // însemna listener-ul. `SecondActivity.this` e sintaxa pentru instanța clasei
-        // exterioare. Aici suntem încă în corpul metodei, deci `this` ar fi mers —
-        // dar forma explicită e o obișnuință bună, pentru că în doi pași vei fi în
+        // `SecondActivity.this` and not `this`: inside a listener, `this` would
+        // mean the listener. `SecondActivity.this` is the syntax for the instance of the
+        // outer class. Here we are still in the body of the method, so `this` would have worked —
+        // but the explicit form is a good habit, because in two steps you will be in
         // `onClick`.
         AlertDialog.Builder builder = new AlertDialog.Builder(SecondActivity.this);
         builder.setTitle("Add new control ...")
                 .setMessage("Are you sure you want to add a new control?")
 
-                // `setCancelable(true)` e valoarea implicită. Scrisă explicit,
-                // documentează comportamentul: se poate închide cu Back sau cu tap în
-                // afară. Consecința: dacă utilizatorul închide așa, NICIUN buton nu se
-                // execută — nici „Do it!", nici „Cancel". Dacă ai nevoie de o acțiune
-                // garantată, ai nevoie de `setOnCancelListener`.
+                // `setCancelable(true)` is the default value. Written explicitly,
+                // it documents the behaviour: it can be closed with Back or with a tap
+                // outside. The consequence: if the user closes it that way, NO button
+                // runs — neither "Do it!" nor "Cancel". If you need a guaranteed
+                // action, you need `setOnCancelListener`.
                 //
-                // Cu `setCancelable(false)`, dialogul nu se mai poate închide decât
-                // prin cele două butoane. Pentru o confirmare critică e alegerea
-                // corectă; pentru una obișnuită, enervează utilizatorul.
+                // With `setCancelable(false)`, the dialog can no longer be closed except
+                // through the two buttons. For a critical confirmation that is the correct
+                // choice; for an ordinary one, it annoys the user.
                 .setCancelable(true)
 
-                // Butonul pozitiv e acțiunea principală — apare în dreapta, colorat.
-                // Textul „Do it!" e explicit; „OK" ar fi vag.
+                // The positive button is the main action — it appears on the right, coloured.
+                // The text "Do it!" is explicit; "OK" would be vague.
                 //
-                // `which` e `DialogInterface.BUTTON_POSITIVE` aici. Nu e folosit —
-                // fiecare buton are listener-ul lui. Dacă ai avea un singur listener
-                // pentru toate butoanele, `which` ar fi singura modalitate de a distinge.
+                // `which` is `DialogInterface.BUTTON_POSITIVE` here. It is not used —
+                // each button has its own listener. If you had a single listener
+                // for all the buttons, `which` would be the only way to tell them apart.
                 //
-                // De ce listener-ul e o clasă anonimă și nu un lambda:
-                // `DialogInterface.OnClickListener` are o singură metodă abstractă,
-                // deci ar merge și un lambda (`(dialog, which) -> { ... }`). Codul
-                // alege forma veche, din generația Java 7. Ambele compilează; lambda
-                // e mai scurt.
+                // Why the listener is an anonymous class and not a lambda:
+                // `DialogInterface.OnClickListener` has a single abstract method,
+                // so a lambda would work too (`(dialog, which) -> { ... }`). The code
+                // chooses the old form, from the Java 7 generation. Both compile; a lambda
+                // is shorter.
                 .setPositiveButton("Do it!", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // Creează butonul ÎNAINTE de Snackbar, ca să ai ce șterge.
-                        // Id-ul returnat e SINGURA legătură cu butonul nou: nu ai o
-                        // referință la obiect, doar un număr.
+                        // Creates the button BEFORE the Snackbar, so that you have something to delete.
+                        // The returned id is the ONLY link to the new button: you have no
+                        // reference to the object, only a number.
                         int id = addButton();
 
-                        // `Snackbar.make(context, view, text, duration)` — patru argumente:
-                        //   context  : SecondActivity.this — pentru temă și resurse
-                        //   view     : inflatedLayout — view-ul de referință
+                        // `Snackbar.make(context, view, text, duration)` — four arguments:
+                        //   context  : SecondActivity.this — for the theme and resources
+                        //   view     : inflatedLayout — the reference view
                         //   text     : "Cancel previous action."
-                        //   duration : Snackbar.LENGTH_LONG ≈ 2,75 s
+                        //   duration : Snackbar.LENGTH_LONG ≈ 2.75 s
                         //
-                        // DE CE al doilea argument trebuie să fie un VIEW: `Snackbar`
-                        // nu e o fereastră separată ca `Toast`-ul. E un view obișnuit,
-                        // adăugat în arborele existent. Ca să știe unde să-l adauge,
-                        // are nevoie de un punct de plecare: pornește de la view-ul dat
-                        // și urcă prin părinți până găsește un `CoordinatorLayout` sau
-                        // `android.R.id.content`. Fără un `View`, nu are de unde să
-                        // pornească — de aceea nu există o suprascriere
-                        // `make(Context, String, int)`.
+                        // WHY the second argument must be a VIEW: `Snackbar`
+                        // is not a separate window like the `Toast`. It is an ordinary view,
+                        // added to the existing tree. To know where to add it,
+                        // it needs a starting point: it starts from the given view
+                        // and walks up through the parents until it finds a `CoordinatorLayout` or
+                        // `android.R.id.content`. Without a `View`, it has nowhere to
+                        // start from — that is why there is no
+                        // `make(Context, String, int)` overload.
                         //
-                        // Ce se întâmplă exact cu `inflatedLayout`: e un `LinearLayout`
-                        // simplu. `Snackbar` urcă de la el la `android.R.id.content`
-                        // (containerul ferestrei) și își adaugă bara acolo. Rezultatul:
-                        // bara apare jos, peste conținut.
+                        // What exactly happens with `inflatedLayout`: it is a plain
+                        // `LinearLayout`. `Snackbar` walks up from it to `android.R.id.content`
+                        // (the window container) and adds its bar there. The result:
+                        // the bar appears at the bottom, over the content.
                         //
-                        // Ce ai câștiga cu un `CoordinatorLayout`: `SwipeDismissBehavior`
-                        // (glisezi ca să închizi) și coordonarea cu un
-                        // `FloatingActionButton` (FAB-ul se mută în sus cât timp
-                        // Snackbar-ul e vizibil). Aici nu există FAB, deci diferența e
-                        // doar glisarea.
+                        // What you would gain with a `CoordinatorLayout`: `SwipeDismissBehavior`
+                        // (you swipe to close it) and the coordination with a
+                        // `FloatingActionButton` (the FAB moves up while the
+                        // Snackbar is visible). Here there is no FAB, so the difference is
+                        // only the swipe.
                         Snackbar.make(SecondActivity.this, inflatedLayout, "Cancel previous action.", Snackbar.LENGTH_LONG)
 
-                                // `setAction("Cancel", listener)` — adaugă butonul din
-                                // dreapta. Textul e scurt cu intenție: un „Undo last
-                                // action" ar înghesui mesajul pe ecrane mici.
+                                // `setAction("Cancel", listener)` — adds the button on the
+                                // right. The text is short on purpose: an "Undo last
+                                // action" would crowd the message on small screens.
                                 //
-                                // Textul și eticheta sunt ambele „Cancel" — o alegere
-                                // nefericită de nume. Mesajul „Cancel previous action."
-                                // spune ce s-a întâmplat; butonul „Cancel" ar trebui să
-                                // fie „Undo", pentru că ANULEAZĂ adăugarea, nu anulează
-                                // Snackbar-ul. Funcțional, butonul șterge butonul adăugat.
+                                // The text and the label are both "Cancel" — an unfortunate
+                                // naming choice. The message "Cancel previous action."
+                                // says what happened; the button "Cancel" should
+                                // be "Undo", because it UNDOES the addition, not cancels
+                                // the Snackbar. Functionally, the button deletes the added button.
                                 .setAction("Cancel", new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        // `id` e capturat din lambda exterioară. E o
-                                        // variabilă locală `int`, atribuită o singură
-                                        // dată → effectively final → poate fi prinsă.
-                                        // Dacă ai scrie `id++` între declarație și
-                                        // folosire, compilatorul ar refuza captura.
+                                        // `id` is captured from the outer lambda. It is an
+                                        // `int` local variable, assigned a single
+                                        // time → effectively final → it can be captured.
+                                        // If you wrote `id++` between the declaration and
+                                        // the use, the compiler would refuse the capture.
                                         //
-                                        // `inflatedLayout.findViewById(id)` — funcționează
-                                        // pentru că butonul a primit un id explicit cu
-                                        // `setId(counter)`. Fără `setId`, `findViewById`
-                                        // ar returna `null` și `removeView(null)` ar
-                                        // arunca `NullPointerException`.
+                                        // `inflatedLayout.findViewById(id)` — works
+                                        // because the button received an explicit id with
+                                        // `setId(counter)`. Without `setId`, `findViewById`
+                                        // would return `null` and `removeView(null)` would
+                                        // throw `NullPointerException`.
                                         Button viewById = inflatedLayout.findViewById(id);
 
-                                        // `removeView(viewById)` — scoate view-ul din
-                                        // container. Butonul dispare de pe ecran; obiectul
-                                        // rămâne în memorie până la următoarea colectare
-                                        // de gunoi.
+                                        // `removeView(viewById)` — removes the view from the
+                                        // container. The button disappears from the screen; the object
+                                        // stays in memory until the next garbage
+                                        // collection.
                                         inflatedLayout.removeView(viewById);
                                     }
                                 }).show();
-                        // `.show()` la final — fără el, Snackbar-ul e construit și
-                        // niciodată afișat. Aceeași capcană ca la `Toast`.
+                        // `.show()` at the end — without it, the Snackbar is built and
+                        // never displayed. The same trap as with `Toast`.
                         //
-                        // Momentul afișării: Snackbar-ul e creat ÎN `onClick`-ul
-                        // butonului pozitiv, deci apare după ce dialogul s-a închis.
-                        // Dacă l-ai crea înainte de `builder.show()`, ar apărea sub
-                        // dialog.
+                        // The moment of display: the Snackbar is created INSIDE the `onClick` of the
+                        // positive button, so it appears after the dialog has closed.
+                        // If you created it before `builder.show()`, it would appear under
+                        // the dialog.
                         //
-                        // Durata `LENGTH_LONG`: ~2,75 secunde (valorile din
-                        // `SnackbarManager`: 1 500 ms pentru `SHORT`, 2 750 ms pentru
-                        // `LONG`). Suficient ca utilizatorul să apese „Cancel".
-                        // `LENGTH_INDEFINITE` ar ține bara până la o acțiune sau un
-                        // swipe — prea agresiv pentru o confirmare.
+                        // The `LENGTH_LONG` duration: ~2.75 seconds (the values in
+                        // `SnackbarManager`: 1,500 ms for `SHORT`, 2,750 ms for
+                        // `LONG`). Enough for the user to press "Cancel".
+                        // `LENGTH_INDEFINITE` would keep the bar until an action or a
+                        // swipe — too aggressive for a confirmation.
 
                     }
                 })
 
-                // Butonul negativ — anulare. Doar un `Toast`, nicio modificare de stare.
+                // The negative button — cancel. Only a `Toast`, no state change.
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -421,35 +421,35 @@ public class SecondActivity extends AppCompatActivity {
                     }
                 });
 
-        // `builder.show()` — creează dialogul și îl afișează. Echivalent cu
-        // `builder.create().show()`. Se apelează O SINGURĂ DATĂ, după ce lanțul de
-        // settere s-a încheiat.
+        // `builder.show()` — creates the dialog and displays it. Equivalent to
+        // `builder.create().show()`. It is called ONCE, after the chain of
+        // setters has ended.
         //
-        // De ce `show()` e separat și nu în lanț: pentru că lanțul se termină cu `;`
-        // după `setNegativeButton`, iar `show()` e o metodă a builder-ului, nu un
-        // setter. Ar fi mers și `builder.setTitle(...).show()`, dar codul alege forma
-        // explicită.
+        // Why `show()` is separate and not in the chain: because the chain ends with `;`
+        // after `setNegativeButton`, and `show()` is a method of the builder, not a
+        // setter. `builder.setTitle(...).show()` would have worked too, but the code chooses the
+        // explicit form.
         //
-        // Ce se întâmplă dacă apelezi `show()` de două ori: se creează două dialoguri,
-        // ambele afișate. Al doilea apare peste primul. Nu e o excepție — doar un bug
-        // vizual.
+        // What happens if you call `show()` twice: two dialogs are created,
+        // both displayed. The second appears over the first. It is not an exception — just a visual
+        // bug.
         //
-        // Ce se întâmplă dacă apelezi un setter după `show()`: nu are efect asupra
-        // dialogului afișat. Builder-ul copiază valorile în dialog la `create()`;
-        // după aceea, setterele modifică doar builder-ul, nu dialogul viu.
+        // What happens if you call a setter after `show()`: it has no effect on the
+        // displayed dialog. The builder copies the values into the dialog at `create()`;
+        // after that, the setters modify only the builder, not the live dialog.
         builder.show();
     }
 
 
     // ==================================================================================
-    // CÂMP: counter
+    // FIELD: counter
     // ==================================================================================
-    // DECLARAT ÎNTRE METODE — legal în Java, neobișnuit ca stil.
-    // DOUĂ ROLURI SIMULTAN: generator de id-uri și sursă pentru etichetă.
-    // DE CE NU `static`: ar fi împărțit între instanțe. La recreare, activitatea nouă
-    //   ar continua de la valoarea veche — id-uri care nu se repetă, dar și un contor
-    //   care crește la infinit. Aici `counter` e per instanță, deci se resetează la
-    //   rotire.
+    // DECLARED BETWEEN METHODS — legal in Java, unusual as style.
+    // TWO ROLES AT ONCE: id generator and source for the label.
+    // WHY NOT `static`: it would be shared between instances. On recreation, the new activity
+    //   would continue from the old value — ids that do not repeat, but also a counter
+    //   that grows to infinity. Here `counter` is per instance, so it resets on
+    //   rotation.
     // ==================================================================================
     int counter = 0;
 
@@ -458,130 +458,130 @@ public class SecondActivity extends AppCompatActivity {
      * METHOD: addButton()
      * ----------------------------------------------------------------------------------
      * THEORY:
-     *   Un view construit din cod e un obiect Java obișnuit până când îl adaugi într-un
-     *   părinte. Are nevoie de trei lucruri ca să fie util:
-     *     1. un CONTEXT TEMATIZAT (constructorul);
-     *     2. un ID (ca să poată fi regăsit);
-     *     3. LayoutParams (ca părintele să știe cum să-l măsoare).
+     *   A view built from code is an ordinary Java object until you add it to a
+     *   parent. It needs three things to be useful:
+     *     1. a THEMED CONTEXT (the constructor);
+     *     2. an ID (so that it can be found again);
+     *     3. LayoutParams (so that the parent knows how to measure it).
      *
      * LOGIC:
-     *   1. Calculează 50dp în pixeli (rezultatul e ignorat — cod mort).
-     *   2. Creează `new Button(SecondActivity.this)`.
-     *   3. Setează textul cu pre-increment: „Button_1", „Button_2", ...
-     *   4. Setează id-ul = counter (1, 2, 3, ...).
-     *   5. Creează `ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT)`.
-     *   6. `addView(newBtn)` — îl adaugă la sfârșitul `LinearLayout`-ului.
-     *   7. Întoarce id-ul, ca apelantul să poată șterge butonul.
+     *   1. Converts 50dp to pixels (the result is ignored — dead code).
+     *   2. Creates `new Button(SecondActivity.this)`.
+     *   3. Sets the text with pre-increment: "Button_1", "Button_2", ...
+     *   4. Sets the id = counter (1, 2, 3, ...).
+     *   5. Creates `ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT)`.
+     *   6. `addView(newBtn)` — adds it at the end of the `LinearLayout`.
+     *   7. Returns the id, so that the caller can delete the button.
      *
      * REF:
-     *   cap. 14 (secțiunea despre view-uri dinamice), documentația `View#setId`,
+     *   ch. 14 (the section on dynamic views), the documentation of `View#setId`,
      *   `ViewGroup.LayoutParams`, `ViewGroup#addView`.
      *
      * RISK:
-     *   - context de aplicație în loc de activitate → pierzi tema;
-     *   - `setId` uitat → butonul nu poate fi găsit și șters;
-     *   - `counter` nu se salvează → la rotire butoanele dispar și id-urile se repetă.
+     *   - application context instead of activity → you lose the theme;
+     *   - `setId` forgotten → the button cannot be found and deleted;
+     *   - `counter` not saved → on rotation the buttons disappear and the ids repeat.
      * ----------------------------------------------------------------------------------
      */
     public int addButton()
     {
-        // COD MORT. `hPixels` e calculat și NICIODATĂ folosit. Intenția era probabil
-        // `newBtn.setHeight(hPixels)` sau un `LayoutParams` cu înălțime de 50dp.
-        // Compilatorul dă un warning (`variable hPixels is never used`), nu o eroare.
+        // DEAD CODE. `hPixels` is computed and NEVER used. The intention was probably
+        // `newBtn.setHeight(hPixels)` or a `LayoutParams` with a 50dp height.
+        // The compiler gives a warning (`variable hPixels is never used`), not an error.
         //
-        // Ce face totuși, util de știut: `TypedValue.applyDimension(COMPLEX_UNIT_DIP,
-        // 50, metrics)` convertește 50dp în pixeli fizici, folosind densitatea
-        // ecranului. La 3x, întoarce 150. E conversia corectă atunci când ai nevoie de
-        // pixeli într-un calcul — de exemplu pentru animații sau pentru `setPadding`.
+        // What it does anyway, useful to know: `TypedValue.applyDimension(COMPLEX_UNIT_DIP,
+        // 50, metrics)` converts 50dp into physical pixels, using the screen
+        // density. At 3x, it returns 150. It is the correct conversion when you need
+        // pixels in a calculation — for example for animations or for `setPadding`.
         //
-        // De ce nu `50 * getResources().getDisplayMetrics().density`: e echivalent,
-        // dar `applyDimension` tratează și `SP`, `PT`, `MM`, `IN` cu aceeași
-        // semnătură. O funcție, toate unitățile.
+        // Why not `50 * getResources().getDisplayMetrics().density`: it is equivalent,
+        // but `applyDimension` also handles `SP`, `PT`, `MM`, `IN` with the same
+        // signature. One function, all the units.
         //
-        // De ce `DisplayMetrics` se obține o singură dată:
-        // `getResources().getDisplayMetrics()` întoarce obiectul configurației
-        // curente. Apelat de mai multe ori, întoarce același obiect. Nu e o operație
-        // scumpă, dar e inutil să o repeți.
+        // Why `DisplayMetrics` is obtained only once:
+        // `getResources().getDisplayMetrics()` returns the object of the current
+        // configuration. Called several times, it returns the same object. It is not an expensive
+        // operation, but it is pointless to repeat it.
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         int hPixels = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 50,
                 displayMetrics);
 
-        // `new Button(Context)` — constructorul cere un CONTEXT TEMATIZAT.
-        // `SecondActivity.this` are tema `Theme.DMA03`. Dacă ai pasa
-        // `getApplicationContext()`, butonul ar pierde tema și, pe unele atribute
-        // Material, ar arunca excepție la inflate.
+        // `new Button(Context)` — the constructor requires a THEMED CONTEXT.
+        // `SecondActivity.this` has the `Theme.DMA03` theme. If you passed
+        // `getApplicationContext()`, the button would lose the theme and, on some Material
+        // attributes, would throw an exception at inflate.
         //
-        // De ce `new Button(ctx)` și nu `LayoutInflater.from(ctx).inflate(...)`:
-        // pentru un buton simplu, constructorul e mai direct. Inflater-ul are sens
-        // când vrei un layout XML întreg, cu stiluri și copii.
+        // Why `new Button(ctx)` and not `LayoutInflater.from(ctx).inflate(...)`:
+        // for a simple button, the constructor is more direct. The inflater makes sense
+        // when you want a whole XML layout, with styles and children.
         Button newBtn = new Button(SecondActivity.this);
 
-        // `++counter` (pre-increment) — întâi incrementează, apoi folosește. Primul
-        // buton e `Button_1`, iar `counter` devine 1. Cu `counter++` (post-increment),
-        // primul ar fi `Button_0` și ai avea un buton cu id 0.
+        // `++counter` (pre-increment) — increments first, then uses. The first
+        // button is `Button_1`, and `counter` becomes 1. With `counter++` (post-increment),
+        // the first would be `Button_0` and you would have a button with id 0.
         newBtn.setText("Button_" + (++counter));
 
-        // `setId(counter)` — id-uri 1, 2, 3... Id-urile de resursă sunt în zona
-        // `0x7f......`, deci nu se ciocnesc. `View.NO_ID` e `-1`, deci 0 ar fi fost
-        // o valoare nefericită — încă un motiv pentru pre-increment.
+        // `setId(counter)` — ids 1, 2, 3... The resource ids are in the
+        // `0x7f......` range, so they do not collide. `View.NO_ID` is `-1`, so 0 would have been
+        // an unfortunate value — one more reason for the pre-increment.
         //
-        // FĂRĂ `setId`, butonul există dar e imposibil de găsit cu `findViewById`.
-        // Ar apărea pe ecran și nu l-ai mai putea șterge.
+        // WITHOUT `setId`, the button exists but is impossible to find with `findViewById`.
+        // It would appear on screen and you could no longer delete it.
         //
-        // De ce id-urile mici sunt sigure: `findViewById` caută după valoarea
-        // întreagă. Un id de 1 nu se ciocnește cu `R.id.button` (care e `0x7f0b....`).
-        // Singura cerință e să fie unic în subarborele în care cauți.
+        // Why small ids are safe: `findViewById` searches by the integer
+        // value. An id of 1 does not collide with `R.id.button` (which is `0x7f0b....`).
+        // The only requirement is that it be unique in the subtree you search in.
         //
-        // ALTERNATIVA MODERNĂ: `View.generateViewId()` întoarce un id unic, garantat.
-        // Ar fi mai sigur dacă ai avea mai multe surse de id-uri. Aici `counter` e
-        // suficient.
+        // THE MODERN ALTERNATIVE: `View.generateViewId()` returns a unique, guaranteed id.
+        // It would be safer if you had several sources of ids. Here `counter` is
+        // enough.
         newBtn.setId(counter);
 
-        // `ViewGroup.LayoutParams` — clasa de bază. `LinearLayout` o acceptă. Dacă ai
-        // nevoie de `layout_weight`, trebuie `LinearLayout.LayoutParams` — clasa de
-        // bază nu are acel câmp.
+        // `ViewGroup.LayoutParams` — the base class. `LinearLayout` accepts it. If you
+        // need `layout_weight`, you must use `LinearLayout.LayoutParams` — the base
+        // class does not have that field.
         //
-        // `MATCH_PARENT` pe lățime — butonul umple containerul, ca butonul original
-        // din XML. `WRAP_CONTENT` pe înălțime — cât are nevoie textul.
+        // `MATCH_PARENT` on the width — the button fills the container, like the original button
+        // from the XML. `WRAP_CONTENT` on the height — as much as the text needs.
         //
-        // Ce înseamnă cele două constante: `MATCH_PARENT` = `-1` (umple părintele),
-        // `WRAP_CONTENT` = `-2` (cât conținutul). Sunt valori negative intenționat,
-        // ca să nu se confunde cu dimensiuni reale în pixeli.
+        // What the two constants mean: `MATCH_PARENT` = `-1` (fills the parent),
+        // `WRAP_CONTENT` = `-2` (as much as the content). They are negative values on purpose,
+        // so that they are not confused with real dimensions in pixels.
         //
-        // FĂRĂ `setLayoutParams`, `addView` aplică valorile implicite ale
-        // containerului — tot `MATCH_PARENT`/`WRAP_CONTENT` pentru `LinearLayout`,
-        // deci practic același rezultat. Explicit e mai sigur când containerul se
-        // schimbă.
+        // WITHOUT `setLayoutParams`, `addView` applies the container's default
+        // values — also `MATCH_PARENT`/`WRAP_CONTENT` for `LinearLayout`,
+        // so practically the same result. Explicit is safer when the container
+        // changes.
         //
-        // Ce se întâmplă dacă pasezi `LinearLayout.LayoutParams`: funcționează și mai
-        // bine — părintele nu mai trebuie să convertească.
-        // `ViewGroup.LayoutParams` e acceptat pentru că
-        // `LinearLayout.generateLayoutParams(ViewGroup.LayoutParams)` știe să-l
-        // împacheteze.
+        // What happens if you pass `LinearLayout.LayoutParams`: it works even
+        // better — the parent no longer has to convert.
+        // `ViewGroup.LayoutParams` is accepted because
+        // `LinearLayout.generateLayoutParams(ViewGroup.LayoutParams)` knows how to
+        // wrap it.
         ViewGroup.LayoutParams layoutParams =
                 new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT);
         newBtn.setLayoutParams(layoutParams);
 
-        // `addView` — adaugă la sfârșitul `LinearLayout`-ului vertical, deci sub
-        // butonul existent. Al doilea buton apare sub primul, al treilea sub al doilea.
+        // `addView` — adds at the end of the vertical `LinearLayout`, so below the
+        // existing button. The second button appears below the first, the third below the second.
         //
-        // `addView` are două efecte: atașează view-ul la arbore și declanșează o
-        // cerere de layout (`requestLayout`). Butonul apare imediat, fără să mai faci
-        // nimic.
+        // `addView` has two effects: it attaches the view to the tree and triggers a
+        // layout request (`requestLayout`). The button appears immediately, without you doing
+        // anything else.
         inflatedLayout.addView(newBtn);
 
-        // `return counter` — id-ul tocmai atribuit. Apelantul îl păstrează în `id` și
-        // îl folosește în acțiunea Snackbar-ului.
+        // `return counter` — the id just assigned. The caller keeps it in `id` and
+        // uses it in the Snackbar action.
         //
-        // Ce se întâmplă la rotire: `counter` se resetează la 0, iar butoanele
-        // adăugate dispar — nu sunt salvate în `savedInstanceState`. La rotire,
-        // activitatea e recreată, `onCreate` rulează din nou, iar
-        // `activity_second.xml` are din nou un singur buton.
+        // What happens on rotation: `counter` resets to 0, and the added buttons
+        // disappear — they are not saved in `savedInstanceState`. On rotation,
+        // the activity is recreated, `onCreate` runs again, and
+        // `activity_second.xml` once again has a single button.
         //
-        // De ce se resetează și id-urile: dacă ai adăuga din nou butoane după rotire,
-        // primul ar primi iar id-ul 1. Nu se ciocnește cu nimic, pentru că butoanele
-        // vechi au dispărut odată cu arborele.
+        // Why the ids reset too: if you added buttons again after rotation,
+        // the first would again receive id 1. It collides with nothing, because the old
+        // buttons disappeared together with the tree.
         return counter;
     }
 }

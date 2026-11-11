@@ -1,170 +1,170 @@
 /*
  * ======================================================================================
- * FIȘIER: ItemActivity.java — FORMULARUL DE INSERT ȘI EDIT
+ * FILE: ItemActivity.java — THE INSERT AND EDIT FORM
  * ======================================================================================
- * CE ESTE: o singură activitate care servește DOUĂ moduri. Dacă primește un `Movie`
- *   în Intent, este editare; dacă nu primește nimic, este inserare.
+ * WHAT IT IS: a single activity that serves TWO modes. If it receives a `Movie`
+ *   in the Intent, it is editing; if it receives nothing, it is insertion.
  *
- * DE CE EXISTĂ: este ecranul care transformă widget-uri în model. Toate cele 10
- *   câmpuri ale lui `Movie` sunt produse aici, din `getText()`, `getProgress()`,
- *   `getRating()`, `isChecked()` și `getSelectedItem()`.
+ * WHY IT EXISTS: it is the screen that turns widgets into the model. All 10
+ *   fields of `Movie` are produced here, from `getText()`, `getProgress()`,
+ *   `getRating()`, `isChecked()` and `getSelectedItem()`.
  *
- * DE CE DEPINDE: de `activity_item.xml` (13 view-uri), de `Movie`, de constantele
- *   `MainActivity.MOVIE_EXTRA` / `POSITION_EXTRA` și de Activity Result API
- *   (prin `setResult`).
+ * WHAT IT DEPENDS ON: `activity_item.xml` (13 views), `Movie`, the constants
+ *   `MainActivity.MOVIE_EXTRA` / `POSITION_EXTRA` and the Activity Result API
+ *   (through `setResult`).
  *
- * CINE DEPINDE DE EL: `MainActivity`, care primește Intent-ul de rezultat în callback.
+ * WHO DEPENDS ON IT: `MainActivity`, which receives the result Intent in the callback.
  *
- * CE NU FACE: nu ține lista, nu știe ce poziție are filmul în listă (o primește),
- *   nu salvează nimic pe disc. Nu validează câmpurile înainte de salvare.
+ * WHAT IT DOES NOT DO: it does not hold the list, it does not know what position the movie has in the list (it receives it),
+ *   it saves nothing to disk. It does not validate the fields before saving.
  *
- * CE S-AR RUPE FĂRĂ EL: aplicația ar avea listă, dar niciun mod de a adăuga sau
- *   modifica un film. FAB-ul ar porni o activitate inexistentă.
+ * WHAT BREAKS WITHOUT IT: the app would have a list, but no way to add or
+ *   modify a movie. The FAB would start a non-existent activity.
  *
- * ATENȚIE LA IMPORTURI: trei dintre ele sunt MOARTE — `android.media.Rating`,
- *   `android.widget.Switch` și `Snackbar`. Sunt marcate pe rând mai jos. Vezi 31.0.5.
+ * WATCH OUT FOR THE IMPORTS: three of them are DEAD — `android.media.Rating`,
+ *   `android.widget.Switch` and `Snackbar`. They are marked one by one below. See 31.0.5.
  * ======================================================================================
  */
 
-// PACHETUL: același `activities` ca MainActivity — de aceea constantele `protected`
-//   ale lui MainActivity sunt vizibile aici fără import.
+// THE PACKAGE: the same `activities` as MainActivity — that is why the `protected`
+//   constants of MainActivity are visible here without an import.
 package ro.ase.ie.g1099.activities;
 
-// DatePickerDialog: dialogul cu roți pentru an/lună/zi.
+// DatePickerDialog: the wheel dialog for year/month/day.
 import android.app.DatePickerDialog;
 
-// Intent: obiectul de rezultat, construit la salvare.
+// Intent: the result object, built on save.
 import android.content.Intent;
 
-// Rating: clasa de rating pentru conținut MEDIA, din API 21.
-//   IMPORT MORT. Nu este folosită nicăieri în fișier — apare exact o dată, aici.
-//   Widget-ul din formular este `RatingBar`, cu totul altă clasă. Vezi 31.0.5.
+// Rating: the rating class for MEDIA content, from API 21.
+//   DEAD IMPORT. It is used nowhere in the file — it appears exactly once, here.
+//   The widget in the form is `RatingBar`, a completely different class. See 31.0.5.
 import android.media.Rating;
 
-// Bundle: doar în semnătura lui onCreate.
+// Bundle: only in the onCreate signature.
 import android.os.Bundle;
 
-// View: tipul parametrului din OnClickListener.
+// View: the parameter type in OnClickListener.
 import android.view.View;
 
-// Button: butonul de salvare (`btMovieAction`).
+// Button: the save button (`btMovieAction`).
 import android.widget.Button;
 
-// CheckBox: bifa „Watchlist" (`cbonWatchList`).
+// CheckBox: the "Watchlist" check mark (`cbonWatchList`).
 import android.widget.CheckBox;
 
-// CompoundButton: interfața comună pentru Switch și CheckBox; apare în semnătura
-//   listener-ului de switch.
+// CompoundButton: the common interface for Switch and CheckBox; it appears in the signature
+//   of the switch listener.
 import android.widget.CompoundButton;
 
-// DatePicker: tipul view-ului din callback-ul dialogului de dată.
+// DatePicker: the view type in the date dialog callback.
 import android.widget.DatePicker;
 
-// EditText: titlul, data, bugetul și posterul.
+// EditText: the title, the date, the budget and the poster.
 import android.widget.EditText;
 
-// RadioButton: cele 5 butoane de ghidaj parental.
+// RadioButton: the 5 parental guidance buttons.
 import android.widget.RadioButton;
 
-// RadioGroup: containerul celor 5 butoane.
+// RadioGroup: the container of the 5 buttons.
 import android.widget.RadioGroup;
 
-// RatingBar: bara de stele. ACESTA este widget-ul de rating, nu `android.media.Rating`.
+// RatingBar: the star bar. THIS is the rating widget, not `android.media.Rating`.
 import android.widget.RatingBar;
 
-// SeekBar: bara de durată.
+// SeekBar: the duration bar.
 import android.widget.SeekBar;
 
-// Spinner: lista derulantă de genuri.
+// Spinner: the drop-down list of genres.
 import android.widget.Spinner;
 
-// Switch: widget-ul clasic de comutare.
-//   IMPORT MORT. Câmpul `swWatched` este declarat `MaterialSwitch`, iar
-//   `MaterialSwitch` extinde `SwitchCompat`, nu `Switch`. Numele `Switch` nu apare
-//   nicăieri în afara acestei linii. Vezi 31.0.6.
+// Switch: the classic toggle widget.
+//   DEAD IMPORT. The field `swWatched` is declared `MaterialSwitch`, and
+//   `MaterialSwitch` extends `SwitchCompat`, not `Switch`. The name `Switch` appears
+//   nowhere outside this line. See 31.0.6.
 import android.widget.Switch;
 
-// TextView: cele două etichete dinamice (`tvDurationValue`, `tvWatchedValue`).
+// TextView: the two dynamic labels (`tvDurationValue`, `tvWatchedValue`).
 import android.widget.TextView;
 
-// EdgeToEdge: desenare sub barele de sistem.
+// EdgeToEdge: drawing under the system bars.
 import androidx.activity.EdgeToEdge;
 
-// NonNull: adnotare pe parametrul `buttonView` din listener-ul de switch.
-//   Este o promisiune că parametrul nu este null; compilatorul nu o verifică,
-//   dar lint-ul o folosește.
+// NonNull: annotation on the `buttonView` parameter of the switch listener.
+//   It is a promise that the parameter is not null; the compiler does not check it,
+//   but lint uses it.
 import androidx.annotation.NonNull;
 
-// AppCompatActivity: clasa de bază a activității.
+// AppCompatActivity: the base class of the activity.
 import androidx.appcompat.app.AppCompatActivity;
 
-// IntentCompat: varianta tipată a lui `getSerializableExtra`, cu `Class<T>`.
-//   Spre deosebire de MainActivity, care folosește metoda veche cu cast,
-//   aici se folosește varianta modernă.
+// IntentCompat: the typed variant of `getSerializableExtra`, with `Class<T>`.
+//   Unlike MainActivity, which uses the old method with a cast,
+//   here the modern variant is used.
 import androidx.core.content.IntentCompat;
 
-// Insets / ViewCompat / WindowInsetsCompat: aceleași trei clase ca în MainActivity,
-//   pentru padding-ul de sub barele de sistem.
+// Insets / ViewCompat / WindowInsetsCompat: the same three classes as in MainActivity,
+//   for the padding under the system bars.
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-// MaterialSwitch: switch-ul Material 3. Extinde SwitchCompat -> CompoundButton.
+// MaterialSwitch: the Material 3 switch. It extends SwitchCompat -> CompoundButton.
 import com.google.android.material.materialswitch.MaterialSwitch;
 
-// Snackbar: bară scurtă de mesaj, în partea de jos a ecranului.
-//   IMPORT MORT. Nu există niciun `Snackbar.make(...)` în fișier.
+// Snackbar: a short message bar, at the bottom of the screen.
+//   DEAD IMPORT. There is no `Snackbar.make(...)` in the file.
 import com.google.android.material.snackbar.Snackbar;
 
-// ParseException: excepția aruncată de `SimpleDateFormat.parse` pe text invalid.
+// ParseException: the exception thrown by `SimpleDateFormat.parse` on invalid text.
 import java.text.ParseException;
 
-// SimpleDateFormat: formatter-ul „dd/MM/yyyy" pentru câmpul de dată.
+// SimpleDateFormat: the "dd/MM/yyyy" formatter for the date field.
 import java.text.SimpleDateFormat;
 
-// Calendar: sursa de adevăr pentru dată.
+// Calendar: the source of truth for the date.
 import java.util.Calendar;
 
-// Date: tipul întors de `dateFormat.parse(...)`.
+// Date: the type returned by `dateFormat.parse(...)`.
 import java.util.Date;
 
-// Locale: formatul regional pentru formatter.
+// Locale: the regional format for the formatter.
 import java.util.Locale;
 
-// R: resursele generate.
+// R: the generated resources.
 import ro.ase.ie.g1099.R;
 
-// Movie: modelul construit la salvare și citit la umplere.
+// Movie: the model built on save and read on fill.
 import ro.ase.ie.g1099.model.Movie;
 
 /*
  * ======================================================================================
- * BLOC DE TEORIE: FORMULARUL CA MAȘINĂ DE STARE
+ * THEORY BLOCK: THE FORM AS A STATE MACHINE
  * ======================================================================================
  *
- * 1. **Două moduri, o singură activitate.** `ItemActivity` nu are două layout-uri și
- *    două clase. Are un câmp `position` care este `-1` (insert) sau `>= 0` (edit).
- *    Tot comportamentul diferit derivă din acest câmp.
+ * 1. **Two modes, a single activity.** `ItemActivity` does not have two layouts and
+ *    two classes. It has a `position` field that is `-1` (insert) or `>= 0` (edit).
+ *    All the different behaviour derives from this field.
  *
- * 2. **Sursa de adevăr nu este întotdeauna widget-ul.** Pentru 9 câmpuri, widget-ul
- *    este sursa (citești direct din el la salvare). Pentru dată, sursa este
- *    `releaseCal`, iar `EditText`-ul este doar o AFIȘARE.
+ * 2. **The source of truth is not always the widget.** For 9 fields, the widget
+ *    is the source (you read directly from it on save). For the date, the source is
+ *    `releaseCal`, and the `EditText` is only a DISPLAY.
  *
- * 3. **Listener-ii sunt și ei sursă de adevăr pentru etichete.** `tvDurationValue`
- *    și `tvWatchedValue` nu sunt citite la salvare; sunt actualizate de listener-ii
- *    widget-urilor. Dacă un listener nu se declanșează, eticheta rămâne în urmă.
+ * 3. **The listeners are also a source of truth for the labels.** `tvDurationValue`
+ *    and `tvWatchedValue` are not read on save; they are updated by the listeners
+ *    of the widgets. If a listener does not fire, the label lags behind.
  *
- * 4. **Rezultatul este un Intent.** Activitatea nu întoarce un obiect prin `return`;
- *    îl pune într-un `Intent` și îl predă prin `setResult`.
+ * 4. **The result is an Intent.** The activity does not return an object through `return`;
+ *    it puts it in an `Intent` and hands it over through `setResult`.
  *
- * 5. **Ordinea din `onCreate` este critică.** `initListeners()` rulează ÎNAINTE de
- *    `fillForm()`. Motivul: `setChecked` și `setProgress` declanșează listener-ii,
- *    care actualizează etichetele. Invers, etichetele ar rămâne cu valorile din XML.
+ * 5. **The order in `onCreate` is critical.** `initListeners()` runs BEFORE
+ *    `fillForm()`. The reason: `setChecked` and `setProgress` trigger the listeners,
+ *    which update the labels. Reversed, the labels would keep the values from the XML.
  *
- * VIZUAL: fluxul de date în formular
+ * VISUAL: the data flow in the form
  *
  *   [etTitle] -------------------------+
- *   [etRelease] --(doar afișare)--+    |
+ *   [etRelease] --(display only)--+    |
  *                                 |    |
  *   [releaseCal] -----------------+----+---> saveMovie() ---> Movie ---> Intent
  *   [spGenre] -------------------------+                                    |
@@ -173,370 +173,370 @@ import ro.ase.ie.g1099.model.Movie;
  *   [rbRating] ------------------------+                                    |
  *   [swWatched] -----------------------+                                    v
  *   [cbonWatchList] -------------------+                                  finish()
- *   [rgApproval] --(buclă)--+----------+
+ *   [rgApproval] --(loop)--+----------+
  *   [etPoster] ------------------------+
  *
- * VIZUAL: cele două moduri
+ * VISUAL: the two modes
  *
- *   Intent FĂRĂ MOVIE_EXTRA          Intent CU MOVIE_EXTRA
+ *   Intent WITHOUT MOVIE_EXTRA          Intent WITH MOVIE_EXTRA
  *          |                                  |
  *          v                                  v
  *   existing == null                   existing != null
  *          |                                  |
- *   position rămâne -1                 position = getIntExtra(..., -1)
- *   formular gol                       fillForm(existing)
- *   buton: "Save Movie"                buton: "Update Movie"
+ *   position stays -1                  position = getIntExtra(..., -1)
+ *   empty form                         fillForm(existing)
+ *   button: "Save Movie"               button: "Update Movie"
  *          |                                  |
  *          +---------------+------------------+
  *                          v
  *                     saveMovie()
  *                          |
- *          position == -1 -> Intent FĂRĂ POSITION_EXTRA
- *          position >= 0  -> Intent CU POSITION_EXTRA
+ *          position == -1 -> Intent WITHOUT POSITION_EXTRA
+ *          position >= 0  -> Intent WITH POSITION_EXTRA
  * ======================================================================================
  */
 public class ItemActivity extends AppCompatActivity {
 
     // ==================================================================================
-    // CELE 13 REFERINȚE LA VIEW-URI
+    // THE 13 REFERENCES TO VIEWS
     // ==================================================================================
-    // DE CE 13: formularul are 10 câmpuri de date + 2 etichete dinamice + 1 buton.
-    //   Cele 7 `TextView`-uri de etichetă fixă (`tvTile`, `tvGenre`, `tvBudget`,
-    //   `tvDuration`, `tvRating`, `tvWatched`, `tvGuidance`) NU apar aici: nu sunt
-    //   citite și nu sunt modificate din cod, deci nu au nevoie de referință.
+    // WHY 13: the form has 10 data fields + 2 dynamic labels + 1 button.
+    //   The 7 `TextView`s of fixed labels (`tvTile`, `tvGenre`, `tvBudget`,
+    //   `tvDuration`, `tvRating`, `tvWatched`, `tvGuidance`) do NOT appear here: they are not
+    //   read and are not modified from code, so they need no reference.
     //
-    // DE CE TOATE SUNT `private`: sunt detalii de implementare ale ecranului.
+    // WHY THEY ARE ALL `private`: they are implementation details of the screen.
     // ==================================================================================
 
-    // Câmpul 1: titlul. Obiectul real din XML este `TextInputEditText`, dar tipul
-    // declarat este `EditText` — clasa părinte. Este suficient pentru `getText()`.
+    // Field 1: the title. The real object in the XML is `TextInputEditText`, but the declared
+    // type is `EditText` — the parent class. It is enough for `getText()`.
     private EditText etTitle;
 
-    // Câmpul 2: data, ca TEXT. Valoarea reală este în `releaseCal` (vezi mai jos).
+    // Field 2: the date, as TEXT. The real value is in `releaseCal` (see below).
     private EditText etRelease;
 
-    // Câmpul 3: genul. `Spinner` — lista derulantă din `@array/movie_genre`.
+    // Field 3: the genre. `Spinner` — the drop-down list from `@array/movie_genre`.
     private Spinner spGenre;
 
-    // Câmpul 4: bugetul. `inputType="numberDecimal"` în XML.
+    // Field 4: the budget. `inputType="numberDecimal"` in the XML.
     private EditText etBudget;
 
-    // Câmpul 5: durata. `SeekBar` cu max 300.
+    // Field 5: the duration. `SeekBar` with max 300.
     private SeekBar sbDuration;
 
-    // Câmpul 6: rating-ul. `RatingBar` cu 5 stele și pas 0.5.
-    // ATENȚIE: tipul este `RatingBar`, NU `android.media.Rating`. Importul acela
-    //   este mort — vezi 31.0.5.
+    // Field 6: the rating. `RatingBar` with 5 stars and a step of 0.5.
+    // WATCH OUT: the type is `RatingBar`, NOT `android.media.Rating`. That import
+    //   is dead — see 31.0.5.
     private RatingBar rbRating;
 
-    // Câmpul 7: ghidajul parental. `RadioGroup` cu 5 butoane.
+    // Field 7: the parental guidance. `RadioGroup` with 5 buttons.
     private RadioGroup rgApproval;
 
-    // Câmpul 8: bifa „Watchlist".
-    // ATENȚIE LA NUME: câmpul este `cbonWatchList`, ID-ul este `cbOnWatchList`.
-    //   Un `o` lipsă într-o parte, un `O` în plus în cealaltă. Nu este typo de corectat:
-    //   așa este sursa. `findViewById(R.id.cbonWatchList)` NU ar compila.
+    // Field 8: the "Watchlist" check mark.
+    // WATCH OUT FOR THE NAME: the field is `cbonWatchList`, the ID is `cbOnWatchList`.
+    //   An `o` missing on one side, an `O` extra on the other. It is not a typo to fix:
+    //   that is how the source is. `findViewById(R.id.cbonWatchList)` would NOT compile.
     private CheckBox cbonWatchList;
 
-    // Câmpul 9: switch-ul „Recommended". Tipul real este `MaterialSwitch`, care
-    // extinde `SwitchCompat` -> `CompoundButton`. Declarat `MaterialSwitch` pentru
-    // a avea acces la toate metodele lui.
-    // DE ACEA importul `android.widget.Switch` este mort: nu este tipul acestui câmp.
+    // Field 9: the "Recommended" switch. The real type is `MaterialSwitch`, which
+    // extends `SwitchCompat` -> `CompoundButton`. Declared `MaterialSwitch` in order
+    // to have access to all its methods.
+    // THAT is why the `android.widget.Switch` import is dead: it is not the type of this field.
     private MaterialSwitch swWatched;
 
-    // Câmpul 10: URL-ul posterului.
+    // Field 10: the poster URL.
     private EditText etPoster;
 
-    // Câmpul 11: butonul de salvare.
-    // ATENȚIE LA NUME: câmpul este `btMovieAction`, ID-ul este `btnMovieAction`.
+    // Field 11: the save button.
+    // WATCH OUT FOR THE NAME: the field is `btMovieAction`, the ID is `btnMovieAction`.
     private Button btMovieAction;
 
-    // Câmpul 12: eticheta care afișează durata („148 min."). NU este citită la
-    // salvare — este doar afișare, actualizată de listener-ul SeekBar-ului.
+    // Field 12: the label that displays the duration ("148 min."). It is NOT read on
+    // save — it is display only, updated by the SeekBar listener.
     private TextView tvDurationValue;
 
-    // Câmpul 13: eticheta care afișează „Yes"/„No" pentru switch.
+    // Field 13: the label that displays "Yes"/"No" for the switch.
     private TextView tvWatchedValue;
 
     // ==================================================================================
-    // STAREA FORMULARULUI
+    // THE STATE OF THE FORM
     // ==================================================================================
 
-    // MODUL: -1 = insert, >= 0 = edit.
-    // DE CE `-1` și nu `0`: `0` este o poziție validă în listă. Sentinel-ul trebuie
-    //   să fie o valoare IMPOSIBILĂ ca poziție.
-    // CINE ÎL SCHIMBĂ: doar `onCreate`, când găsește un film în Intent.
+    // THE MODE: -1 = insert, >= 0 = edit.
+    // WHY `-1` and not `0`: `0` is a valid position in the list. The sentinel must
+    //   be a value IMPOSSIBLE as a position.
+    // WHO CHANGES IT: only `onCreate`, when it finds a movie in the Intent.
     private int position = -1;   // -1 = insert mode
 
-    // SURSA DE ADEVĂR PENTRU DATĂ.
-    // `Calendar.getInstance()` = data și ora CURENTĂ. De aceea formularul pornește
-    //   cu data de azi, nu cu o dată goală.
-    // DE CE NU `null`: `saveMovie` apelează `releaseCal.getTime()` necondiționat.
-    //   Un `null` ar arunca NPE la prima salvare.
-    // DE CE `Calendar` și nu `Date`: `Calendar` are câmpuri (YEAR, MONTH, DAY_OF_MONTH)
-    //   pe care `DatePickerDialog` le citește și le scrie direct.
-    // RISC: în modul edit, `fillForm` NU actualizează acest calendar — vezi BUG 4.
+    // THE SOURCE OF TRUTH FOR THE DATE.
+    // `Calendar.getInstance()` = the CURRENT date and time. That is why the form starts
+    //   with today's date, not with an empty date.
+    // WHY NOT `null`: `saveMovie` calls `releaseCal.getTime()` unconditionally.
+    //   A `null` would throw an NPE on the first save.
+    // WHY `Calendar` and not `Date`: `Calendar` has fields (YEAR, MONTH, DAY_OF_MONTH)
+    //   that `DatePickerDialog` reads and writes directly.
+    // RISK: in edit mode, `fillForm` does NOT update this calendar — see BUG 4.
     private Calendar releaseCal = Calendar.getInstance();
 
-    // FORMATTER-UL DE DATĂ.
-    // „dd/MM/yyyy" = zi cu 2 cifre / lună cu 2 cifre / an cu 4 cifre.
-    //   ATENȚIE: `MM` = lună, `mm` = minute. Inversarea este o greșeală clasică.
-    // `Locale.getDefault()` = formatul limbii dispozitivului. Aici pattern-ul este
-    //   explicit, deci Locale influențează doar simbolurile și ordinea internă.
-    // `final`: referința nu se schimbă. Obiectul, însă, este MUTABIL.
-    // RISC: `SimpleDateFormat` nu este thread-safe. Aici este folosit exclusiv pe
-    //   UI thread, deci nu există concurență.
+    // THE DATE FORMATTER.
+    // "dd/MM/yyyy" = day with 2 digits / month with 2 digits / year with 4 digits.
+    //   WATCH OUT: `MM` = month, `mm` = minutes. Swapping them is a classic mistake.
+    // `Locale.getDefault()` = the format of the device's language. Here the pattern is
+    //   explicit, so Locale influences only the symbols and the internal order.
+    // `final`: the reference does not change. The object, however, is MUTABLE.
+    // RISK: `SimpleDateFormat` is not thread-safe. Here it is used exclusively on
+    //   the UI thread, so there is no concurrency.
     private final SimpleDateFormat dateFormat =
             new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 
     // ==================================================================================
-    // onCreate — INFRASTRUCTURĂ, CONTROALE, LISTENER-I, MOD
+    // onCreate — INFRASTRUCTURE, CONTROLS, LISTENERS, MODE
     // ==================================================================================
-    // CE FACE: construiește ecranul, atașează listener-ii, apoi decide dacă umple
-    //   formularul cu un film existent sau îl lasă gol.
-    // CUM: 1. infrastructură (super, edge-to-edge, layout, insets)
+    // WHAT IT DOES: builds the screen, attaches the listeners, then decides whether to fill
+    //   the form with an existing movie or leave it empty.
+    // HOW: 1. infrastructure (super, edge-to-edge, layout, insets)
     //      2. initControls
     //      3. initListeners
-    //      4. citește Intent-ul
-    //      5. dacă există film -> position, fillForm, titlu, text buton
-    // RISC: ordinea 2-3-5 este obligatorie. `fillForm` are nevoie de view-uri (2)
-    //   și trebuie să declanșeze listener-ii (3) pentru etichete.
-    // REF: `MainActivity.onCreate` are aceeași primă fază de infrastructură.
+    //      4. reads the Intent
+    //      5. if a movie exists -> position, fillForm, title, button text
+    // RISK: the order 2-3-5 is mandatory. `fillForm` needs the views (2)
+    //   and must trigger the listeners (3) for the labels.
+    // REF: `MainActivity.onCreate` has the same first infrastructure phase.
     // ==================================================================================
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Edge-to-edge: același apel ca în MainActivity.
+        // Edge-to-edge: the same call as in MainActivity.
         EdgeToEdge.enable(this);
 
-        // Umflă `activity_item.xml`. Arborele are un ScrollView rădăcină cu id `main`.
+        // Inflates `activity_item.xml`. The tree has a root ScrollView with the id `main`.
         setContentView(R.layout.activity_item);
 
-        // Insets pe containerul rădăcină. Identic cu MainActivity, cu o singură
-        //   diferență de context: aici `R.id.main` este ScrollView-ul, nu FrameLayout-ul.
+        // Insets on the root container. Identical to MainActivity, with a single
+        //   difference of context: here `R.id.main` is the ScrollView, not the FrameLayout.
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        // Faza 1: leagă cele 13 câmpuri de view-urile din XML.
-        // DE CE PRIMA: `fillForm` are nevoie de ele, iar `initListeners` la fel.
+        // Phase 1: bind the 13 fields to the views in the XML.
+        // WHY FIRST: `fillForm` needs them, and so does `initListeners`.
         initControls();
 
-        // Faza 2: atașează listener-ii.
-        // DE CE ÎNAINTE DE `fillForm`: `fillForm` apelează `setChecked` și `setProgress`.
-        //   Aceste apeluri DECLANȘEAZĂ listener-ii, care actualizează etichetele
-        //   `tvWatchedValue` și `tvDurationValue`. Dacă listener-ii ar fi atașați după
-        //   `fillForm`, etichetele ar rămâne cu valorile implicite din XML.
+        // Phase 2: attach the listeners.
+        // WHY BEFORE `fillForm`: `fillForm` calls `setChecked` and `setProgress`.
+        //   These calls TRIGGER the listeners, which update the labels
+        //   `tvWatchedValue` and `tvDurationValue`. If the listeners were attached after
+        //   `fillForm`, the labels would keep the default values from the XML.
         initListeners();
 
-        // Faza 3: citește Intent-ul de intrare.
-        // `getIntent()` întoarce Intent-ul care a pornit activitatea. Nu este null:
-        //   orice activitate este pornită cu un Intent, chiar și unul gol.
+        // Phase 3: read the incoming Intent.
+        // `getIntent()` returns the Intent that started the activity. It is not null:
+        //   any activity is started with an Intent, even an empty one.
         Intent intent = getIntent();
 
-        // Citire TIPATĂ a serializable-ului.
-        // DE CE `IntentCompat` ȘI NU `intent.getSerializableExtra(...)`:
-        //   Metoda veche este depreciată din API 33. `IntentCompat.getSerializableExtra`
-        //   primește și clasa așteptată, deci face verificarea tipului înainte de cast
-        //   și funcționează identic pe toate versiunile.
-        // DE CE `MainActivity.MOVIE_EXTRA`: aceeași constantă ca la trimitere. O greșeală
-        //   de literă aici ar produce `null` fără nicio eroare.
-        // VALOAREA: `null` în modul insert (FAB-ul nu pune niciun extra).
+        // TYPED read of the serializable.
+        // WHY `IntentCompat` AND NOT `intent.getSerializableExtra(...)`:
+        //   The old method is deprecated since API 33. `IntentCompat.getSerializableExtra`
+        //   also receives the expected class, so it checks the type before the cast
+        //   and works identically on all versions.
+        // WHY `MainActivity.MOVIE_EXTRA`: the same constant as on send. A typo
+        //   here would produce `null` with no error.
+        // THE VALUE: `null` in insert mode (the FAB puts no extra).
         Movie existing = IntentCompat.getSerializableExtra(intent, MainActivity.MOVIE_EXTRA, Movie.class);
 
-        // MOD EDIT: există un film în Intent.
+        // EDIT MODE: there is a movie in the Intent.
         if (existing != null) {
 
-            // Citește poziția. Aici `-1` ar însemna „film trimis fără poziție" —
-            // un caz care nu se întâmplă în fluxul normal, dar ar transforma salvarea
-            // într-un insert (duplicat).
+            // Reads the position. Here `-1` would mean "movie sent without a position" —
+            // a case that does not happen in the normal flow, but would turn the save
+            // into an insert (duplicate).
             position = intent.getIntExtra(MainActivity.POSITION_EXTRA, -1);
 
-            // Umple formularul cu valorile filmului primit.
-            // OBIECTUL ESTE O COPIE: modificările din formular NU ajung în lista din
-            // MainActivity decât prin Intent-ul de rezultat.
+            // Fills the form with the values of the received movie.
+            // THE OBJECT IS A COPY: the changes in the form do NOT reach the list in
+            // MainActivity except through the result Intent.
             fillForm(existing);
 
-            // Schimbă titlul ecranului. `setTitle` este metoda Activity-ului,
-            //   NU setter-ul modelului — nu există conflict, destinatarul diferă.
-            // Dacă tema nu are ActionBar, titlul nu se vede nicăieri pe ecran;
-            //   feedback-ul vizibil pentru utilizator este textul butonului, mai jos.
+            // Changes the title of the screen. `setTitle` is the Activity method,
+            //   NOT the model setter — there is no conflict, the receiver differs.
+            // If the theme has no ActionBar, the title is not visible anywhere on screen;
+            //   the visible feedback for the user is the button text, below.
             setTitle("Edit movie");
 
-            // Schimbă textul butonului. Același buton face insert sau update;
-            //   eticheta este singura diferență vizibilă pentru utilizator.
+            // Changes the text of the button. The same button does insert or update;
+            //   the label is the only difference visible to the user.
             btMovieAction.setText("Update Movie");
         }
 
-        // MOD INSERT: `existing == null`. Nu se întâmplă nimic.
-        //   `position` rămâne -1, formularul rămâne cu valorile implicite din XML:
-        //   titlu gol, dată = azi, gen = primul din listă, buget gol, durată 0,
-        //   rating 0, switch oprit, bifă oprită, „G" bifat, poster gol.
+        // INSERT MODE: `existing == null`. Nothing happens.
+        //   `position` stays -1, the form keeps the default values from the XML:
+        //   empty title, date = today, genre = the first in the list, empty budget, duration 0,
+        //   rating 0, switch off, check mark off, "G" checked, empty poster.
     }
 
     // ==================================================================================
-    // fillForm — MODEL -> WIDGET-URI
+    // fillForm — MODEL -> WIDGETS
     // ==================================================================================
-    // CE FACE: copiază cele 10 valori din `Movie` în cele 10 widget-uri.
-    // CUM: 1. câmpurile simple, în ordinea din model
-    //      2. Spinner: buclă peste poziții, potrivire pe text
-    //      3. RadioGroup: buclă peste copii, potrivire pe text
-    // RISC: nu actualizează `releaseCal`. Vezi BUG 4 — data se pierde la update.
-    // REF: fiecare linie este inversul unei linii din `saveMovie`.
+    // WHAT IT DOES: copies the 10 values from `Movie` into the 10 widgets.
+    // HOW: 1. the simple fields, in the order of the model
+    //      2. Spinner: loop over the positions, match on text
+    //      3. RadioGroup: loop over the children, match on text
+    // RISK: it does not update `releaseCal`. See BUG 4 — the date is lost on update.
+    // REF: each line is the inverse of a line in `saveMovie`.
     // ==================================================================================
     private void fillForm(Movie existing) {
 
-        // Text: `getText().toString()` la salvare, `setText(...)` la umplere.
-        // `setText` așteaptă `CharSequence`; `String` este un `CharSequence`.
+        // Text: `getText().toString()` on save, `setText(...)` on fill.
+        // `setText` expects a `CharSequence`; `String` is a `CharSequence`.
         etTitle.setText(existing.getTitle());
 
-        // BUG 2: `existing.getRelease()` poate fi `null`.
+        // BUG 2: `existing.getRelease()` can be `null`.
         // ==============================================================================
-        // `SimpleDateFormat.format(null)` aruncă `NullPointerException`.
-        // CÂND SE ÎNTÂMPLĂ: când filmul editat are `release == null`. În fluxul demo
-        //   toate cele 3 filme au dată, deci bug-ul nu se vede. Devine real dacă un
-        //   `Movie` este construit cu constructorul gol și salvat fără dată.
-        // REPARAȚIE: `if (existing.getRelease() != null) { ... } else { etRelease.setText(""); }`
+        // `SimpleDateFormat.format(null)` throws `NullPointerException`.
+        // WHEN IT HAPPENS: when the edited movie has `release == null`. In the demo flow
+        //   all 3 movies have a date, so the bug is not visible. It becomes real if a
+        //   `Movie` is built with the empty constructor and saved without a date.
+        // FIX: `if (existing.getRelease() != null) { ... } else { etRelease.setText(""); }`
         // ==============================================================================
         etRelease.setText(dateFormat.format(existing.getRelease()));
 
-        // BUG 3: `String.valueOf(double)` produce notație științifică pentru valori mari.
+        // BUG 3: `String.valueOf(double)` produces scientific notation for large values.
         // ==============================================================================
         // `String.valueOf(160000000.0)` -> "1.6E8".
-        // Utilizatorul vede „1.6E8" în câmpul de buget. `Double.parseDouble("1.6E8")`
-        //   funcționează, deci valoarea se salvează corect — dar afișarea este urâtă
-        //   și pare o eroare.
-        // REPARAȚIE: `String.format(Locale.getDefault(), "%.0f", existing.getBudget())`
-        //   sau un `DecimalFormat`.
+        // The user sees "1.6E8" in the budget field. `Double.parseDouble("1.6E8")`
+        //   works, so the value is saved correctly — but the display is ugly
+        //   and looks like an error.
+        // FIX: `String.format(Locale.getDefault(), "%.0f", existing.getBudget())`
+        //   or a `DecimalFormat`.
         // ==============================================================================
         etBudget.setText(String.valueOf(existing.getBudget()));
 
-        // `SeekBar.setProgress(int)` — valoarea este limitată automat la 0..max.
-        // Dacă durata din model ar fi 500, bara s-ar opri la 300.
-        // EFECT SECUNDAR: dacă valoarea se SCHIMBĂ, se declanșează `onProgressChanged`
-        //   și eticheta `tvDurationValue` se actualizează. Dacă valoarea este deja 0
-        //   (implicită), listener-ul NU se declanșează — dar eticheta din XML este
-        //   deja „0 min", deci rezultatul este corect.
+        // `SeekBar.setProgress(int)` — the value is automatically limited to 0..max.
+        // If the duration in the model were 500, the bar would stop at 300.
+        // SIDE EFFECT: if the value CHANGES, `onProgressChanged` is triggered
+        //   and the label `tvDurationValue` is updated. If the value is already 0
+        //   (the default), the listener does NOT fire — but the label in the XML is
+        //   already "0 min", so the result is correct.
         sbDuration.setProgress(existing.getDuration());
 
-        // `CheckBox.setChecked(boolean)` — nu are listener, deci nicio reacție în lanț.
+        // `CheckBox.setChecked(boolean)` — it has no listener, so no reaction in a chain.
         cbonWatchList.setChecked(existing.isOnWatchlist());
 
-        // `MaterialSwitch.setChecked(boolean)` — DECLANȘEAZĂ listener-ul de switch,
-        //   care scrie „Yes"/„No" în `tvWatchedValue`. De aceea listener-ii trebuie
-        //   atașați înainte de `fillForm`.
+        // `MaterialSwitch.setChecked(boolean)` — TRIGGERS the switch listener,
+        //   which writes "Yes"/"No" into `tvWatchedValue`. That is why the listeners must be
+        //   attached before `fillForm`.
         swWatched.setChecked(existing.isWatched());
 
-        // `RatingBar.setRating(float)` — parametrul este `float`, exact tipul câmpului
-        //   din model. O valoare de 4.5 aprinde 4 stele și jumătate.
+        // `RatingBar.setRating(float)` — the parameter is `float`, exactly the type of the field
+        //   in the model. A value of 4.5 lights 4 and a half stars.
         rbRating.setRating(existing.getRating());
 
-        // `setText(null)` este legal: câmpul devine gol. Nu aruncă excepție.
-        // Aici se vede diferența de nume față de G1097: `getPosterUrl()`, nu `getPoster()`.
+        // `setText(null)` is legal: the field becomes empty. It throws no exception.
+        // Here you see the naming difference from G1097: `getPosterUrl()`, not `getPoster()`.
         etPoster.setText(existing.getPosterUrl());
 
-        // SPINNER — nu are `setValue`, are `setSelection(index)`.
-        // De aceea este nevoie de o buclă: caută INDEXUL valorii care corespunde.
-        // `getCount()` = numărul de elemente din `@array/movie_genre`.
-        // `getItemAtPosition(index)` întoarce un `Object` (în practică, `String`).
-        // `break` la prima potrivire: dacă array-ul ar avea duplicate, câștigă primul.
-        // Dacă nu se găsește nicio potrivire, spinner-ul rămâne pe poziția 0 —
-        //   silențios, fără eroare.
+        // SPINNER — it has no `setValue`, it has `setSelection(index)`.
+        // That is why a loop is needed: it looks for the INDEX of the matching value.
+        // `getCount()` = the number of elements in `@array/movie_genre`.
+        // `getItemAtPosition(index)` returns an `Object` (in practice, a `String`).
+        // `break` at the first match: if the array had duplicates, the first wins.
+        // If no match is found, the spinner stays on position 0 —
+        //   silently, with no error.
         for(int index=0; index<spGenre.getCount(); index++)
         {
             if(spGenre.getItemAtPosition(index).equals(existing.getGenre()))
             {
-                // `setSelection` mută selecția. Nu declanșează niciun listener aici,
-                //   pentru că nu am atașat niciunul pe Spinner.
+                // `setSelection` moves the selection. It triggers no listener here,
+                //   because we attached none on the Spinner.
                 spGenre.setSelection(index);
                 break;
             }
         }
 
-        // RADIOGROUP — nici aici nu există `setValue`. `check(id)` primește un ID.
-        // `getChildCount()` = 5 (cele 5 MaterialRadioButton).
-        // `getChildAt(index)` întoarce `View`; cast la `RadioButton` pentru `getText()`.
+        // RADIOGROUP — here too there is no `setValue`. `check(id)` receives an ID.
+        // `getChildCount()` = 5 (the 5 MaterialRadioButtons).
+        // `getChildAt(index)` returns a `View`; cast to `RadioButton` for `getText()`.
         for(int index=0; index<rgApproval.getChildCount(); index++)
         {
             RadioButton rb = (RadioButton) rgApproval.getChildAt(index);
             if(rb.getText().toString().equals(existing.getApproval()))
             {
-                // `check(...)` primește ID-ul copilului, nu indexul. De aceea se
-                //   citește `getChildAt(index).getId()`.
-                // Efect secundar: `check` dezbină automat butonul bifat anterior.
+                // `check(...)` receives the ID of the child, not the index. That is why
+                //   it reads `getChildAt(index).getId()`.
+                // Side effect: `check` automatically unchecks the previously checked button.
                 rgApproval.check(rgApproval.getChildAt(index).getId());
                 break;
             }
         }
 
-        // CE NU FACE ACEASTĂ METODĂ: nu scrie în `releaseCal`.
-        //   Textul este afișat corect, dar calendarul rămâne pe data de AZI.
-        //   Vezi BUG 4, imediat după listă.
+        // WHAT THIS METHOD DOES NOT DO: it does not write into `releaseCal`.
+        //   The text is displayed correctly, but the calendar stays on TODAY's date.
+        //   See BUG 4, right after the list.
     }
 
     // ==================================================================================
-    // initControls — 13 FINDVIEWBYID, ÎN ORDINEA DIN FORMULAR
+    // initControls — 13 FINDVIEWBYID CALLS, IN THE ORDER OF THE FORM
     // ==================================================================================
-    // CE FACE: leagă fiecare câmp Java de view-ul cu id-ul corespunzător din XML.
-    // CUM: 13 apeluri `findViewById`, în ordinea vizuală a formularului.
-    // RISC: fiecare id trebuie să existe în `activity_item.xml`. Un id greșit
-    //   întoarce `null` și crapă la primul acces, nu aici.
-    // REF: `MainActivity.initControls` are același rol, cu 2 view-uri.
+    // WHAT IT DOES: binds each Java field to the view with the corresponding id from the XML.
+    // HOW: 13 `findViewById` calls, in the visual order of the form.
+    // RISK: each id must exist in `activity_item.xml`. A wrong id
+    //   returns `null` and crashes on the first access, not here.
+    // REF: `MainActivity.initControls` has the same role, with 2 views.
     // ==================================================================================
     private void initControls() {
 
-        // Cardul „Basics": titlul și data.
+        // The "Basics" card: the title and the date.
         etTitle = findViewById(R.id.etTitle);
         etRelease = findViewById(R.id.etRelease);
 
-        // Genul — Spinner învelit într-un MaterialCardView în XML.
+        // The genre — a Spinner wrapped in a MaterialCardView in the XML.
         spGenre = findViewById(R.id.spGenre);
 
-        // Cardul „Production": bugetul și durata.
+        // The "Production" card: the budget and the duration.
         etBudget = findViewById(R.id.etBudget);
         sbDuration = findViewById(R.id.sbDuration);
 
-        // Cardul „Your verdict": rating, ghidaj, switch, bifă.
+        // The "Your verdict" card: rating, guidance, switch, check mark.
         rbRating = findViewById(R.id.rbRating);
         rgApproval = findViewById(R.id.rgApproval);
 
-        // ATENȚIE: id-ul este `cbOnWatchList` (cu `O` mare), câmpul este
-        //   `cbonWatchList` (cu `o` mic). Diferă doar prin majusculă.
+        // WATCH OUT: the id is `cbOnWatchList` (with a capital `O`), the field is
+        //   `cbonWatchList` (with a lowercase `o`). They differ only by the capital letter.
         cbonWatchList = findViewById(R.id.cbOnWatchList);
 
         swWatched = findViewById(R.id.swWatched);
 
-        // Cardul „Poster".
+        // The "Poster" card.
         etPoster = findViewById(R.id.etPoster);
 
-        // Butonul de salvare. Id-ul este `btnMovieAction`, câmpul `btMovieAction`.
+        // The save button. The id is `btnMovieAction`, the field `btMovieAction`.
         btMovieAction = findViewById(R.id.btnMovieAction);
 
-        // Cele două etichete dinamice. Sunt citite doar de listener-ii de mai jos.
+        // The two dynamic labels. They are read only by the listeners below.
         tvDurationValue = findViewById(R.id.tvDurationValue);
         tvWatchedValue = findViewById(R.id.tvWatchedValue);
     }
 
     // ==================================================================================
-    // initListeners — PATRU LISTENER-I
+    // initListeners — FOUR LISTENERS
     // ==================================================================================
-    // CE FACE: atașează comportamentul celor patru widget-uri interactive.
-    // CUM: 1. etRelease -> deschide dialogul de dată
+    // WHAT IT DOES: attaches the behaviour of the four interactive widgets.
+    // HOW: 1. etRelease -> opens the date dialog
     //      2. btMovieAction -> saveMovie
-    //      3. swWatched -> actualizează eticheta „Yes"/„No"
-    //      4. sbDuration -> actualizează eticheta „N min."
-    // RISC: listener-ul de switch și cel de SeekBar sunt esențiale pentru `fillForm`;
-    //   fără ele, etichetele ar rămâne desincronizate la editare.
-    // REF: aceleași clase anonime ca în `MainActivity.initListeners`.
+    //      3. swWatched -> updates the "Yes"/"No" label
+    //      4. sbDuration -> updates the "N min." label
+    // RISK: the switch listener and the SeekBar one are essential for `fillForm`;
+    //   without them, the labels would stay out of sync on edit.
+    // REF: the same anonymous classes as in `MainActivity.initListeners`.
     // ==================================================================================
     private void initListeners() {
 
-        // 1. CLICK PE CÂMPUL DE DATĂ -> dialog.
-        // `EditText` este și editabil, dar aici click-ul este interceptat și înlocuit
-        //   cu un dialog. Utilizatorul nu tastează data, o alege.
+        // 1. CLICK ON THE DATE FIELD -> dialog.
+        // `EditText` is also editable, but here the click is intercepted and replaced
+        //   with a dialog. The user does not type the date, they choose it.
         etRelease.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -544,8 +544,8 @@ public class ItemActivity extends AppCompatActivity {
             }
         });
 
-        // 2. CLICK PE BUTON -> salvare.
-        // Același listener face insert sau update; diferența este câmpul `position`.
+        // 2. CLICK ON THE BUTTON -> save.
+        // The same listener does insert or update; the difference is the `position` field.
         btMovieAction.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -553,44 +553,44 @@ public class ItemActivity extends AppCompatActivity {
             }
         });
 
-        // 3. SWITCH -> etichetă.
-        // `CompoundButton.OnCheckedChangeListener` are un singur metodă, cu două
-        //   argumente: butonul și noua stare.
-        // `@NonNull` pe `buttonView` este o adnotare de contract, nu o verificare
-        //   la runtime.
+        // 3. SWITCH -> label.
+        // `CompoundButton.OnCheckedChangeListener` has a single method, with two
+        //   arguments: the button and the new state.
+        // `@NonNull` on `buttonView` is a contract annotation, not a check
+        //   at runtime.
         swWatched.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(@NonNull CompoundButton buttonView, boolean isChecked) {
-                // Operator ternar: „Yes" dacă este bifat, „No" altfel.
-                // `setText` așteaptă `CharSequence`; ambii literali sunt `String`.
+                // Ternary operator: "Yes" if it is checked, "No" otherwise.
+                // `setText` expects a `CharSequence`; both literals are `String`.
                 tvWatchedValue.setText(isChecked ? "Yes" : "No");
             }
         });
 
-        // 4. SEEKBAR -> etichetă.
-        // Interfața are TREI metode; două rămân goale, dar TREBUIE scrise:
-        //   altfel clasa anonimă nu compilează.
+        // 4. SEEKBAR -> label.
+        // The interface has THREE methods; two remain empty, but MUST be written:
+        //   otherwise the anonymous class does not compile.
         sbDuration.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
-            // Apelat la fiecare schimbare de valoare.
-            // `progress` = noua valoare (0..300).
-            // `fromUser` = true dacă schimbarea vine de la deget, false dacă vine
-            //   din cod (`setProgress`). Aici este IGNORAT intenționat: eticheta
-            //   trebuie să reflecte valoarea în ambele cazuri.
+            // Called on every change of value.
+            // `progress` = the new value (0..300).
+            // `fromUser` = true if the change comes from the finger, false if it comes
+            //   from code (`setProgress`). Here it is IGNORED on purpose: the label
+            //   must reflect the value in both cases.
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                // `progress + " min."` — concatenare int cu String. Java convertește
-                //   automat int-ul în text. Rezultat: „148 min.".
+                // `progress + " min."` — int concatenated with String. Java converts
+                //   the int to text automatically. Result: "148 min.".
                 tvDurationValue.setText(progress + " min.");
             }
 
-            // Apelat când degetul atinge bara. Nu avem nevoie de el.
+            // Called when the finger touches the bar. We do not need it.
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
 
             }
 
-            // Apelat când degetul ridică. Nu avem nevoie de el.
+            // Called when the finger lifts. We do not need it.
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
 
@@ -599,160 +599,160 @@ public class ItemActivity extends AppCompatActivity {
     }
 
     // ==================================================================================
-    // saveMovie — WIDGET-URI -> MODEL -> INTENT -> REZULTAT
+    // saveMovie — WIDGETS -> MODEL -> INTENT -> RESULT
     // ==================================================================================
-    // CE FACE: construiește un `Movie` nou din valorile curente ale formularului,
-    //   îl pune într-un Intent și îl trimite înapoi lui MainActivity.
-    // CUM: 1. `new Movie()` — constructorul gol
-    //      2. 9 setter-e directe din widget-uri
-    //      3. buclă pe RadioGroup pentru al 10-lea câmp
-    //      4. Intent fără target, cu MOVIE_EXTRA și, condiționat, POSITION_EXTRA
+    // WHAT IT DOES: builds a new `Movie` from the current values of the form,
+    //   puts it in an Intent and sends it back to MainActivity.
+    // HOW: 1. `new Movie()` — the empty constructor
+    //      2. 9 setters directly from the widgets
+    //      3. loop over the RadioGroup for the 10th field
+    //      4. Intent without a target, with MOVIE_EXTRA and, conditionally, POSITION_EXTRA
     //      5. setResult + finish
-    // RISC: `Double.parseDouble` pe text gol aruncă `NumberFormatException` — BUG 1.
-    // REF: fiecare linie este inversul unei linii din `fillForm`.
+    // RISK: `Double.parseDouble` on empty text throws `NumberFormatException` — BUG 1.
+    // REF: each line is the inverse of a line in `fillForm`.
     // ==================================================================================
     private void saveMovie() {
 
-        // Obiect NOU, nu obiectul primit. Chiar și în modul edit, filmul din listă
-        //   nu este modificat direct: este înlocuit cu acesta, prin `movies.set`.
+        // A NEW object, not the received one. Even in edit mode, the movie in the list
+        //   is not modified directly: it is replaced with this one, through `movies.set`.
         Movie movie = new Movie();
 
-        // `getText()` întoarce un `Editable`, nu un `String`. `toString()` face conversia.
+        // `getText()` returns an `Editable`, not a `String`. `toString()` does the conversion.
         movie.setTitle(etTitle.getText().toString());
 
-        // DATA: din `releaseCal`, NU din textul din `etRelease`.
-        // `getTime()` transformă calendarul într-un `Date` nou.
-        // Aici se vede BUG 4: în modul edit, `releaseCal` nu a fost sincronizat.
+        // THE DATE: from `releaseCal`, NOT from the text in `etRelease`.
+        // `getTime()` turns the calendar into a new `Date`.
+        // Here you see BUG 4: in edit mode, `releaseCal` was not synchronized.
         movie.setRelease(releaseCal.getTime());
 
-        // GENUL: `getSelectedItem()` întoarce `Object`; `toString()` îl face text.
-        // Dacă spinner-ul ar fi gol, ar arunca NPE — aici lista vine din
-        //   `@array/movie_genre` și nu este goală.
+        // THE GENRE: `getSelectedItem()` returns an `Object`; `toString()` turns it into text.
+        // If the spinner were empty, it would throw an NPE — here the list comes from
+        //   `@array/movie_genre` and is not empty.
         movie.setGenre(spGenre.getSelectedItem().toString());
 
-        // BUG 1: `Double.parseDouble("")` aruncă `NumberFormatException`.
+        // BUG 1: `Double.parseDouble("")` throws `NumberFormatException`.
         // ==============================================================================
-        // `etBudget` pornește GOL în modul insert. Dacă utilizatorul apasă „Save Movie"
-        //   fără să scrie un buget, aplicația CRAPĂ. Nu există nicio validare înainte.
-        // REPARAȚIE: `String text = etBudget.getText().toString();`
+        // `etBudget` starts EMPTY in insert mode. If the user presses "Save Movie"
+        //   without writing a budget, the app CRASHES. There is no validation beforehand.
+        // FIX: `String text = etBudget.getText().toString();`
         //             `double value = text.isEmpty() ? 0 : Double.parseDouble(text);`
         // ==============================================================================
         movie.setBudget(Double.parseDouble(etBudget.getText().toString()));
 
-        // DURATA: direct din progresul barei. `int`, fără conversie.
+        // THE DURATION: directly from the progress of the bar. `int`, no conversion.
         movie.setDuration(sbDuration.getProgress());
 
-        // RATING: `float`, exact tipul câmpului.
+        // THE RATING: `float`, exactly the type of the field.
         movie.setRating(rbRating.getRating());
 
-        // SWITCH: `isChecked()` întoarce `boolean`.
+        // THE SWITCH: `isChecked()` returns a `boolean`.
         movie.setWatched(swWatched.isChecked());
 
-        // BIFĂ: `isChecked()` întoarce `boolean`.
+        // THE CHECK MARK: `isChecked()` returns a `boolean`.
         movie.setOnWatchlist(cbonWatchList.isChecked());
 
-        // POSTER: textul brut, fără validare de URL. Poate fi și gol.
-        // Aici se vede a doua diferență de nume: `setPosterUrl`, nu `setPoster`.
+        // THE POSTER: the raw text, with no URL validation. It can also be empty.
+        // Here you see the second naming difference: `setPosterUrl`, not `setPoster`.
         movie.setPosterUrl(etPoster.getText().toString());
 
-        // GHIDAJUL: singurul câmp care nu are un getter direct pe widget.
-        // `RadioGroup` nu are `getSelectedItem`; are doar `getCheckedRadioButtonId()`,
-        //   care ar cere o căutare suplimentară. Bucla este mai simplă.
+        // THE GUIDANCE: the only field that has no direct getter on the widget.
+        // `RadioGroup` has no `getSelectedItem`; it only has `getCheckedRadioButtonId()`,
+        //   which would require an extra lookup. The loop is simpler.
         for(int index=0; index<rgApproval.getChildCount(); index++)
         {
             RadioButton rb = (RadioButton) rgApproval.getChildAt(index);
             if(rb.isChecked())
             {
-                // Textul butonului, nu ID-ul lui. Vezi câmpul 8 din `Movie.java`.
+                // The text of the button, not its ID. See field 8 in `Movie.java`.
                 movie.setApproval(rb.getText().toString());
                 break;
             }
         }
 
-        // INTENT DE REZULTAT — fără target.
-        // `new Intent()` nu pornește nimic. Este doar un container pentru `setResult`.
+        // THE RESULT INTENT — without a target.
+        // `new Intent()` starts nothing. It is only a container for `setResult`.
         Intent intent = new Intent();
 
-        // Filmul, sub aceeași cheie folosită de MainActivity la citire.
+        // The movie, under the same key used by MainActivity on read.
         intent.putExtra(MainActivity.MOVIE_EXTRA, movie);
 
-        // POZIȚIA — DOAR în modul edit.
-        // În modul insert, extra-ul lipsește, iar MainActivity citește `-1` ca implicit.
-        // Astfel, absența poziției este chiar semnalul de „adaugă".
+        // THE POSITION — ONLY in edit mode.
+        // In insert mode, the extra is missing, and MainActivity reads `-1` as the default.
+        // Thus, the absence of the position is exactly the signal to "add".
         if (position != -1)
             intent.putExtra(MainActivity.POSITION_EXTRA, position);
 
-        // Predă rezultatul. `RESULT_OK` este constanta moștenită din `Activity` (= -1).
-        // Fără acest apel, MainActivity ar primi `RESULT_CANCELED` și ar ignora filmul.
+        // Hands over the result. `RESULT_OK` is the constant inherited from `Activity` (= -1).
+        // Without this call, MainActivity would receive `RESULT_CANCELED` and would ignore the movie.
         setResult(RESULT_OK, intent);
 
-        // Închide activitatea. Fără `finish()`, formularul ar rămâne pe ecran,
-        //   iar rezultatul ar fi livrat abia la apăsarea butonului Back.
+        // Closes the activity. Without `finish()`, the form would stay on screen,
+        //   and the result would be delivered only on pressing the Back button.
         finish();
     }
 
     // ==================================================================================
-    // showReleaseDatePicker — DIALOGUL DE DATĂ
+    // showReleaseDatePicker — THE DATE DIALOG
     // ==================================================================================
-    // CE FACE: deschide un `DatePickerDialog` poziționat pe data curentă din
-    //   `releaseCal` și scrie rezultatul în calendar și în text.
-    // CUM: 1. dacă textul există, încearcă să îl parseze în `releaseCal`
-    //      2. deschide dialogul cu anul/luna/ziua din `releaseCal`
-    //      3. la confirmare, scrie în `releaseCal` și formatează textul
-    // RISC: `parse` poate arunca `ParseException`; este prinsă și IGNORATĂ.
-    // REF: singurul loc din aplicație care folosește `DatePickerDialog`.
+    // WHAT IT DOES: opens a `DatePickerDialog` positioned on the current date from
+    //   `releaseCal` and writes the result into the calendar and into the text.
+    // HOW: 1. if the text exists, it tries to parse it into `releaseCal`
+    //      2. opens the dialog with the year/month/day from `releaseCal`
+    //      3. on confirm, it writes into `releaseCal` and formats the text
+    // RISK: `parse` can throw `ParseException`; it is caught and IGNORED.
+    // REF: the only place in the app that uses `DatePickerDialog`.
     // ==================================================================================
     private void showReleaseDatePicker() {
 
-        // Textul curent din câmp. Poate fi gol (insert) sau o dată formatată (edit).
+        // The current text in the field. It can be empty (insert) or a formatted date (edit).
         String current = etRelease.getText().toString();
 
-        // Dacă există text, încearcă să îl transformi în dată.
+        // If text exists, try to turn it into a date.
         if (!current.isEmpty()) {
             try {
-                // `parse` întoarce `null` dacă textul nu poate fi interpretat complet.
+                // `parse` returns `null` if the text cannot be fully interpreted.
                 Date parsed = dateFormat.parse(current);
                 if (parsed != null)
-                    // Sincronizează calendarul cu textul. Acesta este SINGURUL loc
-                    //   în care `releaseCal` primește data din formular — de aici BUG 4.
+                    // Synchronizes the calendar with the text. This is the ONLY place
+                    //   where `releaseCal` receives the date from the form — hence BUG 4.
                     releaseCal.setTime(parsed);
             } catch (ParseException ignored) { }
-            // `catch` gol, intenționat: un text invalid nu blochează dialogul.
-            //   Calendarul rămâne pe valoarea anterioară, iar dialogul se deschide
-            //   pe ea. Utilizatorul corectează din dialog.
+            // Empty `catch`, on purpose: invalid text does not block the dialog.
+            //   The calendar stays on the previous value, and the dialog opens
+            //   on it. The user corrects from the dialog.
         }
 
-        // Construiește dialogul.
-        // `this` = Context-ul (activitatea).
-        // Al doilea argument este listener-ul de confirmare, ca clasă anonimă.
-        // Următoarele trei sunt valorile inițiale: an, lună, zi.
+        // Builds the dialog.
+        // `this` = the Context (the activity).
+        // The second argument is the confirm listener, as an anonymous class.
+        // The next three are the initial values: year, month, day.
         new DatePickerDialog(
                 this,
                 new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int day) {
 
-                        // `month` este deja 0-based, exact cum îl așteaptă `Calendar.set`.
-                        //   NU se scade 1. Confuzia apare la `GregorianCalendar`, unde
-                        //   constantele `Calendar.JULY` ascund aceeași convenție.
+                        // `month` is already 0-based, exactly as `Calendar.set` expects it.
+                        //   Do NOT subtract 1. The confusion appears with `GregorianCalendar`, where
+                        //   the `Calendar.JULY` constants hide the same convention.
                         releaseCal.set(year, month, day);
 
-                        // Șterge eventuala eroare afișată pe câmp. `setError(null)`
-                        //   ascunde iconița și mesajul de sub `TextInputLayout`.
+                        // Clears any error displayed on the field. `setError(null)`
+                        //   hides the icon and the message under the `TextInputLayout`.
                         etRelease.setError(null);
 
-                        // Scrie textul formatat. Aici `releaseCal` este deja actualizat,
-                        //   deci textul și calendarul sunt sincronizate.
+                        // Writes the formatted text. Here `releaseCal` is already updated,
+                        //   so the text and the calendar are synchronized.
                         etRelease.setText(dateFormat.format(releaseCal.getTime()));
                     }
                 },
 
-                // Valorile inițiale ale roților dialogului: din calendar, nu din text.
+                // The initial values of the dialog wheels: from the calendar, not from the text.
                 releaseCal.get(Calendar.YEAR),
                 releaseCal.get(Calendar.MONTH),
                 releaseCal.get(Calendar.DAY_OF_MONTH)
 
-        // `show()` este obligatoriu. Constructorul creează dialogul, dar nu îl afișează.
+        // `show()` is mandatory. The constructor creates the dialog, but does not display it.
         ).show();
     }
 }

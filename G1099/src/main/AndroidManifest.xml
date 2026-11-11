@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- ================================================================================== -->
-<!-- FIȘIER: AndroidManifest.xml — DECLARAȚIA APLICAȚIEI                                 -->
+<!-- FILE: AndroidManifest.xml — THE DECLARATION OF THE APP                             -->
 <!-- ================================================================================== -->
-<!-- CE ESTE: fișierul care spune sistemului de operare ce componente are aplicația,     -->
-<!--   care dintre ele poate fi pornită din exterior și ce temă folosește.               -->
-<!-- DE CE EXISTĂ: fără el, Android nu știe că `MainActivity` este punctul de pornire.   -->
-<!-- CE NU FACE: nu conține cod, nu conține layout, nu declară permisiuni (aplicația     -->
-<!--   nu are nevoie de niciuna).                                                        -->
-<!-- CE S-AR RUPE FĂRĂ EL: aplicația nu ar apărea în launcher.                          -->
-<!-- DIFERENȚA FAȚĂ DE G1097: doar `Theme.G1099` în loc de `Theme.G1097`.               -->
-<!--   Numele pachetului nu apare aici: vine din `namespace`-ul din `build.gradle`.      -->
+<!-- WHAT IT IS: the file that tells the operating system what components the app has,   -->
+<!--   which of them can be started from the outside and what theme it uses.             -->
+<!-- WHY IT EXISTS: without it, Android does not know that `MainActivity` is the entry point. -->
+<!-- WHAT IT DOES NOT DO: it contains no code, no layout, it declares no permissions     -->
+<!--   (the app needs none).                                                             -->
+<!-- WHAT BREAKS WITHOUT IT: the app would not appear in the launcher.                   -->
+<!-- THE DIFFERENCE FROM G1097: only `Theme.G1099` instead of `Theme.G1097`.             -->
+<!--   The package name does not appear here: it comes from the `namespace` in build.gradle. -->
 <!-- ================================================================================== -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
     <!-- ============================================================================== -->
-    <!-- ELEMENTUL APPLICATION — configurația globală a aplicației.                      -->
-    <!-- ATRIBUTE, PE RÂND:                                                              -->
-    <!--   allowBackup         = permite sistemului să copieze datele aplicației.        -->
-    <!--   dataExtractionRules = regulile de backup pentru Android 12+.                  -->
-    <!--   fullBackupContent   = regulile de backup pentru Android 11 și mai vechi.      -->
-    <!--   icon / roundIcon    = iconițele din launcher; `mipmap` = mai multe densități. -->
-    <!--   label               = numele aplicației, din `strings.xml`. Niciodată text    -->
-    <!--                         literal aici.                                           -->
-    <!--   supportsRtl         = suport pentru limbile scrise de la dreapta la stânga.   -->
-    <!--   theme               = tema aplicației. Singura diferență față de G1097.       -->
+    <!-- THE APPLICATION ELEMENT — the global configuration of the app.                  -->
+    <!-- ATTRIBUTES, ONE BY ONE:                                                         -->
+    <!--   allowBackup         = lets the system copy the app's data.                    -->
+    <!--   dataExtractionRules = the backup rules for Android 12+.                       -->
+    <!--   fullBackupContent   = the backup rules for Android 11 and older.              -->
+    <!--   icon / roundIcon    = the launcher icons; `mipmap` = several densities.       -->
+    <!--   label               = the app name, from `strings.xml`. Never a literal       -->
+    <!--                         text here.                                              -->
+    <!--   supportsRtl         = support for languages written right to left.            -->
+    <!--   theme               = the app theme. The only difference from G1097.          -->
     <!--                                                                                 -->
-    <!-- `xmlns:tools` este declarat mai sus, dar în acest fișier NU este folosit:       -->
-    <!--   niciun atribut `tools:` nu apare. Declarație moartă, ca importurile moarte.   -->
+    <!-- `xmlns:tools` is declared above, but in this file it is NOT used:               -->
+    <!--   no `tools:` attribute appears. A dead declaration, like the dead imports.     -->
     <!-- ============================================================================== -->
     <application
         android:allowBackup="true"
@@ -40,35 +40,35 @@
         android:theme="@style/Theme.G1099">
 
         <!-- ========================================================================== -->
-        <!-- ACTIVITATEA 1: MainActivity — ecranul cu lista.                            -->
-        <!-- `android:name` este RELATIV: `.activities.MainActivity` se compune cu      -->
-        <!--   numele pachetului din `build.gradle`.                                    -->
-        <!-- `android:exported="true"` este OBLIGATORIU din API 31 pentru orice         -->
-        <!--   componentă cu intent-filter. Fără el, build-ul eșuează.                  -->
-        <!-- `adjustResize`: când apare tastatura, fereastra se micșorează, iar         -->
-        <!--   conținutul rămâne vizibil. Alternativa `adjustPan` ar împinge ecranul.   -->
+        <!-- ACTIVITY 1: MainActivity — the list screen.                                -->
+        <!-- `android:name` is RELATIVE: `.activities.MainActivity` is composed with     -->
+        <!--   the package name from `build.gradle`.                                    -->
+        <!-- `android:exported="true"` is MANDATORY from API 31 for any                  -->
+        <!--   component with an intent-filter. Without it, the build fails.             -->
+        <!-- `adjustResize`: when the keyboard appears, the window shrinks, and          -->
+        <!--   the content stays visible. The alternative `adjustPan` would push the screen. -->
         <!-- ========================================================================== -->
         <activity
             android:name=".activities.MainActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
 
-            <!-- FILTRUL DE INTENȚII — ce face activitatea pornibilă din launcher. -->
+            <!-- THE INTENT FILTER — what makes the activity startable from the launcher. -->
             <intent-filter>
-                <!-- `MAIN` = punctul de intrare al aplicației. -->
+                <!-- `MAIN` = the entry point of the app. -->
                 <action android:name="android.intent.action.MAIN" />
 
-                <!-- `LAUNCHER` = apare în lista de aplicații a telefonului. -->
+                <!-- `LAUNCHER` = it appears in the phone's app list. -->
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
         <!-- ========================================================================== -->
-        <!-- ACTIVITATEA 2: ItemActivity — formularul.                                  -->
-        <!-- `android:exported="false"`: NU poate fi pornită de altă aplicație.         -->
-        <!--   Este corect: formularul se deschide doar din MainActivity, prin Intent.  -->
-        <!-- Fără intent-filter, pentru că nu răspunde la nicio acțiune globală.        -->
-        <!-- `adjustResize` din nou: formularul are câmpuri text, deci tastatura apare. -->
+        <!-- ACTIVITY 2: ItemActivity — the form.                                       -->
+        <!-- `android:exported="false"`: it CANNOT be started by another app.            -->
+        <!--   It is correct: the form opens only from MainActivity, through an Intent.  -->
+        <!-- No intent-filter, because it responds to no global action.                  -->
+        <!-- `adjustResize` again: the form has text fields, so the keyboard appears.    -->
         <!-- ========================================================================== -->
         <activity
             android:name=".activities.ItemActivity"

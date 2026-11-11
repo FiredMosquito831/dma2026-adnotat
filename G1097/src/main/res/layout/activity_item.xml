@@ -2,44 +2,44 @@
 
 <!--
   ======================================================================================
-  FIȘIER: activity_item.xml — FORMULARUL DE INSERT / EDIT
+  FILE: activity_item.xml — THE INSERT / EDIT FORM
   ======================================================================================
-  STRUCTURA (4 carduri + antet + buton):
+  STRUCTURE (4 cards + header + button):
 
     ScrollView (id=main)
     +== LinearLayout vertical
-        |== TextView  "Movie details"               <- titlu
-        |== TextView  "Fill in the information..."  <- subtitlu
-        |== MaterialCardView  [Basics]              <- titlu, gen, dată
-        |== MaterialCardView  [Production]          <- buget, durată
-        |== MaterialCardView  [Your verdict]        <- rating, switch, bifă, ghidaj
+        |== TextView  "Movie details"               <- title
+        |== TextView  "Fill in the information..."  <- subtitle
+        |== MaterialCardView  [Basics]              <- title, genre, date
+        |== MaterialCardView  [Production]          <- budget, duration
+        |== MaterialCardView  [Your verdict]        <- rating, switch, check mark, guidance
         |== MaterialCardView  [Poster]              <- URL
-        +== MaterialButton    "Save Movie"          <- acțiunea
+        +== MaterialButton    "Save Movie"          <- the action
 
-  DE CE CARDURI: împart un formular lung în secțiuni vizuale. Fiecare card are
-    aceeași rețetă: fundal de suprafață, colțuri 20dp, padding intern 16dp.
+  WHY CARDS: they split a long form into visual sections. Each card has the
+    same recipe: surface background, 20dp corners, 16dp inner padding.
   ======================================================================================
 -->
 
 <!--
-  SCROLLVIEW — containerul care permite derularea.
-  REGULA ABSOLUTĂ: ScrollView are voie cu EXACT UN copil direct. Doi copii ->
+  SCROLLVIEW — the container that allows scrolling.
+  THE ABSOLUTE RULE: a ScrollView is allowed EXACTLY ONE direct child. Two children ->
     `IllegalStateException: ScrollView can host only one direct child`.
-  De aceea tot conținutul stă într-un singur LinearLayout vertical.
+  That is why all the content sits in a single vertical LinearLayout.
 
-  ATRIBUTE:
-    android:id          -> `main`, ACELAȘI nume ca în activity_main. Nu este global:
-                           listener-ul de insets din ItemActivity caută `R.id.main`,
-                           iar ID-ul trebuie să existe în FIECARE layout care îl folosește.
-    layout_width/height -> match_parent pe ambele axe
-    android:background  -> ?attr/colorSurface, culoarea de „suprafață" a temei Material 3.
-                           În light mode este aproape alb; în dark mode este un gri
-                           foarte închis. DE CE NU #FFFFFF: ar rupe dark mode-ul —
-                           textul deschis ar fi invizibil pe fundal alb.
-    android:fillViewport -> true: întinde copilul să umple înălțimea viewport-ului
-                           dacă conținutul este mai scurt decât ecranul. Fără el,
-                           conținutul s-ar lipi de sus și ar rămâne spațiu gol dedesubt.
-    tools:context       -> doar pentru preview
+  ATTRIBUTES:
+    android:id          -> `main`, THE SAME name as in activity_main. It is not global:
+                           the insets listener in ItemActivity looks for `R.id.main`,
+                           and the ID must exist in EVERY layout that uses it.
+    layout_width/height -> match_parent on both axes
+    android:background  -> ?attr/colorSurface, the "surface" colour of the Material 3 theme.
+                           In light mode it is almost white; in dark mode it is a very
+                           dark grey. WHY NOT #FFFFFF: it would break dark mode —
+                           light text would be invisible on a white background.
+    android:fillViewport -> true: stretches the child to fill the viewport height
+                           if the content is shorter than the screen. Without it,
+                           the content would stick to the top and leave empty space below.
+    tools:context       -> preview only
 -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -52,15 +52,15 @@
     tools:context=".activities.ItemActivity">
 
     <!--
-      LINEARLAYOUT VERTICAL — singurul copil al ScrollView.
-      DE CE vertical: formularul curge de sus în jos.
+      VERTICAL LINEARLAYOUT — the only child of the ScrollView.
+      WHY vertical: the form flows from top to bottom.
       PADDING:
-        paddingHorizontal="16dp" — 16dp stânga + dreapta (scurtătură pentru
-          paddingLeft + paddingRight, disponibilă din API 26)
-        paddingTop="24dp" / paddingBottom="24dp" — respiro față de marginile ecranului
-      DE CE 16dp: unitatea de bază a Material Design pentru margini laterale.
-      DE CE wrap_content pe înălțime: conținutul își ia înălțimea naturală, iar
-        ScrollView se ocupă de derulare.
+        paddingHorizontal="16dp" — 16dp left + right (shorthand for
+          paddingLeft + paddingRight, available since API 26)
+        paddingTop="24dp" / paddingBottom="24dp" — breathing room from the screen edges
+      WHY 16dp: the base unit of Material Design for side margins.
+      WHY wrap_content on the height: the content takes its natural height, and the
+        ScrollView takes care of the scrolling.
     -->
     <LinearLayout
         android:layout_width="match_parent"
@@ -73,14 +73,14 @@
         <!-- Header -->
 
         <!--
-          TITLUL ECRANULUI — „Movie details".
-          textAppearance="?attr/textAppearanceHeadlineMedium" — stilul tipografic
-            complet (dimensiune, greutate, spațiere) din tema Material 3, nu doar
-            o dimensiune. `?attr/` pentru că stilul depinde de temă.
-          textColor="?attr/colorOnSurface" — culoarea de text potrivită pentru
-            suprafața pe care stă. În dark mode devine alb.
-          textStyle="bold" — suprascrie greutatea din textAppearance.
-          DE CE wrap_content pe ambele axe: textul își ia exact spațiul necesar.
+          THE SCREEN TITLE — "Movie details".
+          textAppearance="?attr/textAppearanceHeadlineMedium" — the complete typographic
+            style (size, weight, spacing) from the Material 3 theme, not just
+            a size. `?attr/` because the style depends on the theme.
+          textColor="?attr/colorOnSurface" — the text colour suited to the
+            surface it sits on. In dark mode it becomes white.
+          textStyle="bold" — overrides the weight from textAppearance.
+          WHY wrap_content on both axes: the text takes exactly the space it needs.
         -->
         <TextView
             android:layout_width="wrap_content"
@@ -91,12 +91,12 @@
             android:textStyle="bold" />
 
         <!--
-          SUBTITLUL — „Fill in the information below and save."
-          textAppearanceBodyMedium — mai mic decât titlul.
-          colorOnSurfaceVariant — o nuanță mai estompată decât colorOnSurface,
-            exact rolul pentru text secundar.
-          marginTop 4dp + marginBottom 20dp — apropierea de titlu și distanța
-            față de primul card.
+          THE SUBTITLE — "Fill in the information below and save."
+          textAppearanceBodyMedium — smaller than the title.
+          colorOnSurfaceVariant — a more muted shade than colorOnSurface,
+            exactly the role for secondary text.
+          marginTop 4dp + marginBottom 20dp — closeness to the title and distance
+            from the first card.
         -->
         <TextView
             android:layout_width="wrap_content"
@@ -110,18 +110,18 @@
         <!-- ============ CARD 1: Basics ============ -->
 
         <!--
-          MATERIALCARDVIEW — containerul secțiunii „Basics".
-          style="?attr/materialCardViewFilledStyle" — stilul de card „umplut" din
-            tema Material 3: fundal colorat, fără contur, umbră minimă.
-          app:cardCornerRadius="20dp" — colțuri rotunjite, peste valoarea din stil.
-          android:layout_marginBottom="16dp" — distanța până la cardul următor.
-          DE CE `?attr/` la stil: în Material 3, stilul de card depinde de temă
-            (filled vs elevated vs outlined). Referința prin atribut permite
-            schimbarea globală a aspectului.
+          MATERIALCARDVIEW — the container of the "Basics" section.
+          style="?attr/materialCardViewFilledStyle" — the "filled" card style from
+            the Material 3 theme: coloured background, no outline, minimal shadow.
+          app:cardCornerRadius="20dp" — rounded corners, on top of the value from the style.
+          android:layout_marginBottom="16dp" — the distance to the next card.
+          WHY `?attr/` for the style: in Material 3, the card style depends on the theme
+            (filled vs elevated vs outlined). Referring through the attribute allows
+            a global change of the look.
 
-          DE CE UN SINGUR COPIL: MaterialCardView este proiectat pentru un singur
-            copil direct (este un FrameLayout specializat, nu un container de listă).
-            Toate elementele secțiunii sunt grupate într-un LinearLayout vertical.
+          WHY A SINGLE CHILD: MaterialCardView is designed for a single
+            direct child (it is a specialised FrameLayout, not a list container).
+            All the elements of the section are grouped in a vertical LinearLayout.
         -->
         <com.google.android.material.card.MaterialCardView
             style="?attr/materialCardViewFilledStyle"
@@ -131,8 +131,8 @@
             app:cardCornerRadius="20dp">
 
             <!--
-              LinearLayout vertical INTERN — conținutul cardului.
-              padding="16dp" pe toate laturile: conținutul nu atinge marginea cardului.
+              The INNER vertical LinearLayout — the content of the card.
+              padding="16dp" on all sides: the content does not touch the card edge.
             -->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -141,13 +141,13 @@
                 android:padding="16dp">
 
                 <!--
-                  TITLUL SECȚIUNII — „Basics".
-                  textAppearanceTitleMedium — mai mic decât titlul ecranului,
-                    mai mare decât etichetele.
-                  textColor="?attr/colorPrimary" — culoarea de accent a temei.
-                    Aici este singurul loc din card unde apare culoarea primară,
-                    ca să marcheze ierarhia.
-                  marginBottom 12dp — separă titlul de primul câmp.
+                  THE SECTION TITLE — "Basics".
+                  textAppearanceTitleMedium — smaller than the screen title,
+                    larger than the labels.
+                  textColor="?attr/colorPrimary" — the theme's accent colour.
+                    This is the only place in the card where the primary colour appears,
+                    to mark the hierarchy.
+                  marginBottom 12dp — separates the title from the first field.
                 -->
                 <TextView
                     android:layout_width="wrap_content"
@@ -160,13 +160,13 @@
                 <!-- Title -->
 
                 <!--
-                  ETICHETA CÂMPULUI — „Title".
-                  ATENȚIE: ID-ul este `tvTile`, nu `tvTitle`. Typo în sursă.
-                    Nu este folosit în cod, deci nu produce eroare — dar dacă îl cauți
-                    după `tvTitle`, nu îl găsești.
-                  textAppearanceLabelLarge + colorOnSurfaceVariant — stilul standard
-                    pentru eticheta de deasupra unui câmp.
-                  marginBottom 4dp — apropierea de câmpul pe care îl descrie.
+                  THE FIELD LABEL — "Title".
+                  WARNING: the ID is `tvTile`, not `tvTitle`. A typo in the source.
+                    It is not used in the code, so it produces no error — but if you look it up
+                    as `tvTitle`, you will not find it.
+                  textAppearanceLabelLarge + colorOnSurfaceVariant — the standard style
+                    for the label above a field.
+                  marginBottom 4dp — closeness to the field it describes.
                 -->
                 <TextView
                     android:id="@+id/tvTile"
@@ -178,18 +178,18 @@
                     android:textColor="?attr/colorOnSurfaceVariant" />
 
                 <!--
-                  TEXTINPUTLAYOUT — învelișul câmpului de text.
-                  DE CE există: un `EditText` simplu nu are contur, etichetă plutitoare,
-                    iconițe sau mesaj de eroare. `TextInputLayout` le adaugă pe toate.
-                  style OutlinedBox — contur vizibil, colțuri mici. Alternativa
-                    „FilledBox" are fundal umplut.
-                  app:hintEnabled="false" — DEZACTIVEAZĂ eticheta plutitoare.
-                    DE CE: eticheta este deja un `TextView` separat deasupra (tvTile).
-                    Cu hint-ul activ, ai avea DOUĂ etichete pentru același câmp.
-                  app:endIconMode="clear_text" — adaugă un „X" în dreapta care șterge
-                    textul. ATENȚIE: șterge doar textul din `EditText`, NU valoarea
-                    din model.
-                  marginBottom 16dp — distanța până la câmpul următor.
+                  TEXTINPUTLAYOUT — the wrapper of the text field.
+                  WHY it exists: a plain `EditText` has no outline, no floating label,
+                    no icons and no error message. `TextInputLayout` adds all of them.
+                  style OutlinedBox — a visible outline, small corners. The alternative
+                    "FilledBox" has a filled background.
+                  app:hintEnabled="false" — DISABLES the floating label.
+                    WHY: the label is already a separate `TextView` above (tvTile).
+                    With the hint active, you would have TWO labels for the same field.
+                  app:endIconMode="clear_text" — adds an "X" on the right that clears
+                    the text. WARNING: it only clears the text in the `EditText`, NOT the value
+                    in the model.
+                  marginBottom 16dp — the distance to the next field.
                 -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
@@ -200,15 +200,15 @@
                     app:endIconMode="clear_text">
 
                     <!--
-                      CÂMPUL DE TEXT — `etTitle`.
-                      Tipul real este `TextInputEditText`, o subclasă de `EditText`
-                        care colaborează cu `TextInputLayout` (știe să afișeze hint-ul
-                        în interiorul conturului).
-                      android:hint="Movie title" — textul afișat când câmpul este gol.
-                        Rămâne vizibil pentru că `hintEnabled=false` dezactivează doar
-                        eticheta PLUTITOARE, nu hint-ul de conținut.
-                      android:inputType="textCapWords" — tastatura capitalizează automat
-                        prima literă a fiecărui cuvânt. Potrivit pentru titluri.
+                      THE TEXT FIELD — `etTitle`.
+                      The real type is `TextInputEditText`, a subclass of `EditText`
+                        that collaborates with `TextInputLayout` (it knows how to display the hint
+                        inside the outline).
+                      android:hint="Movie title" — the text shown when the field is empty.
+                        It stays visible because `hintEnabled=false` only disables
+                        the FLOATING label, not the content hint.
+                      android:inputType="textCapWords" — the keyboard automatically capitalises
+                        the first letter of each word. Suitable for titles.
                     -->
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etTitle"
@@ -221,9 +221,9 @@
                 <!-- Genre -->
 
                 <!--
-                  ETICHETA „Genre" — `tvGenre`.
-                  Același stil ca eticheta de titlu: LabelLarge + colorOnSurfaceVariant.
-                  Nu este folosită în cod; există doar pentru cititorul uman.
+                  The "Genre" LABEL — `tvGenre`.
+                  The same style as the title label: LabelLarge + colorOnSurfaceVariant.
+                  It is not used in the code; it exists only for the human reader.
                 -->
                 <TextView
                     android:id="@+id/tvGenre"
@@ -235,21 +235,21 @@
                     android:textColor="?attr/colorOnSurfaceVariant" />
 
                 <!--
-                  TRUCUL SPINNER-ULUI: un card outlined în jurul lui.
-                  DE CE: `Spinner`-ul nativ nu are contur. Celelalte câmpuri sunt
-                    `TextInputLayout.OutlinedBox` (contur 1dp, colțuri 4dp). Ca să
-                    arate la fel, spinner-ul este învelit într-un card cu:
-                      - stil outlined (contur)
-                      - înălțime FIXĂ 56dp (aceeași ca a unui câmp OutlinedBox)
-                      - colțuri 4dp
-                      - fundal TRANSPARENT, ca să se vadă doar conturul
-                      - strokeColor din temă
+                  THE SPINNER TRICK: an outlined card around it.
+                  WHY: the native `Spinner` has no outline. The other fields are
+                    `TextInputLayout.OutlinedBox` (1dp outline, 4dp corners). To make it
+                    look the same, the spinner is wrapped in a card with:
+                      - the outlined style (outline)
+                      - a FIXED height of 56dp (the same as an OutlinedBox field)
+                      - 4dp corners
+                      - a TRANSPARENT background, so that only the outline is visible
+                      - the strokeColor from the theme
                   app:cardBackgroundColor="@android:color/transparent" — `@android:color`
-                    este o constantă de framework, nu o resursă din proiect.
-                  app:strokeColor="?attr/colorOutline" — culoarea de contur a temei.
-                  DE CE 56dp: înălțimea standard a unui câmp de text Material.
-                    Dacă ai pune wrap_content, spinner-ul ar fi mai scund și ar
-                    strica alinierea verticală a formularului.
+                    is a framework constant, not a project resource.
+                  app:strokeColor="?attr/colorOutline" — the theme's outline colour.
+                  WHY 56dp: the standard height of a Material text field.
+                    If you used wrap_content, the spinner would be shorter and would
+                    break the vertical alignment of the form.
                 -->
                 <com.google.android.material.card.MaterialCardView
                     style="?attr/materialCardViewOutlinedStyle"
@@ -261,15 +261,15 @@
                     app:strokeColor="?attr/colorOutline">
 
                     <!--
-                      SPINNER-UL — `spGenre`.
-                      android:entries="@array/movie_genre" — valorile vin din XML.
-                        DE CE AICI `entries` RĂMÂNE: ItemActivity nu apelează niciodată
-                        `spGenre.setAdapter(...)`. Lista este complet statică.
-                      android:paddingStart="4dp" — aliniază textul cu cel din câmpurile
-                        TextInputLayout (care au padding intern).
-                      android:spinnerMode="dropdown" — lista se deschide ca un popup,
-                        nu ca un dialog modal. `dialog` ar fi varianta cu fereastră.
-                      layout_height="match_parent" — umple cei 56dp ai cardului.
+                      THE SPINNER — `spGenre`.
+                      android:entries="@array/movie_genre" — the values come from XML.
+                        WHY `entries` STAYS HERE: ItemActivity never calls
+                        `spGenre.setAdapter(...)`. The list is completely static.
+                      android:paddingStart="4dp" — aligns the text with the one in the
+                        TextInputLayout fields (which have inner padding).
+                      android:spinnerMode="dropdown" — the list opens as a popup,
+                        not as a modal dialog. `dialog` would be the window variant.
+                      layout_height="match_parent" — fills the card's 56dp.
                     -->
                     <Spinner
                         android:id="@+id/spGenre"
@@ -283,21 +283,21 @@
                 <!-- Release date -->
 
                 <!--
-                  CÂMPUL DE DATĂ — `etRelease`.
-                  DE CE `hintEnabled="true"` AICI și `false` la titlu: aici NU există
-                    un TextView separat deasupra. Eticheta este hint-ul plutitor al
-                    TextInputLayout-ului, care se ridică atunci când câmpul are text.
+                  THE DATE FIELD — `etRelease`.
+                  WHY `hintEnabled="true"` HERE and `false` for the title: here there is NO
+                    separate TextView above. The label is the TextInputLayout's floating
+                    hint, which rises when the field has text.
                   app:startIconDrawable="@android:drawable/ic_menu_my_calendar" —
-                    iconița de calendar din stânga, care sugerează vizual că este
-                    un câmp de dată. `@android:drawable` = resursă din framework.
-                  app:startIconContentDescription="Release date" — textul pentru TalkBack
-                    al iconiței. Fără el, lint-ul semnalează lipsa descrierii.
-                  android:inputType="date" — tastatura numerică cu caractere de dată.
-                    ATENȚIE: nu împiedică tastarea unui text invalid; doar schimbă
-                    tastatura afișată.
-                  NU există `android:layout_marginBottom` aici: cardul se termină
-                    imediat după acest câmp, iar padding-ul intern al cardului
-                    asigură spațiul.
+                    the calendar icon on the left, which visually suggests that this is
+                    a date field. `@android:drawable` = a framework resource.
+                  app:startIconContentDescription="Release date" — the TalkBack text
+                    for the icon. Without it, lint flags the missing description.
+                  android:inputType="date" — the numeric keyboard with date characters.
+                    WARNING: it does not prevent typing an invalid text; it only changes
+                    the keyboard shown.
+                  There is NO `android:layout_marginBottom` here: the card ends
+                    right after this field, and the card's inner padding
+                    provides the space.
                 -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
@@ -308,10 +308,10 @@
                     app:startIconDrawable="@android:drawable/ic_menu_my_calendar">
 
                     <!--
-                      CÂMPUL PROPRIU-ZIS — `etRelease`.
-                      Textul este „dd/MM/yyyy" și este SCRIS de `showReleaseDatePicker`.
-                      Utilizatorul poate tasta, dar textul tastat nu ajunge în
-                      `releaseCal` decât la redeschiderea dialogului (vezi RISC în 22.3).
+                      THE FIELD ITSELF — `etRelease`.
+                      The text is "dd/MM/yyyy" and it is WRITTEN by `showReleaseDatePicker`.
+                      The user can type, but the typed text does not reach
+                      `releaseCal` until the dialog is reopened (see RISK in 22.3).
                     -->
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etRelease"
@@ -326,10 +326,10 @@
         <!-- ============ CARD 2: Production ============ -->
 
         <!--
-          CARDUL „Production" — buget și durată.
-          Aceeași rețetă ca primul card: filled style, colțuri 20dp, marginBottom 16dp.
-          Diferența este conținutul, nu stilul. Uniformitatea este intenționată:
-            utilizatorul recunoaște tiparul după primul card.
+          The "Production" CARD — budget and duration.
+          The same recipe as the first card: filled style, 20dp corners, marginBottom 16dp.
+          The difference is the content, not the style. The uniformity is intentional:
+            the user recognises the pattern after the first card.
         -->
         <com.google.android.material.card.MaterialCardView
             style="?attr/materialCardViewFilledStyle"
@@ -345,7 +345,7 @@
                 android:padding="16dp">
 
                 <!--
-                  TITLUL SECȚIUNII — „Production". Aceleași atribute ca „Basics".
+                  THE SECTION TITLE — "Production". The same attributes as "Basics".
                 -->
                 <TextView
                     android:layout_width="wrap_content"
@@ -358,7 +358,7 @@
                 <!-- Budget -->
 
                 <!--
-                  ETICHETA „Budget" — `tvBudget`. Nu este folosită în cod.
+                  The "Budget" LABEL — `tvBudget`. It is not used in the code.
                 -->
                 <TextView
                     android:id="@+id/tvBudget"
@@ -370,15 +370,15 @@
                     android:textColor="?attr/colorOnSurfaceVariant" />
 
                 <!--
-                  CÂMPUL DE BUGET — `etBudget`.
-                  app:prefixText="$ " — text FIX afișat în stânga valorii, în interiorul
-                    conturului. NU face parte din textul câmpului: `getText()` întoarce
-                    doar cifrele. De aceea `Double.parseDouble` funcționează.
-                  app:hintEnabled="false" — eticheta este `tvBudget` de deasupra.
-                  android:inputType="numberDecimal" — tastatură numerică cu punct zecimal.
-                    Nu garantează că textul este un număr valid: utilizatorul poate
-                    lăsa câmpul gol (vezi BUG 1).
-                  marginBottom 16dp — distanța până la rândul de durată.
+                  THE BUDGET FIELD — `etBudget`.
+                  app:prefixText="$ " — FIXED text shown on the left of the value, inside the
+                    outline. It is NOT part of the field's text: `getText()` returns
+                    only the digits. That is why `Double.parseDouble` works.
+                  app:hintEnabled="false" — the label is `tvBudget` above.
+                  android:inputType="numberDecimal" — a numeric keyboard with a decimal point.
+                    It does not guarantee that the text is a valid number: the user can
+                    leave the field empty (see BUG 1).
+                  marginBottom 16dp — the distance to the duration row.
                 -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
@@ -399,13 +399,13 @@
                 <!-- Duration -->
 
                 <!--
-                  RÂNDUL DE DURATĂ — etichetă în stânga, valoare în dreapta.
-                  android:gravity="center_vertical" — centrează copiii PE VERTICALĂ
-                    în interiorul rândului. DE CE: eticheta și valoarea au înălțimi
-                    diferite; fără centrare ar sta aliniate sus.
-                  ATENȚIE: `gravity` aici este pe LinearLayout, deci se aplică
-                    COPIILOR lui. Nu se confundă cu `layout_gravity`.
-                  android:orientation="horizontal" — copiii stau unul lângă altul.
+                  THE DURATION ROW — label on the left, value on the right.
+                  android:gravity="center_vertical" — centres the children VERTICALLY
+                    inside the row. WHY: the label and the value have different
+                    heights; without centring they would sit aligned to the top.
+                  WARNING: `gravity` here is on the LinearLayout, so it applies to
+                    ITS CHILDREN. Do not confuse it with `layout_gravity`.
+                  android:orientation="horizontal" — the children sit next to each other.
                 -->
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -414,11 +414,11 @@
                     android:orientation="horizontal">
 
                     <!--
-                      ETICHETA „Duration" — `tvDuration`.
+                      The "Duration" LABEL — `tvDuration`.
                       android:layout_width="0dp" + android:layout_weight="1" —
-                        ia tot spațiul rămas după ce valoarea din dreapta își ia
-                        lățimea naturală. Efectul: valoarea este împinsă în dreapta.
-                      Fără `0dp`, cele două texte ar sta lipite în stânga.
+                        it takes all the space left after the value on the right takes
+                        its natural width. The effect: the value is pushed to the right.
+                      Without `0dp`, the two texts would sit glued to the left.
                     -->
                     <TextView
                         android:id="@+id/tvDuration"
@@ -430,13 +430,13 @@
                         android:textColor="?attr/colorOnSurfaceVariant" />
 
                     <!--
-                      VALOAREA DURATEI — `tvDurationValue`, actualizată de listener-ul
-                        SeekBar-ului.
-                      android:text="0 min" — valoarea inițială, potrivită cu progresul 0.
-                      textColor="?attr/colorPrimary" — culoarea de accent, ca să iasă
-                        în evidență față de etichetă.
-                      tools:text="148 min" — DOAR în preview: arată cum va arăta textul
-                        când are o valoare reală. Nu ajunge în APK.
+                      THE DURATION VALUE — `tvDurationValue`, updated by the
+                        SeekBar listener.
+                      android:text="0 min" — the initial value, matching progress 0.
+                      textColor="?attr/colorPrimary" — the accent colour, so that it stands
+                        out against the label.
+                      tools:text="148 min" — ONLY in the preview: it shows how the text will look
+                        when it has a real value. It never reaches the APK.
                     -->
                     <TextView
                         android:id="@+id/tvDurationValue"
@@ -449,15 +449,15 @@
                 </LinearLayout>
 
                 <!--
-                  SEEKBAR-UL — `sbDuration`.
-                  android:max="300" — valoarea maximă. Implicit ar fi 100.
-                  android:min="0" — disponibil din API 26. `minSdk 33`, deci merge.
-                    Fără el, minimul ar fi tot 0, dar explicit este mai clar.
-                  android:progressTint="?attr/colorPrimary" — culoarea părții parcurse.
-                  android:thumbTint="?attr/colorPrimary" — culoarea mânerului.
-                  tools:progress="148" — doar preview.
-                  marginTop 8dp — separă bara de rândul de etichetă.
-                  ATENȚIE: `getProgress()` întoarce `int`, exact tipul din model.
+                  THE SEEKBAR — `sbDuration`.
+                  android:max="300" — the maximum value. The default would be 100.
+                  android:min="0" — available since API 26. `minSdk 33`, so it works.
+                    Without it, the minimum would still be 0, but explicit is clearer.
+                  android:progressTint="?attr/colorPrimary" — the colour of the travelled part.
+                  android:thumbTint="?attr/colorPrimary" — the colour of the handle.
+                  tools:progress="148" — preview only.
+                  marginTop 8dp — separates the bar from the label row.
+                  WARNING: `getProgress()` returns `int`, exactly the type in the model.
                 -->
                 <SeekBar
                     android:id="@+id/sbDuration"
@@ -471,12 +471,12 @@
                     tools:progress="148" />
 
                 <!--
-                  RÂNDUL DE MIN/MAX — „0 min" în stânga, „300 min" în dreapta.
-                  paddingHorizontal="16dp" — aliniază etichetele cu începutul și
-                    sfârșitul barei, nu cu marginile cardului.
-                  Cele două valori sunt HARDCODATE. RISC: dacă schimbi `android:max`
-                    al SeekBar-ului, trebuie să schimbi și textul „300 min".
-                  `0dp` + `weight=1` pe primul text împinge al doilea în dreapta.
+                  THE MIN/MAX ROW — "0 min" on the left, "300 min" on the right.
+                  paddingHorizontal="16dp" — aligns the labels with the start and
+                    the end of the bar, not with the card edges.
+                  The two values are HARDCODED. RISK: if you change the SeekBar's
+                    `android:max`, you must also change the "300 min" text.
+                  `0dp` + `weight=1` on the first text pushes the second one to the right.
                 -->
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -505,8 +505,8 @@
         <!-- ============ CARD 3: Your verdict ============ -->
 
         <!--
-          CARDUL „Your verdict" — rating, switch, bifă, ghidaj.
-          Este cel mai dens card: trei controale diferite și două separatoare.
+          The "Your verdict" CARD — rating, switch, check mark, guidance.
+          It is the densest card: three different controls and two separators.
         -->
         <com.google.android.material.card.MaterialCardView
             style="?attr/materialCardViewFilledStyle"
@@ -532,10 +532,10 @@
                 <!-- Rating -->
 
                 <!--
-                  ETICHETA „Rating" — `tvRating`. Nu este folosită în cod.
-                  ATENȚIE: nu are `marginBottom`, spre deosebire de celelalte etichete.
-                    Stelele au ele `marginTop="4dp"`, deci spațiul este asigurat
-                    din partea cealaltă.
+                  The "Rating" LABEL — `tvRating`. It is not used in the code.
+                  WARNING: it has no `marginBottom`, unlike the other labels.
+                    The stars have their own `marginTop="4dp"`, so the space is provided
+                    from the other side.
                 -->
                 <TextView
                     android:id="@+id/tvRating"
@@ -547,21 +547,21 @@
 
                 <!--
                   RATINGBAR — `rbRating`.
-                  android:numStars="5" — 5 stele.
-                  android:stepSize="0.5" — jumătăți de stea. `getRating()` întoarce
-                    `float` (ex. 3.5), exact tipul din model.
-                  android:layout_gravity="center_horizontal" — centrează BARA în
-                    părintele vertical. `gravity` ar fi centrat copiii barei, nu bara.
-                  Culori:
-                    progressTint="#FFC107" — galben de stele, HARDCODAT. Excepție
-                      asumată: semnificația „stea galbenă" nu depinde de temă.
-                    secondaryProgressTint="#FFC107" — aceeași culoare pentru partea
-                      secundară (jumătatea de stea).
-                    progressBackgroundTint="?attr/colorOutlineVariant" — stelele goale,
-                      din temă.
-                  tools:rating="3.5" — doar preview.
-                  DE CE nu are listener: rating-ul este citit direct la salvare cu
-                    `getRating()`. Nu există etichetă care să se actualizeze.
+                  android:numStars="5" — 5 stars.
+                  android:stepSize="0.5" — half stars. `getRating()` returns
+                    `float` (e.g. 3.5), exactly the type in the model.
+                  android:layout_gravity="center_horizontal" — centres the BAR in
+                    the vertical parent. `gravity` would have centred the bar's children, not the bar.
+                  Colours:
+                    progressTint="#FFC107" — star yellow, HARDCODED. An accepted
+                      exception: the meaning of "yellow star" does not depend on the theme.
+                    secondaryProgressTint="#FFC107" — the same colour for the secondary
+                      part (the half star).
+                    progressBackgroundTint="?attr/colorOutlineVariant" — the empty stars,
+                      from the theme.
+                  tools:rating="3.5" — preview only.
+                  WHY it has no listener: the rating is read directly on save with
+                    `getRating()`. There is no label to update.
                 -->
                 <RatingBar
                     android:id="@+id/rbRating"
@@ -577,12 +577,12 @@
                     tools:rating="3.5" />
 
                 <!--
-                  SEPARATOR — o linie de 1dp.
-                  DE CE un `View` gol: nu există un widget „divider" în XML.
-                    Un View cu înălțime 1dp și fundal colorat este soluția standard.
-                  marginVertical="12dp" — spațiu egal sus și jos.
-                  background="?attr/colorOutlineVariant" — culoarea de contur,
-                    suficient de discretă pentru o linie.
+                  SEPARATOR — a 1dp line.
+                  WHY an empty `View`: there is no "divider" widget in XML.
+                    A View with a 1dp height and a coloured background is the standard solution.
+                  marginVertical="12dp" — equal space above and below.
+                  background="?attr/colorOutlineVariant" — the outline colour,
+                    discreet enough for a line.
                 -->
                 <View
                     android:layout_width="match_parent"
@@ -593,10 +593,10 @@
                 <!-- Recommended -->
 
                 <!--
-                  RÂNDUL CU SWITCH ȘI BIFĂ.
-                  gravity="center_vertical" — aliniază cele trei coloane pe verticală.
-                  minHeight="48dp" — ținta minimă de atingere recomandată de Material.
-                    Fără ea, rândul ar fi mai scund decât degetul.
+                  THE ROW WITH THE SWITCH AND THE CHECK MARK.
+                  gravity="center_vertical" — aligns the three columns vertically.
+                  minHeight="48dp" — the minimum touch target recommended by Material.
+                    Without it, the row would be shorter than a finger.
                 -->
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -606,9 +606,9 @@
                     android:orientation="horizontal">
 
                     <!--
-                      COLOANA DE TEXT — 0dp + weight 1, deci ia tot spațiul rămas
-                      după switch și bifă.
-                      vertical — cele două texte stau unul sub altul.
+                      THE TEXT COLUMN — 0dp + weight 1, so it takes all the space left
+                      after the switch and the check mark.
+                      vertical — the two texts sit one below the other.
                     -->
                     <LinearLayout
                         android:layout_width="0dp"
@@ -617,9 +617,9 @@
                         android:orientation="vertical">
 
                         <!--
-                          ETICHETA „Recommended" — `tvWatched`. Nu este folosită în cod.
-                          textAppearanceBodyLarge — mai mare decât o etichetă obișnuită,
-                            pentru că este textul principal al rândului.
+                          The "Recommended" LABEL — `tvWatched`. It is not used in the code.
+                          textAppearanceBodyLarge — larger than an ordinary label,
+                            because it is the main text of the row.
                         -->
                         <TextView
                             android:id="@+id/tvWatched"
@@ -630,10 +630,10 @@
                             android:textColor="?attr/colorOnSurface" />
 
                         <!--
-                          VALOAREA „No" — `tvWatchedValue`, actualizată de listener-ul
-                            switch-ului: `isChecked ? "Yes" : "No"`.
-                          Valoarea inițială „No" corespunde switch-ului oprit.
-                          textColor colorPrimary — evidențiază valoarea.
+                          The "No" VALUE — `tvWatchedValue`, updated by the
+                            switch listener: `isChecked ? "Yes" : "No"`.
+                          The initial value "No" matches the switch being off.
+                          textColor colorPrimary — highlights the value.
                         -->
                         <TextView
                             android:id="@+id/tvWatchedValue"
@@ -646,11 +646,11 @@
 
                     <!--
                       MATERIALSWITCH — `swWatched`.
-                      DE CE `MaterialSwitch` și nu `Switch`: varianta Material are
-                        animații și culori din temă, plus thumb-ul cu iconiță.
-                      marginEnd="12dp" — separă switch-ul de bifă. `end` respectă RTL.
-                      NU are text: eticheta este în coloana din stânga.
-                      Listener-ul este atașat în cod, nu în XML.
+                      WHY `MaterialSwitch` and not `Switch`: the Material variant has
+                        animations and colours from the theme, plus the thumb with an icon.
+                      marginEnd="12dp" — separates the switch from the check mark. `end` respects RTL.
+                      It has NO text: the label is in the column on the left.
+                      The listener is attached in the code, not in XML.
                     -->
                     <com.google.android.material.materialswitch.MaterialSwitch
                         android:id="@+id/swWatched"
@@ -660,10 +660,10 @@
 
                     <!--
                       MATERIALCHECKBOX — `cbOnWatchList`.
-                      ID-ul are „On" cu majusculă; câmpul din cod este `cbonWatchList`.
-                      android:text="Watchlist" — eticheta este ÎN INTERIORUL
-                        controlului, deci se atinge împreună cu bifa.
-                      Este independent de switch: poți bifa amândouă.
+                      The ID has "On" with a capital letter; the field in the code is `cbonWatchList`.
+                      android:text="Watchlist" — the label is INSIDE THE
+                        control, so it is tapped together with the check mark.
+                      It is independent of the switch: you can check both.
                     -->
                     <com.google.android.material.checkbox.MaterialCheckBox
                         android:id="@+id/cbOnWatchList"
@@ -673,7 +673,7 @@
                 </LinearLayout>
 
                 <!--
-                  Al doilea separator, identic cu primul.
+                  The second separator, identical to the first.
                 -->
                 <View
                     android:layout_width="match_parent"
@@ -684,7 +684,7 @@
                 <!-- Guidance -->
 
                 <!--
-                  ETICHETA „Guidance" — `tvGuidance`. Nu este folosită în cod.
+                  The "Guidance" LABEL — `tvGuidance`. It is not used in the code.
                 -->
                 <TextView
                     android:id="@+id/tvGuidance"
@@ -696,12 +696,12 @@
                     android:textColor="?attr/colorOnSurfaceVariant" />
 
                 <!--
-                  HORIZONTALSCROLLVIEW — permite derularea orizontală a grupului.
-                  DE CE: 5 butoane radio („G", „PG", „PG-13", „R", „NC-17") nu încap
-                    pe un ecran de 360dp. Fără derulare, ultimele ar fi tăiate.
-                  android:scrollbars="none" — ascunde bara de derulare; pe un rând
-                    de butoane ar arăta ca un defect.
-                  ATENȚIE: și HorizontalScrollView acceptă un singur copil direct.
+                  HORIZONTALSCROLLVIEW — allows the group to scroll horizontally.
+                  WHY: 5 radio buttons ("G", "PG", "PG-13", "R", "NC-17") do not fit
+                    on a 360dp screen. Without scrolling, the last ones would be cut off.
+                  android:scrollbars="none" — hides the scrollbar; on a row
+                    of buttons it would look like a defect.
+                  WARNING: HorizontalScrollView also accepts a single direct child.
                 -->
                 <HorizontalScrollView
                     android:layout_width="match_parent"
@@ -710,12 +710,12 @@
 
                     <!--
                       RADIOGROUP — `rgApproval`.
-                      android:orientation="horizontal" — butoanele stau pe un rând.
-                        Implicit ar fi vertical.
-                      DE CE RadioGroup și nu 5 butoane separate: grupul garantează
-                        că EXACT UNUL este bifat. `check(id)` dezactivează automat
-                        pe ceilalți.
-                      Cele 5 butoane sunt copii direcți; codul le parcurge cu
+                      android:orientation="horizontal" — the buttons sit on one row.
+                        The default would be vertical.
+                      WHY RadioGroup and not 5 separate buttons: the group guarantees
+                        that EXACTLY ONE is checked. `check(id)` automatically unchecks
+                        the others.
+                      The 5 buttons are direct children; the code walks them with
                         `getChildCount()` / `getChildAt()`.
                     -->
                     <RadioGroup
@@ -725,13 +725,13 @@
                         android:orientation="horizontal">
 
                         <!--
-                          BUTONUL 1 — „G".
-                          android:checked="true" — ESTE BIFAT IMPLICIT.
-                          DE CE: grupul trebuie să aibă MEREU o valoare. Fără el,
-                            `saveMovie` ar putea lăsa `approval` null dacă utilizatorul
-                            nu atinge niciun buton.
-                          `MaterialRadioButton` — varianta Material, cu animație
-                            și culori din temă.
+                          BUTTON 1 — "G".
+                          android:checked="true" — IT IS CHECKED BY DEFAULT.
+                          WHY: the group must ALWAYS have a value. Without it,
+                            `saveMovie` could leave `approval` null if the user
+                            does not touch any button.
+                          `MaterialRadioButton` — the Material variant, with animation
+                            and colours from the theme.
                         -->
                         <com.google.android.material.radiobutton.MaterialRadioButton
                             android:id="@+id/rbGeneral"
@@ -741,8 +741,8 @@
                             android:text="G" />
 
                         <!--
-                          BUTONUL 2 — „PG". `rbParentGuidance`.
-                          Textul este valoarea care ajunge în model.
+                          BUTTON 2 — "PG". `rbParentGuidance`.
+                          The text is the value that reaches the model.
                         -->
                         <com.google.android.material.radiobutton.MaterialRadioButton
                             android:id="@+id/rbParentGuidance"
@@ -751,9 +751,9 @@
                             android:text="PG" />
 
                         <!--
-                          BUTONUL 3 — „PG-13". `rbPG13`.
-                          ATENȚIE: cratima face parte din text și din valoarea salvată.
-                            Redenumirea în „PG13" ar rupe potrivirea din `fillForm`.
+                          BUTTON 3 — "PG-13". `rbPG13`.
+                          WARNING: the hyphen is part of the text and of the saved value.
+                            Renaming it to "PG13" would break the matching in `fillForm`.
                         -->
                         <com.google.android.material.radiobutton.MaterialRadioButton
                             android:id="@+id/rbPG13"
@@ -762,7 +762,7 @@
                             android:text="PG-13" />
 
                         <!--
-                          BUTONUL 4 — „R". `rbRestricted`.
+                          BUTTON 4 — "R". `rbRestricted`.
                         -->
                         <com.google.android.material.radiobutton.MaterialRadioButton
                             android:id="@+id/rbRestricted"
@@ -771,9 +771,9 @@
                             android:text="R" />
 
                         <!--
-                          BUTONUL 5 — „NC-17". `rbNC17`.
-                          Ultimul buton; dacă ai adăuga un al 6-lea, codul l-ar citi
-                            fără nicio modificare — bucla este generică.
+                          BUTTON 5 — "NC-17". `rbNC17`.
+                          The last button; if you added a 6th, the code would read it
+                            with no modification at all — the loop is generic.
                         -->
                         <com.google.android.material.radiobutton.MaterialRadioButton
                             android:id="@+id/rbNC17"
@@ -788,9 +788,9 @@
         <!-- ============ CARD 4: Poster ============ -->
 
         <!--
-          CARDUL „Poster" — un singur câmp.
-          marginBottom="24dp" — mai mare decât la celelalte carduri, pentru că
-            urmează butonul de salvare și trebuie să existe respiro.
+          The "Poster" CARD — a single field.
+          marginBottom="24dp" — larger than on the other cards, because
+            the save button follows and there must be breathing room.
         -->
         <com.google.android.material.card.MaterialCardView
             style="?attr/materialCardViewFilledStyle"
@@ -814,15 +814,15 @@
                     android:textColor="?attr/colorPrimary" />
 
                 <!--
-                  CÂMPUL DE URL — `etPoster`.
-                  app:endIconMode="clear_text" — „X"-ul de ștergere.
-                  app:startIconDrawable="@android:drawable/ic_menu_gallery" — iconița
-                    de galerie, sugestie vizuală pentru „imagine".
-                  app:startIconContentDescription="Poster link" — descriere pentru TalkBack.
-                  app:hintEnabled="false" — nu există etichetă separată deasupra,
-                    dar hint-ul de conținut rămâne vizibil.
-                  android:inputType="textUri" — tastatură optimizată pentru URL-uri
-                    (are „/", „.", „:"). Nu validează URL-ul.
+                  THE URL FIELD — `etPoster`.
+                  app:endIconMode="clear_text" — the clearing "X".
+                  app:startIconDrawable="@android:drawable/ic_menu_gallery" — the gallery
+                    icon, a visual hint for "image".
+                  app:startIconContentDescription="Poster link" — the description for TalkBack.
+                  app:hintEnabled="false" — there is no separate label above,
+                    but the content hint stays visible.
+                  android:inputType="textUri" — a keyboard optimised for URLs
+                    (it has "/", ".", ":"). It does not validate the URL.
                 -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
@@ -846,19 +846,19 @@
         <!-- Save -->
 
         <!--
-          BUTONUL DE SALVARE — `btnMovieAction`.
-          style="@style/Widget.Material3.Button" — varianta FILLED (fundal plin,
-            text alb). Este stilul implicit, dar scris explicit ca să fie clar.
-          android:layout_height="60dp" — mai înalt decât standardul (48dp), pentru
-            că este acțiunea principală a ecranului.
-          app:cornerRadius="30dp" — EXACT jumătate din înălțime, deci butonul devine
-            o pastilă (pill). Regula: cornerRadius = height / 2.
-          app:icon="@android:drawable/ic_menu_save" — iconița de salvare din framework.
-          app:iconGravity="textStart" — iconița stă înaintea textului.
-          android:text="Save Movie" — în modul edit, codul îl schimbă în „Update Movie".
-          android:textAppearance="?attr/textAppearanceLabelLarge" — stilul de etichetă
-            pentru butoane Material.
-          DE CE NU are `layout_marginTop`: cardul de deasupra are marginBottom 24dp.
+          THE SAVE BUTTON — `btnMovieAction`.
+          style="@style/Widget.Material3.Button" — the FILLED variant (solid background,
+            white text). It is the default style, but written explicitly to be clear.
+          android:layout_height="60dp" — taller than the standard (48dp), because
+            it is the screen's primary action.
+          app:cornerRadius="30dp" — EXACTLY half the height, so the button becomes
+            a pill. The rule: cornerRadius = height / 2.
+          app:icon="@android:drawable/ic_menu_save" — the save icon from the framework.
+          app:iconGravity="textStart" — the icon sits before the text.
+          android:text="Save Movie" — in edit mode, the code changes it to "Update Movie".
+          android:textAppearance="?attr/textAppearanceLabelLarge" — the label style
+            for Material buttons.
+          WHY it has NO `layout_marginTop`: the card above has marginBottom 24dp.
         -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnMovieAction"
