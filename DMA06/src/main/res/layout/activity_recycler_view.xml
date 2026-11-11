@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ==================================================================================
+     FIȘIER: activity_recycler_view.xml
+     ==================================================================================
+     LOCAȚIE:  DMA06/src/main/res/layout/activity_recycler_view.xml
+     ROL:      layout-ul treptei 3: ACELAȘI antet, ACEEAȘI structură ca treapta 2,
+               doar widget-ul diferă.
+     CONȚINE:  1 × include (layout_number_header), 1 × RecyclerView
+     ID-URI:   rvNumbers
+     ================================================================================== -->
+
+<!-- Aceeași structură ca la treapta 2: antet fix sus, listă jos.
+     Diferența dintre cele două fișiere e de exact un tag. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- Același antet, din același fișier -->
+    <include layout="@layout/layout_number_header" />
+
+    <!-- Numele complet: RecyclerView nu e în android.widget, ci în biblioteca AndroidX.
+         XML-ul nu are importuri, deci numele complet e singurul mod de a referi o clasă
+         din alt pachet. La fel se întâmplă cu MaterialButton. -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvNumbers"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+</LinearLayout>
+
+<!-- ======================================================================================
+     ATRIBUTE PE CARE RECYCLERVIEW LE ARE ȘI FIȘIERUL NU LE FOLOSEȘTE
+     ======================================================================================
+     android:clipToPadding="false"        rândurile se desenează și sub padding
+     android:scrollbars="vertical"        bara de scroll, dacă o vrei explicită
+     android:overScrollMode="never"       fără efectul de „elastic" la capete
+     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                                          aranjarea direct din XML, fără cod
+     app:spanCount="2"                    numărul de coloane pentru GridLayoutManager
+     tools:listitem="@layout/item_number" doar în preview, nu la runtime
+     ======================================================================================
+     `app:layoutManager` e singurul care chiar poate înlocui o linie de cod. Dar el
+     creează managerul cu constructorul fără argumente, deci nu poți configura
+     orientarea sau reverseLayout. În practică, se setează din cod.
+     ====================================================================================== -->
+
+<!-- ======================================================================================
+     CE TREBUIE REȚINUT DIN FIȘIER
+     ======================================================================================
+     nume complet            androidx.recyclerview.widget.RecyclerView
+     rvNumbers               prefix rv = RecyclerView, lv = ListView
+     0dp + weight="1"        aceeași logică: antetul wrap_content, lista ia restul
+     fără android:divider    separatorul vine din DividerItemDecoration, în cod
+     fără dependență directă RecyclerView vine tranzitiv prin biblioteca Material
+     ====================================================================================== -->

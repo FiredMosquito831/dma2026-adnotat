@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ==================================================================================
+     FIȘIER: activity_single_column.xml
+     ==================================================================================
+     LOCAȚIE:  DMA06/src/main/res/layout/activity_single_column.xml
+     ROL:      layout-ul treptei 1. Un singur element: ListView-ul, ca rădăcină.
+     ID-URI:   lvNumbers
+     ================================================================================== -->
+
+<!-- Rădăcina layout-ului este ListView-ul însuși: setContentView îl atașează direct.
+     Nu e nevoie de un LinearLayout care să îl învelească — treapta 2 are nevoie de
+     wrapper pentru că are și antet; treapta 1 nu are. -->
+<ListView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/lvNumbers"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" />
+
+<!-- ======================================================================================
+     ATRIBUTE PE CARE LISTVIEW LE ARE ȘI FIȘIERUL NU LE FOLOSEȘTE
+     ======================================================================================
+     android:divider="@null"              scoate separatorul dintre rânduri
+     android:dividerHeight="1dp"          grosimea separatorului
+     android:listSelector="..."           fundalul rândului selectat
+     android:choiceMode="singleChoice"    permite selecție cu radio/check
+     android:fastScrollEnabled="true"     bara de scroll rapidă, pentru liste lungi
+     android:stackFromBottom="true"       liste care cresc de jos (chat)
+     android:transcriptMode="normal"      auto-scroll la ultimul element
+     android:cacheColorHint="#00000000"   elimină artefactul de scroll (liste vechi)
+     ======================================================================================
+     Toate sunt atribute ale widget-ului, nu ale adapterului. La RecyclerView niciuna
+     nu există: echivalentele lor sunt LayoutManager, ItemDecoration sau cod.
+     ====================================================================================== -->
+
+<!-- ======================================================================================
+     CE TREBUIE REȚINUT DIN FIȘIER
+     ======================================================================================
+     rădăcină = ListView      setContentView primește direct lista
+     match_parent × 2         lista umple tot ecranul
+     fără android:entries     datele vin DOAR din adapter; fără setAdapter = ecran gol
+     fără android:divider     separatorul vine din tema implicită a ListView-ului
+     fără android:text        un ListView nu are text propriu
+     ====================================================================================== -->

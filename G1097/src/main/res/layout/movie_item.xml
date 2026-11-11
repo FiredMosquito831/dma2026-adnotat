@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ======================================================================================
+  FIȘIER: movie_item.xml — RÂNDUL DE LISTĂ (pentru RecyclerView, laboratorul următor)
+  ======================================================================================
+  STRUCTURA:
+
+    MaterialCardView (rădăcină)
+    +== LinearLayout orizontal
+        |== ImageView  96x140dp          <- poster
+        +== LinearLayout vertical, 0dp+weight=1
+            |== TextView  movieTitle     <- 20sp, bold, max 2 rânduri
+            |== TextView  movieSubtitle  <- „gen · an"
+            |== LinearLayout orizontal
+            |   |== RatingBar (small, indicator)
+            |   +== TextView movieRatingValue
+            |== TextView  movieFacts     <- „142 min · $160M"
+            +== ChipGroup
+                |== Chip chipApproval
+                |== Chip chipWatched
+                +== Chip chipWatchlist
+
+  DE CE CARDUL ESTE RĂDĂCINA: fiecare rând este o unitate vizuală independentă,
+    cu umbră și colțuri proprii. Un `LinearLayout` simplu ar arăta ca un tabel.
+  ======================================================================================
+-->
+
+<!--
+  MATERIALCARDVIEW — rădăcina rândului.
+  ATRIBUTE:
+    layout_width="match_parent"  — rândul ocupă toată lățimea listei
+    layout_height="wrap_content" — înălțimea dată de conținut (posterul de 140dp)
+    layout_marginHorizontal="12dp" — 12dp stânga/dreapta; cardul nu atinge marginile
+    layout_marginVertical="6dp"   — 6dp sus/jos; separă rândurile între ele
+    app:cardCornerRadius="16dp"   — colțuri rotunjite
+    app:cardElevation="3dp"       — umbră. AICI umbra este PREZENTĂ, spre deosebire
+                                    de cardurile din formular (care sunt „filled",
+                                    fără umbră). Un rând de listă trebuie să se
+                                    distingue de fundal.
+    app:cardUseCompatPadding="true" — adaugă padding intern pentru ca umbra să nu
+                                    fie tăiată de limitele cardului pe API-urile vechi.
+                                    Pe API 21+ are ca efect păstrarea umbrei vizibile.
+-->
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="6dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="3dp"
+    app:cardUseCompatPadding="true">
+
+    <!--
+      LINEARLAYOUT ORIZONTAL — poster în stânga, informații în dreapta.
+      padding="12dp" — conținutul nu atinge marginea cardului.
+      DE CE orizontal: posterul și coloana de text stau alăturate.
+    -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp">
+
+        <!-- Poster -->
+
+        <!--
+          IMAGEVIEW — posterul.
+          layout_width="96dp" / layout_height="140dp" — raport ~2:3, ca un poster
+            de film. Dimensiuni FIXE: imaginea nu își schimbă mărimea în funcție
+            de textul din dreapta.
+          android:background="#11000000" — negru cu alfa 0x11 (~7% opacitate).
+            Este un PLACEHOLDER vizibil cât timp nu există imagine.
+          android:scaleType="centerCrop" — umple cele 96x140dp decupând marginile,
+            fără să deformeze. `fitXY` ar întinde imaginea; `centerInside` ar lăsa
+            benzi goale.
+          android:contentDescription="Movie poster" — obligatoriu pentru TalkBack.
+          android:src="@android:drawable/ic_menu_gallery" — imagine provizorie.
+            La runtime, adapterul ar înlocui-o cu posterul real.
+        -->
+        <ImageView
+            android:id="@+id/moviePoster"
+            android:layout_width="96dp"
+            android:layout_height="140dp"
+            android:background="#11000000"
+            android:scaleType="centerCrop"
+            android:contentDescription="Movie poster"
+            android:src="@android:drawable/ic_menu_gallery" />
+
+        <!-- Info column -->
+
+        <!--
+          COLOANA DE INFORMAȚII — 0dp + weight 1.
+          DE CE: posterul are 96dp fix; restul lățimii (360 - 96 - margini) trebuie
+            să o ia coloana de text. Cu `wrap_content`, textul lung ar împinge
+            cardul dincolo de ecran.
+          marginStart="12dp" — separă textul de poster. `start` respectă RTL.
+          orientation="vertical" — elementele curg de sus în jos.
+        -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="12dp"
+            android:orientation="vertical">
+
+            <!--
+              TITLUL — `movieTitle`.
+              textSize="20sp" + textStyle="bold" — ierarhie puternică; titlul este
+                elementul principal al rândului.
+              maxLines="2" — maximum două rânduri. Fără el, un titlu lung ar împinge
+                restul conținutului în jos și ar strica alinierea rândurilor.
+              ellipsize="end" — textul tăiat se termină cu „…".
+              DE CE ambele: `maxLines` limitează, `ellipsize` semnalează că există
+                mai mult text. Doar `maxLines` ar tăia brusc, fără indiciu.
+            -->
+            <TextView
+                android:id="@+id/movieTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Movie title"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end" />
+
+            <!-- genre · release year, e.g. "Sci-Fi · 2021" -->
+
+            <!--
+              SUBTITLUL — „gen · an".
+              textSize="14sp" — mai mic decât titlul.
+              textColor="#757575" — gri hardcodat.
+              RISC: în dark mode, #757575 pe un fundal închis are contrast mic.
+                Ar trebui `?attr/colorOnSurfaceVariant`.
+              marginTop="2dp" — lipit de titlu, ca o continuare a lui.
+            -->
+            <TextView
+                android:id="@+id/movieSubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Genre · Year"
+                android:textSize="14sp"
+                android:textColor="#757575" />
+
+            <!-- Rating -->
+
+            <!--
+              RÂNDUL DE RATING — stele + valoare numerică.
+              gravity="center_vertical" — aliniază stelele cu textul.
+              marginTop="6dp" — separă de subtitlu.
+            -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <!--
+                  RATINGBAR MIC — `movieRating`.
+                  style="?android:attr/ratingBarStyleSmall" — stilul mic din framework
+                    (stele de ~12dp). `?android:attr/` = atribut din tema framework-ului,
+                    nu din tema aplicației.
+                  android:isIndicator="true" — stelele sunt DOAR AFIȘARE. Nu pot fi
+                    atinse și nu au listener. Fără el, utilizatorul ar putea modifica
+                    rating-ul dintr-un rând de listă.
+                  numStars=5, stepSize=0.5 — aceleași valori ca în formular, ca să
+                    arate identic.
+                -->
+                <RatingBar
+                    android:id="@+id/movieRating"
+                    style="?android:attr/ratingBarStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:numStars="5"
+                    android:stepSize="0.5"
+                    android:isIndicator="true" />
+
+                <!--
+                  VALOAREA NUMERICĂ — „4.5".
+                  marginStart="6dp" — separă de stele.
+                  textSize="13sp", gri — text secundar.
+                  DE CE există: stelele mici sunt greu de citit exact; cifra dă
+                    valoarea precisă.
+                -->
+                <TextView
+                    android:id="@+id/movieRatingValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="4.5"
+                    android:textSize="13sp"
+                    android:textColor="#757575" />
+            </LinearLayout>
+
+            <!-- Facts: duration + budget -->
+
+            <!--
+              FAPTE — „142 min · $160M".
+              Un singur TextView cu două valori separate prin „·".
+              textSize="13sp", gri mai deschis (#9E9E9E) — informație terță.
+              DE CE un singur TextView și nu două: sunt informații de același rang,
+                pe un rând, fără nevoie de aliniere separată.
+            -->
+            <TextView
+                android:id="@+id/movieFacts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="142 min  ·  $160M"
+                android:textSize="13sp"
+                android:textColor="#9E9E9E" />
+
+            <!-- Status chips: approval, watched, watchlist -->
+
+            <!--
+              CHIPGROUP — containerul celor trei etichete de stare.
+              app:chipSpacingHorizontal="6dp" — 6dp între chip-uri.
+              app:singleLine="false" — permite trecerea pe al doilea rând dacă
+                nu încap toate. `true` le-ar tăia.
+              marginTop="8dp" — separă de rândul de fapte.
+              DE CE ChipGroup și nu trei TextView-uri: chip-urile au fundal, colțuri
+                și padding standardizate; arată ca niște etichete, nu ca text.
+            -->
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/movieStatusGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:chipSpacingHorizontal="6dp"
+                app:singleLine="false">
+
+                <!--
+                  CHIP 1 — ghidajul parental („Approved").
+                  style="@style/Widget.Material3.Chip.Suggestion" — stilul de chip
+                    sugestie: fundal discret, contur.
+                  android:clickable="false" — NU este buton. Fără el, chip-ul ar
+                    primi ripple la atingere și ar sugera o acțiune inexistentă.
+                  app:chipMinHeight="28dp" — înălțime mică, de etichetă.
+                  app:ensureMinTouchTargetSize="false" — DE CE: Material forțează
+                    implicit o țintă de atingere de 48dp, care ar umfla rândul.
+                    Pentru un element neclickabil, forțarea este inutilă.
+                -->
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipApproval"
+                    style="@style/Widget.Material3.Chip.Suggestion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Approved"
+                    android:clickable="false"
+                    app:chipMinHeight="28dp"
+                    app:ensureMinTouchTargetSize="false" />
+
+                <!--
+                  CHIP 2 — „Watched".
+                  app:chipIcon="@android:drawable/checkbox_on_background" — o bifă
+                    în interiorul chip-ului, ca să se distingă de celelalte două
+                    fără să citești textul.
+                -->
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipWatched"
+                    style="@style/Widget.Material3.Chip.Suggestion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Watched"
+                    android:clickable="false"
+                    app:chipMinHeight="28dp"
+                    app:chipIcon="@android:drawable/checkbox_on_background"
+                    app:ensureMinTouchTargetSize="false" />
+
+                <!--
+                  CHIP 3 — „Watchlist".
+                  Același stil, fără iconiță. Toate trei sunt etichete de stare,
+                    nu filtre.
+                -->
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipWatchlist"
+                    style="@style/Widget.Material3.Chip.Suggestion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Watchlist"
+                    android:clickable="false"
+                    app:chipMinHeight="28dp"
+                    app:ensureMinTouchTargetSize="false" />
+            </com.google.android.material.chip.ChipGroup>
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

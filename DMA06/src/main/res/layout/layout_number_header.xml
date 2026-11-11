@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ==================================================================================
+     FIȘIER: layout_number_header.xml
+     ==================================================================================
+     LOCAȚIE:  DMA06/src/main/res/layout/layout_number_header.xml
+     ROL:      antetul cu două coloane, refolosit de treptele 2 și 3.
+     CONȚINE:  2 × TextView („Decimal", „Binary")
+     ID-URI:   niciunul — nimic din cod nu îl atinge
+     ================================================================================== -->
+
+<!-- De ce un fișier fără id-uri are totuși antet: pentru că e refolosit. Un fișier
+     folosit de două ecrane se citește de două ori mai des decât unul folosit de unul
+     singur. Iar faptul că nu are id-uri e o informație: înseamnă că poți schimba orice
+     text din el fără să atingi Java. -->
+
+<!-- Antetul cu două coloane. Nu are id-uri: codul nu îl atinge niciodată. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/colorSurfaceVariant"
+    android:orientation="horizontal"
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="12dp">
+
+    <!-- Coloana 1: „Decimal", aliniată la stânga (implicit) -->
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/decimal"
+        android:textAppearance="?attr/textAppearanceLabelLarge"
+        android:textColor="?attr/colorOnSurfaceVariant" />
+
+    <!-- Coloana 2: „Binary", aliniată la dreapta.
+         gravity="end" respectă direcția de citire; "right" ar fi rămas mereu la dreapta. -->
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="end"
+        android:text="@string/binary"
+        android:textAppearance="?attr/textAppearanceLabelLarge"
+        android:textColor="?attr/colorOnSurfaceVariant" />
+</LinearLayout>
+
+<!-- ======================================================================================
+     CE TREBUIE REȚINUT DIN FIȘIER
+     ======================================================================================
+     background="?attr/colorSurfaceVariant"      nuanță diferită, funcționează în dark mode
+     textColor="?attr/colorOnSurfaceVariant"     perechea gândită împreună cu fundalul
+     textAppearanceLabelLarge                    etichetă, mai mică decât BodyLarge
+     paddingVertical="12dp"                      mai strâns decât rândul (14dp), intenționat
+     aliniere identică cu item_number.xml        padding 16dp, weight 1, gravity end
+     ====================================================================================== -->

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ======================================================================================
+  FIȘIER: activity_second.xml
+  ======================================================================================
+  ROL:
+    Layout-ul ecranului de laborator. Un singur `LinearLayout` vertical cu un
+    singur `Button`, legat de cod prin `android:onClick`.
+
+  CE DEMONSTREAZĂ:
+    1. `android:onClick` — legătura XML → metodă, prin reflecție.
+    2. `LinearLayout` vertical — containerul în care se adaugă butoane din cod.
+    3. `tools:context` — atribut care există doar pentru preview-ul din IDE.
+
+  REF: cap. 14 (secțiunea despre dialoguri), documentația `android:onClick`.
+  ======================================================================================
+-->
+
+<!--
+  ======================================================================================
+  ELEMENT: LinearLayout (rădăcina)
+  ======================================================================================
+  `LinearLayout` vertical — copiii se stivuiesc de sus în jos. De asta butoanele
+    adăugate din cod apar unul sub altul, nu peste.
+  `android:orientation="vertical"` — obligatoriu pentru stivuirea pe verticală.
+    Valoarea implicită este `horizontal`, deci fără atribut butoanele ar sta unul
+    lângă altul.
+  `android:id="@+id/main"` — folosit de două ori în cod: pentru insets și pentru
+    `inflatedLayout`. Id-ul se repetă față de `activity_main.xml`, dar nu e o
+    problemă: cele două layout-uri nu coexistă niciodată în același arbore.
+  `xmlns:app` e declarat, dar NEFOLOSIT — niciun atribut `app:*` în fișier.
+    Rămășiță din șablon, semnalată de lint.
+  `xmlns:tools` — namespace-ul atributelor de design-time. Folosit o singură dată,
+    pentru `tools:context`.
+  `tools:context=".SecondActivity"` — doar pentru preview-ul din Android Studio: îi
+    spune editorului ce temă și ce clasă să folosească. Eliminat la build, nu ajunge
+    în APK. Fără el, preview-ul folosește tema aplicației și nu știe ce activitate
+    să simuleze.
+  ======================================================================================
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".SecondActivity">
+
+    <!--
+      ================================================================================
+      ELEMENT: Button
+      ================================================================================
+      `android:onClick="btnClick"` — leagă butonul de metoda `btnClick(View)` din
+        activitate, prin reflecție. NU există `setOnClickListener` în cod — toată
+        legătura e aici.
+      De ce funcționează fără cod: la click, Android caută metoda în contextul
+        activității. Dacă nu o găsește, excepția apare LA RUNTIME, nu la compilare.
+      Cum caută exact: `View.performClick()` cheamă `onClick`-ul setat; dacă nu
+        există, `View` are un `DeclaredOnClickListener` creat la inflate, care ține
+        numele metodei și contextul. La click, caută metoda cu reflecție, în context
+        și în părinții lui.
+
+      `android:id="@+id/button"` NU e folosit nicăieri — nici în cod, nici în alt
+        XML. E util doar dacă vrei să-l referențiezi mai târziu. Butoanele create
+        din cod primesc id-uri numerice (1, 2, 3...), nu id-uri de resursă.
+      `match_parent` pe lățime — butonul umple ecranul. Butoanele adăugate din cod
+        primesc același `MATCH_PARENT`, deci arată identic.
+      `wrap_content` pe înălțime — cât are nevoie textul, plus padding-ul implicit
+        al butonului Material.
+      FĂRĂ `padding` pe `LinearLayout` — butoanele ating marginile ecranului.
+        Cosmetic, nu funcțional.
+      DE CE `Button` ȘI NU `MaterialButton`: `Button` e stilizat automat de tema
+        Material3 (prin `buttonStyle` din temă), deci arată ca un `MaterialButton`.
+        Diferența apare doar dacă vrei atribute specifice (`app:icon`,
+        `app:cornerRadius`).
+      CE SE ÎNTÂMPLĂ DACĂ ADAUGI `android:enabled="false"`: butonul nu mai primește
+        click-uri, deci `btnClick` nu se mai apelează. Util pentru a bloca o acțiune
+        până la o condiție.
+      ================================================================================
+    -->
+    <Button
+        android:id="@+id/button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="btnClick"
+        android:text="Button" />
+</LinearLayout>

@@ -1,0 +1,96 @@
+<!-- ====================================================================================== -->
+<!-- FIȘIER: AndroidManifest.xml — Harta componentelor -->
+<!-- ====================================================================================== -->
+<!-- CE ESTE: declarația aplicației către sistemul Android. Spune ce activități există, -->
+<!-- care este cea de start, cu ce temă pornește și ce iconiță are. -->
+<!-- DE CE EXISTĂ: fără manifest, Android nu știe că aplicația are o activitate de lansat. -->
+<!-- `startActivity(new Intent(this, ItemActivity.class))` ar arunca -->
+<!-- `ActivityNotFoundException` dacă ItemActivity nu ar fi declarată aici. -->
+<!-- CE NU FACE: nu conține cod, nu conține date, nu știe ce câmpuri are `Movie`. -->
+<!-- Nu declară permisiuni — aplicația nu are nevoie de niciuna. -->
+<!-- DIFERENȚA FAȚĂ DE G1097: o singură linie, `android:theme`. Restul este identic. -->
+<!-- ====================================================================================== -->
+
+<!-- Declarația XML. Trebuie să fie primul lucru din fișier în varianta reală. -->
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- MANIFEST — rădăcina. -->
+<!-- xmlns:android  -> namespace-ul atributelor de framework. -->
+<!-- xmlns:tools    -> namespace-ul atributelor pentru Android Studio. -->
+<!-- AICI este declarat, dar NEUTILIZAT: niciun atribut `tools:` nu -->
+<!-- apare în fișier. Este inofensiv, dar este un import mort la nivel -->
+<!-- de XML. În `activity_main.xml` şi `activity_item.xml` este folosit -->
+<!-- pentru `tools:context`. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- APPLICATION — aplicația în ansamblu. Un singur element per APK. -->
+    <!-- Nu are `android:name`: nu există o clasă Application personalizată. -->
+    <application
+
+        <!-- Backup automat al datelor aplicației. Aici nu există date de salvat, -->
+        <!-- dar atributul rămâne din șablonul de proiect. -->
+        android:allowBackup="true"
+
+        <!-- Regulile de extragere a datelor pentru Android 12+. Fișierul este în -->
+        <!-- res/xml/data_extraction_rules.xml. -->
+        android:dataExtractionRules="@xml/data_extraction_rules"
+
+        <!-- Regulile de backup pentru versiunile anterioare Android 12. -->
+        android:fullBackupContent="@xml/backup_rules"
+
+        <!-- Iconița aplicației, din res/mipmap. -->
+        android:icon="@mipmap/ic_launcher"
+
+        <!-- Numele afișat sub iconiță, din res/values/strings.xml. -->
+        android:label="@string/app_name"
+
+        <!-- Iconița rotundă, pentru launcher-ele care o cer. -->
+        android:roundIcon="@mipmap/ic_launcher_round"
+
+        <!-- Suport pentru layout oglindit în limbile RTL. -->
+        android:supportsRtl="true"
+
+        <!-- TEMA. Singura diferență față de G1097: acolo `Theme.G1097`. -->
+        <!-- Tema este definită în res/values/themes.xml și res/values-night/themes.xml. -->
+        android:theme="@style/Theme.G1098">
+
+        <!-- ACTIVITATEA 1: MainActivity — ecranul de start. -->
+        <!-- `android:name=".activities.MainActivity"` este un nume RELATIV la pachetul -->
+        <!-- aplicației (namespace-ul din build.gradle.kts). Punctul de la început -->
+        <!-- înseamnă „pachetul aplicației". -->
+        <!-- `android:exported="true"` — OBLIGATORIU pentru activitatea cu intent-filter -->
+        <!-- de la Android 12 încoace. `true` înseamnă că alte aplicații (launcher-ul) -->
+        <!-- o pot porni. Fără atribut, build-ul pică. -->
+        <!-- `android:windowSoftInputMode="adjustResize"` — când apare tastatura, fereastra -->
+        <!-- se micșorează, ca ScrollView-ul să poată derula până la câmpul activ. -->
+        <activity
+            android:name=".activities.MainActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
+
+            <!-- INTENT FILTER — ce fel de intent-uri poate primi activitatea. -->
+            <!-- MAIN + LAUNCHER = „aceasta este aplicația care apare în launcher". -->
+            <!-- O singură activitate din aplicație are acest filtru. -->
+            <intent-filter>
+
+                <!-- Acțiunea principală. -->
+                <action android:name="android.intent.action.MAIN" />
+
+                <!-- Categoria care o face vizibilă în launcher. -->
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- ACTIVITATEA 2: ItemActivity — formularul. -->
+        <!-- `android:exported="false"` — este pornită DOAR din interiorul aplicației, -->
+        <!-- prin Intent explicit. Nicio altă aplicație nu o poate lansa. -->
+        <!-- Nu are intent-filter: nu are sens să fie descoperită din exterior. -->
+        <!-- Are același `windowSoftInputMode`, pentru că are și ea câmpuri de text. -->
+        <activity
+            android:name=".activities.ItemActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+    </application>
+
+</manifest>

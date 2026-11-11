@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ======================================================================================
+  FIȘIER: list_item_menu.xml
+  ======================================================================================
+  ROL:
+    Meniul contextual de pe un rând: Open / Rename / Delete. Umflat de `PopupMenu`
+    în `MainActivity`, la apăsarea lungă.
+
+  CE DEMONSTREAZĂ:
+    1. Un meniu minimal, fără iconițe și fără `showAsAction`.
+    2. Id-urile `action_*` — exact cele verificate în cod.
+
+  REF: cap. 14 (secțiunea despre meniuri), documentația `PopupMenu`.
+  ======================================================================================
+-->
+
+<!--
+  ======================================================================================
+  ELEMENT: <menu> cu trei <item>
+  ======================================================================================
+  MINIMALISM DELIBERAT: fără iconițe, fără `showAsAction`. Un `PopupMenu` nu are
+    bară — toate elementele apar în listă, deci `showAsAction` ar fi ignorat.
+
+  CELE TREI ID-URI SUNT EXACT CELE VERIFICATE ÎN `MainActivity`: `action_open`,
+    `action_rename`, `action_delete`. Dacă redenumești unul în XML fără să modifici
+    codul, ramura respectivă nu se mai execută — și nu primești eroare de compilare,
+    doar un `if` care nu mai intră niciodată.
+
+  FĂRĂ `android:icon` — un meniu contextual scurt se citește mai repede fără
+    iconițe. Cu iconițe, `PopupMenu` le afișează, dar ocupă mai mult spațiu.
+
+  ORDINEA ELEMENTELOR = ORDINEA DIN MENIU. `Open`, `Rename`, `Delete` apar de sus în
+    jos. Dacă vrei `Delete` ultimul (ca acțiune distructivă), ordinea asta e deja
+    corectă.
+
+  DE CE `Delete` NU ARE UN STIL ROȘU: meniurile Android nu au un atribut standard
+    pentru „element periculos". Ai putea seta un `SpannableString` cu culoare în cod,
+    dar nu e o practică răspândită.
+  ======================================================================================
+-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_open"
+        android:title="Open" />
+    <item
+        android:id="@+id/action_rename"
+        android:title="Rename" />
+    <item
+        android:id="@+id/action_delete"
+        android:title="Delete" />
+</menu>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ↑ declarația XML: prima linie obligatorie. -->
+
+<!--
+  ======================================================================================
+  activity_main.xml — ARBORELE DE VIEW-URI AL ECRANULUI
+  ======================================================================================
+  CE ESTE:
+    Layout-ul inflat de `setContentView(R.layout.activity_main)` în MainActivity.onCreate.
+    Un ConstraintLayout cu trei copii: un toolbar, un text centrat și un buton.
+
+  DE CE EXISTĂ:
+    1. definește ce se vede pe ecran;
+    2. leagă butonul de metoda `pressMe` prin `android:onClick`;
+    3. dă id-urile folosite de cod (`main`, `toolbar`, `textView`, `button`).
+
+  CE SE STRICĂ FĂRĂ EL:
+    - `R.layout.activity_main` nu mai există: build-ul eșuează;
+    - fără `Button`, `pressMe` nu poate fi chemat;
+    - fără `android:onClick`, click-ul nu face nimic.
+
+  REF: activity_main.xml; R.layout.activity_main; MainActivity.onCreate.
+  ======================================================================================
+-->
+
+<!--
+  ======================================================================================
+  THEORY BLOCK: ConstraintLayout și legăturile XML → cod
+  ======================================================================================
+  1. CONSTRAINTS, NU ORDINE
+     Fiecare copil e poziționat prin relații față de părinte sau față de frați, nu
+     prin ordinea din fișier. Un view fără constraints e plasat la (0,0).
+
+  2. `@+id/...` vs `@id/...`
+     `@+id/textView` creează id-ul dacă nu există; `@id/textView` îl referă.
+     În practică, `@+id` funcționează și când id-ul există deja.
+
+  3. `android:onClick` — REFLECȚIE
+     Nu e o legătură de compilare. La click, framework-ul caută în Context-ul
+     view-ului o metodă `public void` cu exact un parametru `View`.
+
+  4. `?attr/...` — valori din temă
+     `?attr/actionBarSize` și `?attr/textAppearanceBodyLarge` se rezolvă la runtime
+     din tema activității, nu sunt valori fixe.
+  ======================================================================================
+-->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+    <!-- ↑ rădăcina: ConstraintLayout, id `main` (nefolosit în DMA02, folosit în G1097
+         pentru insets). `tools:context` e doar pentru previzualizarea din IDE și
+         dispare la build. -->
+
+    <!--
+      ==================================================================================
+      MATERIALTOOLBAR — bara de titlu desenată de aplicație
+      ==================================================================================
+      android:id="@+id/toolbar"                    ← id-ul view-ului (nefolosit în cod)
+      android:layout_width="match_parent"          ← ocupă toată lățimea
+      android:layout_height="?attr/actionBarSize"  ← înălțimea standard a barei (56dp)
+      app:title="@string/app_name"                 ← titlul: „DMA02"
+      Fără constraints → plasat la (0,0) de ConstraintLayout.
+      ==================================================================================
+    -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:title="@string/app_name"/>
+    <!-- ↑ NU e setat ca ActionBar: nu există `setSupportActionBar(toolbar)`. -->
+
+    <!--
+      ==================================================================================
+      TEXTVIEW — textul centrat
+      ==================================================================================
+      android:text="Hello World!"                             ← text hardcodat
+      android:textAppearance="?attr/textAppearanceBodyLarge"  ← stilul tipografic din temă
+      patru constraints față de parent                        ← centrat pe ambele axe
+      ==================================================================================
+    -->
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hello World!"
+        android:textAppearance="?attr/textAppearanceBodyLarge"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <!-- ↑ `wrap_content` + patru constraints = centrat, cu dimensiunea textului. -->
+
+    <!--
+      ==================================================================================
+      BUTTON — singura legătură XML → cod din proiect
+      ==================================================================================
+      android:onClick="pressMe"                             ← numele metodei din MainActivity
+      app:layout_constraintBottom_toTopOf="@+id/textView"   ← se așază deasupra textului
+      app:layout_constraintTop_toTopOf="parent"             ← pornește de sus
+      ==================================================================================
+    -->
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Button"
+        app:layout_constraintBottom_toTopOf="@+id/textView"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:onClick="pressMe"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <!-- ↑ click → reflecție → MainActivity.pressMe(view). -->
+
+</androidx.constraintlayout.widget.ConstraintLayout>

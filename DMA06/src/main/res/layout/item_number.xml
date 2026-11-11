@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ==================================================================================
+     FIȘIER: item_number.xml
+     ==================================================================================
+     LOCAȚIE:  DMA06/src/main/res/layout/item_number.xml
+     ROL:      rândul cu două coloane. Folosit de NumberListAdapter ȘI de
+               NumberRecyclerAdapter. Este dovada că diferența dintre trepte nu e în
+               layout, ci în adapter.
+     CONȚINE:  1 × LinearLayout orizontal, 2 × TextView
+     ID-URI:   tvDecimal, tvBinary   ← contractul ambelor adaptoare
+     ================================================================================== -->
+
+<!-- De ce antetul e cel mai important din capitol: pentru că fișierul e folosit de
+     DOUĂ adaptoare. Dacă schimbi un id aici, trebuie să îl schimbi în două fișiere
+     Java. Dacă schimbi un padding, se schimbă în ambele trepte. Un layout partajat
+     e un contract partajat. -->
+
+<!-- One row with two columns. Steps 2 and 3 both use this layout. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="14dp">
+
+    <!-- Coloana 1: numărul zecimal, aliniat la stânga.
+         0dp + weight="1" = jumătate din lățime. Cu wrap_content, fiecare coloană ar fi
+         lată cât textul ei, iar coloanele nu s-ar mai alinia între rânduri. -->
+    <TextView
+        android:id="@+id/tvDecimal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+    <!-- Coloana 2: numărul binar, aliniat la dreapta, cu font monospațiat.
+         monospace = cifre de aceeași lățime, deci numerele binare se aliniază frumos.
+         gravity="end" respectă direcția de citire (supportsRtl="true" în manifest). -->
+    <TextView
+        android:id="@+id/tvBinary"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:fontFamily="monospace"
+        android:gravity="end"
+        android:textAppearance="?attr/textAppearanceBodyLarge" />
+</LinearLayout>
+
+<!-- ======================================================================================
+     CE TREBUIE REȚINUT DIN FIȘIER
+     ======================================================================================
+     match_parent × wrap_content      lat cât lista, înalt cât conținutul
+     paddingHorizontal 16dp           spațiu interior; există din API 26, minSdk 33
+     paddingVertical 14dp             mai generos decât antetul (12dp)
+     0dp + weight="1" pe ambele       echivalentul a 50% / 50%
+     fontFamily="monospace"           doar pe coloana binară
+     gravity="end"                    aliniere care respectă RTL
+     fără android:text                rândul e gol până îl umple adapterul
+     tvDecimal / tvBinary             contractul ambelor adaptoare
+     ======================================================================================
+     CUM SE MĂSOARĂ UN RÂND
+     ======================================================================================
+     LinearLayout orizontal, doi copii cu 0dp + weight 1:
+       1. părintele primește lățimea listei (match_parent)
+       2. scade padding-ul orizontal: 16dp + 16dp = 32dp
+       3. împarte restul la suma weight-urilor: (L − 32) / 2 pentru fiecare
+       4. fiecare TextView primește exact jumătate, indiferent cât text are
+       5. înălțimea: wrap_content → cea mai înaltă dintre cele două, plus padding 14dp × 2
+
+     De aceea cele două coloane se aliniază perfect între rânduri, deși textele au
+     lungimi diferite: lățimea nu depinde de conținut. Cu wrap_content ar depinde, iar
+     coloana a doua ar „sări" la fiecare rând.
+     ====================================================================================== -->

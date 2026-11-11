@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ======================================================================================
+  FIȘIER: drawer_menu.xml
+  ======================================================================================
+  ROL:
+    Conținutul sertarului: trei destinații de navigare + o setare separată.
+    `NavigationView` îl umflă singur, prin `app:menu="@menu/drawer_menu"`.
+
+  CE DEMONSTREAZĂ:
+    1. `checkableBehavior="single"` — grup exclusiv, ca un radio group.
+    2. `item` fără id, cu `menu` imbricat — subtitlu de secțiune.
+    3. Id-urile `nav_*` — exact cele verificate în `MainActivity`.
+
+  REF: cap. 14 (secțiunea despre meniuri), documentația `Menu`, `MenuItem`, `SubMenu`.
+  ======================================================================================
+-->
+
+<!--
+  ======================================================================================
+  ELEMENT: <menu>
+  ======================================================================================
+  Rădăcina oricărui fișier de meniu. Conține `<group>` și `<item>`.
+  ======================================================================================
+-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- checkableBehavior="single" = radio group: un singur element bifat -->
+    <!--
+      ================================================================================
+      ELEMENT: <group android:checkableBehavior="single">
+      ================================================================================
+      Grupul se comportă ca un radio group: când selectezi „Sent", „Inbox" se
+      debifează automat. Valorile posibile:
+
+        single → un singur element bifat per grup (radio);
+        all    → fiecare element se poate bifa independent (checkbox);
+        none   → niciun element nu e bifabil.
+
+      `android:checked="true"` pe `nav_inbox` — starea inițială. Fără ea, la prima
+      deschidere niciun element nu e bifat, deși toolbar-ul afișează „Inbox".
+      `android:icon` — fiecare element are o iconiță vectorială din `res/drawable/`.
+      `NavigationView` le afișează la stânga titlului.
+      `android:title` e text literal, nu `@string/...` — funcționează, dar nu se
+      traduce. Pentru o aplicație reală, toate titlurile ar trebui să fie în
+      `strings.xml`.
+      ================================================================================
+    -->
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_inbox"
+            android:icon="@drawable/ic_inbox"
+            android:title="Inbox"
+            android:checked="true" />
+        <item
+            android:id="@+id/nav_sent"
+            android:icon="@drawable/ic_send"
+            android:title="Sent" />
+        <item
+            android:id="@+id/nav_trash"
+            android:icon="@drawable/ic_delete"
+            android:title="Trash" />
+    </group>
+
+    <!--
+      ================================================================================
+      ELEMENT: <item android:title="Other"> cu <menu> imbricat
+      ================================================================================
+      Un `<item>` FĂRĂ id, care conține un `<menu>` — trucul pentru un SUBTITLU DE
+      SECȚIUNE. „Other" apare ca etichetă gri, iar „Settings" dedesubt, separat de
+      grupul principal.
+
+      DE CE `nav_settings` E ÎN AFARA GRUPULUI: nu face parte din navigarea
+      principală (Inbox/Sent/Trash), ci e o setare. Separarea vizuală sugerează
+      diferența.
+      CONSECINȚA ÎN COD: `nav_settings` nu e checkable, deci `item.setChecked(true)`
+      nu are efect vizual pe el. Ramura lui afișează un `Toast`.
+      CE SE ÎNTÂMPLĂ DACĂ PUI `nav_settings` ÎN ACELAȘI GRUP: ar deveni al patrulea
+      radio button. La click, „Inbox" s-ar debifa și „Settings" ar rămâne bifat —
+      deși nu e o destinație de navigare. Separarea nu e doar vizuală, e semantică.
+      ================================================================================
+    -->
+    <item android:title="Other">
+        <menu>
+            <item
+                android:id="@+id/nav_settings"
+                android:icon="@drawable/ic_settings"
+                android:title="Settings" />
+        </menu>
+    </item>
+</menu>

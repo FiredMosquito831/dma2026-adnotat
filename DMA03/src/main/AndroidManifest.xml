@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ======================================================================================
+  FIȘIER: AndroidManifest.xml
+  ======================================================================================
+  ROL:
+    Declară aplicația și cele două activități. Fără intrarea din manifest, o
+    activitate nu există pentru sistem — chiar dacă fișierul .java compilează.
+
+  CE DEMONSTREAZĂ:
+    1. `android:exported` — cine poate porni activitatea.
+    2. `intent-filter` MAIN + LAUNCHER — cine apare în lansator.
+    3. `android:supportsRtl` — de ce `layout_gravity="start"` se oglindește.
+
+  REF: cap. 01 (setup și schelet), documentația `<manifest>`, `<activity>`.
+  ======================================================================================
+-->
+
+<!--
+  ======================================================================================
+  ELEMENT: <manifest>
+  ======================================================================================
+  `xmlns:android` — namespace-ul atributelor de platformă. Fără el, `android:name`
+    nu e recunoscut.
+  `xmlns:tools` — namespace-ul atributelor de design-time. DECLARAT, DAR NEFOLOSIT:
+    niciun atribut `tools:*` în fișier. Rămășiță din șablon. Nu strică, dar lint-ul
+    îl semnalează.
+  FĂRĂ `<uses-permission>` — aplicația nu are nevoie de nimic. Nici internet, nici
+    stocare. Toate datele sunt în memorie.
+  ======================================================================================
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!--
+      ==================================================================================
+      ELEMENT: <application>
+      ==================================================================================
+      Un singur element per aplicație. Toate activitățile, serviciile și receiver-ele
+      sunt copii ai lui.
+
+      ATRIBUTE:
+      `allowBackup="true"` — aplicația participă la backup-ul automat al sistemului.
+        Pentru o aplicație fără date persistente, e irelevant.
+      `dataExtractionRules` (API 31+) și `fullBackupContent` (sub API 31) — fișiere
+        care spun ce se salvează. Ambele trimit la `res/xml/`. Dacă lipsește unul,
+        build-ul trece, dar lint-ul avertizează.
+      `icon` și `roundIcon` — două resurse diferite pentru lansator: iconița pătrată
+        și cea rotundă. Unele lansatoare folosesc forma rotundă, altele o maschează
+        pe cea pătrată.
+      `label="@string/app_name"` — numele aplicației, din `strings.xml` (`DMA03`).
+        Nu e text literal, deci se poate traduce.
+      `supportsRtl="true"` — interfața se oglindește în limbile RTL. De aici
+        importanța `GravityCompat.START` în loc de `Gravity.LEFT`. Fără acest
+        atribut, `start` s-ar comporta ca `left` chiar și în arabă.
+      `theme="@style/Theme.DMA03"` — tema se aplică TUTUROR activităților care nu au
+        `android:theme` propriu. Ambele o moștenesc. Lanțul e `Theme.DMA03` →
+        `Base.Theme.DMA03` → `Theme.Material3.DayNight.NoActionBar`.
+
+      DE CE `NoActionBar` ÎN NUMELE TEMEI: aplicația își desenează singură bara, cu
+        `MaterialToolbar`. Dacă tema ar avea `ActionBar`, ai vedea două bare
+        suprapuse — una a sistemului, una a ta.
+      ==================================================================================
+    -->
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.DMA03">
+
+        <!--
+          ==============================================================================
+          ELEMENT: <activity> MainActivity
+          ==============================================================================
+          `.MainActivity` — punctul de la început înseamnă „în pachetul aplicației",
+            adică `ro.ase.ie.dma03.MainActivity`. Forma completă ar fi identică.
+          `exported="true"` — obligatoriu pentru componenta cu `intent-filter` de la
+            API 31 încoace. Fără el, build-ul EȘUEAZĂ. E singura activitate care
+            poate fi pornită din afară — de lansator.
+          `windowSoftInputMode="adjustResize"` — când apare tastatura, fereastra se
+            micșorează, nu se panoramează. Aici nu există niciun `EditText`, deci
+            atributul e inutil — dar e inofensiv și pregătește terenul pentru un
+            ecran cu câmpuri.
+          `adjustResize` vs `adjustPan`: `adjustResize` micșorează fereastra și lasă
+            conținutul să se rearanjeze; `adjustPan` mută fereastra în sus ca să țină
+            câmpul vizibil. Pentru formulare, `adjustResize` e aproape mereu alegerea
+            corectă.
+          ==============================================================================
+        -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
+
+            <!--
+              ==========================================================================
+              ELEMENT: <intent-filter> MAIN + LAUNCHER
+              ==========================================================================
+              Perechea care creează iconița în lansator.
+              `MAIN` = punctul de intrare; `LAUNCHER` = apare în lista de aplicații.
+              Ambele sunt necesare.
+              Doar `MAIN`: aplicația nu apare în lansator, dar poate fi pornită
+                explicit cu `Intent`.
+              Doar `LAUNCHER`: nu e recunoscută ca punct de intrare, deci tot nu apare.
+              ==========================================================================
+            -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!--
+          ==============================================================================
+          ELEMENT: <activity> SecondActivity
+          ==============================================================================
+          `exported="false"` — nicio aplicație din afară nu o poate porni. Corect: e
+            un ecran intern.
+          FĂRĂ `intent-filter` — nu are punct de intrare. Nu apare în lansator.
+
+          AICI E DOVADA FINALĂ: `SecondActivity` e declarată, dar NIMIC nu o pornește.
+            `MainActivity` nu conține niciun `Intent`. Ecranul e un laborator lăsat
+            nelegat — cod complet, accesibil doar dacă îl lansezi manual din Android
+            Studio.
+
+          CE AR FI TREBUIT PENTRU A O LEGA: în `MainActivity`, un
+            `startActivity(new Intent(this, SecondActivity.class))` — de exemplu în
+            ramura `nav_settings` sau pe `action_open` din meniul contextual.
+            Importul `android.content.Intent` există deja, semn că intenția a fost
+            acolo.
+
+          DE CE `exported="false"` NU ÎMPIEDICĂ LANSAREA MANUALĂ DIN IDE: Android
+            Studio instalează aplicația în modul debug și pornește activitatea cu
+            privilegiile de debug ale aplicației, nu ca o aplicație străină.
+            Restricția `exported` se aplică altor aplicații, nu propriei aplicații.
+          ==============================================================================
+        -->
+        <activity
+            android:name=".SecondActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+    </application>
+
+</manifest>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ==================================================================================
+     FIȘIER: activity_two_column.xml
+     ==================================================================================
+     LOCAȚIE:  DMA06/src/main/res/layout/activity_two_column.xml
+     ROL:      layout-ul treptei 2: antet fix sus, ListView jos.
+     CONȚINE:  1 × include (layout_number_header), 1 × ListView
+     ID-URI:   lvNumbers
+     ================================================================================== -->
+
+<!-- Coloană verticală: antetul sus (cât conținutul), lista jos (restul ecranului). -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- Antetul e un fișier separat, refolosit și de treapta 3.
+         Conținutul fișierului inclus e umflat ÎN LOCUL tag-ului: rezultatul e ca și
+         cum ai fi scris antetul direct aici, dar definiția există într-un singur loc. -->
+    <include layout="@layout/layout_number_header" />
+
+    <!-- ListView-ul ia tot spațiul rămas după antet.
+         0dp + weight="1" = „dimensiunea mea de bază e zero; ia din spațiul liber".
+         Cu match_parent, lista ar cere toată înălțimea părintelui, ar depăși marginea
+         de jos și s-ar tăia. -->
+    <ListView
+        android:id="@+id/lvNumbers"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+</LinearLayout>
+
+<!-- ======================================================================================
+     CUM SE ÎMPARTE SPAȚIUL, CONCRET
+     ======================================================================================
+     Ecran: 800dp înălțime.
+       antetul: wrap_content → măsoară textul + padding 12dp × 2 ≈ 60dp
+       lista:   0dp + weight 1 → primește 800 − 60 = 740dp
+
+     Dacă lista ar avea match_parent:
+       antetul: 60dp
+       lista:   cere 800dp → total 860dp → depășește cu 60dp
+       rezultat: ultimele rânduri ies sub marginea ecranului și nu pot fi derulate
+                 până la capăt, pentru că ListView crede că are loc
+
+     De ce 0dp și nu wrap_content cu weight: weight se aplică pe spațiul RĂMAS după
+     dimensiunea de bază. Cu 0dp, baza e zero, deci toată înălțimea disponibilă intră
+     în calculul weight-ului. Cu wrap_content, lista ar primi „înălțimea conținutului
+     + parte din rest", ceea ce nu e ce vrei.
+     ====================================================================================== -->
+
+<!-- ======================================================================================
+     CE TREBUIE REȚINUT DIN FIȘIER
+     ======================================================================================
+     <include>                antetul e definit o singură dată, folosit de 2 ecrane
+     0dp + weight="1"         lista ia restul după antet
+     match_parent + weight    GREȘIT: lista ar depăși marginea de jos
+     antetul în afara listei  rămâne fix la scroll; în listă ar fi derulat cu ea
+     ordinea copiilor        antetul primul, lista a doua; weight nu schimbă ordinea
+     ====================================================================================== -->

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ================================================================================== -->
+<!-- FIȘIER: AndroidManifest.xml — DECLARAȚIA APLICAȚIEI                                 -->
+<!-- ================================================================================== -->
+<!-- CE ESTE: fișierul care spune sistemului de operare ce componente are aplicația,     -->
+<!--   care dintre ele poate fi pornită din exterior și ce temă folosește.               -->
+<!-- DE CE EXISTĂ: fără el, Android nu știe că `MainActivity` este punctul de pornire.   -->
+<!-- CE NU FACE: nu conține cod, nu conține layout, nu declară permisiuni (aplicația     -->
+<!--   nu are nevoie de niciuna).                                                        -->
+<!-- CE S-AR RUPE FĂRĂ EL: aplicația nu ar apărea în launcher.                          -->
+<!-- DIFERENȚA FAȚĂ DE G1097: doar `Theme.G1099` în loc de `Theme.G1097`.               -->
+<!--   Numele pachetului nu apare aici: vine din `namespace`-ul din `build.gradle`.      -->
+<!-- ================================================================================== -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- ============================================================================== -->
+    <!-- ELEMENTUL APPLICATION — configurația globală a aplicației.                      -->
+    <!-- ATRIBUTE, PE RÂND:                                                              -->
+    <!--   allowBackup         = permite sistemului să copieze datele aplicației.        -->
+    <!--   dataExtractionRules = regulile de backup pentru Android 12+.                  -->
+    <!--   fullBackupContent   = regulile de backup pentru Android 11 și mai vechi.      -->
+    <!--   icon / roundIcon    = iconițele din launcher; `mipmap` = mai multe densități. -->
+    <!--   label               = numele aplicației, din `strings.xml`. Niciodată text    -->
+    <!--                         literal aici.                                           -->
+    <!--   supportsRtl         = suport pentru limbile scrise de la dreapta la stânga.   -->
+    <!--   theme               = tema aplicației. Singura diferență față de G1097.       -->
+    <!--                                                                                 -->
+    <!-- `xmlns:tools` este declarat mai sus, dar în acest fișier NU este folosit:       -->
+    <!--   niciun atribut `tools:` nu apare. Declarație moartă, ca importurile moarte.   -->
+    <!-- ============================================================================== -->
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.G1099">
+
+        <!-- ========================================================================== -->
+        <!-- ACTIVITATEA 1: MainActivity — ecranul cu lista.                            -->
+        <!-- `android:name` este RELATIV: `.activities.MainActivity` se compune cu      -->
+        <!--   numele pachetului din `build.gradle`.                                    -->
+        <!-- `android:exported="true"` este OBLIGATORIU din API 31 pentru orice         -->
+        <!--   componentă cu intent-filter. Fără el, build-ul eșuează.                  -->
+        <!-- `adjustResize`: când apare tastatura, fereastra se micșorează, iar         -->
+        <!--   conținutul rămâne vizibil. Alternativa `adjustPan` ar împinge ecranul.   -->
+        <!-- ========================================================================== -->
+        <activity
+            android:name=".activities.MainActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
+
+            <!-- FILTRUL DE INTENȚII — ce face activitatea pornibilă din launcher. -->
+            <intent-filter>
+                <!-- `MAIN` = punctul de intrare al aplicației. -->
+                <action android:name="android.intent.action.MAIN" />
+
+                <!-- `LAUNCHER` = apare în lista de aplicații a telefonului. -->
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- ========================================================================== -->
+        <!-- ACTIVITATEA 2: ItemActivity — formularul.                                  -->
+        <!-- `android:exported="false"`: NU poate fi pornită de altă aplicație.         -->
+        <!--   Este corect: formularul se deschide doar din MainActivity, prin Intent.  -->
+        <!-- Fără intent-filter, pentru că nu răspunde la nicio acțiune globală.        -->
+        <!-- `adjustResize` din nou: formularul are câmpuri text, deci tastatura apare. -->
+        <!-- ========================================================================== -->
+        <activity
+            android:name=".activities.ItemActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+    </application>
+
+</manifest>

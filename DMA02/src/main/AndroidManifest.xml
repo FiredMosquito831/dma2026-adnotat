@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ↑ declarația XML: prima linie obligatorie. Un comentariu ÎNAINTEA ei ar face
+     documentul invalid, de aceea antetul stă după ea. -->
+
+<!--
+  ======================================================================================
+  AndroidManifest.xml — CONTRACTUL APLICAȚIEI CU SISTEMUL ANDROID
+  ======================================================================================
+  CE ESTE:
+    Fișierul care spune sistemului ce componente are aplicația, ce permisiuni cere și
+    ce `Intent`-uri acceptă. Fără el, APK-ul nu se poate instala.
+
+  DE CE EXISTĂ:
+    1. leagă `DMA02App` de runtime (`android:name=".DMA02App"`);
+    2. declară `MainActivity` și filtrul care o face vizibilă în launcher;
+    3. declară filtrul care face aplicația vizibilă în share sheet.
+
+  CE SE STRICĂ FĂRĂ EL:
+    - fără `<application android:name>`, `DMA02App` nu e instanțiat: tăcere;
+    - fără `MAIN` + `LAUNCHER`, aplicația nu apare în launcher;
+    - fără `exported="true"`, build-ul eșuează pe targetSdk ≥ 31.
+
+  REF: AndroidManifest.xml (Android 36); build.gradle.kts, `namespace`.
+  ======================================================================================
+-->
+
+<!--
+  ======================================================================================
+  THEORY BLOCK: manifestul ca registru de componente
+  ======================================================================================
+  1. `<manifest>` — rădăcina. Conține `package` (sau `namespace` în build.gradle.kts)
+     și namespace-urile XML.
+  2. `<application>` — un singur nod per APK. Atributele lui se aplică întregii
+     aplicații: nume, icon, temă, backup.
+  3. `<activity>` — o componentă cu fereastră. Fiecare are `android:name` și, dacă
+     are `<intent-filter>`, `android:exported`.
+  4. `<intent-filter>` — ce `Intent`-uri acceptă componenta. `MAIN` + `LAUNCHER` =
+     punct de intrare; `SEND` + `DEFAULT` + `text/plain` = receptor de share.
+  ======================================================================================
+-->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <!-- ↑ xmlns:android = prefixul tuturor atributelor android:.
+         xmlns:tools = prefixul tools:; aici e declarat, dar niciun atribut tools:
+         nu apare în fișier — rămășiță din șablon. -->
+
+    <!--
+      ==================================================================================
+      NODUL <application> — atributele globale ale aplicației
+      ==================================================================================
+      android:name=".DMA02App"              ← LEGĂTURA cu DMA02App.java
+      android:allowBackup="true"            ← backup automat al datelor
+      android:dataExtractionRules="..."     ← reguli de backup pentru Android 12+
+      android:fullBackupContent="..."       ← reguli de backup pentru Android 11 și mai jos
+      android:icon / roundIcon              ← iconul din launcher
+      android:label="@string/app_name"      ← numele afișat: „DMA02"
+      android:supportsRtl="true"            ← oglindire pentru limbi RTL
+      android:theme="@style/Theme.DMA02"    ← tema aplicației
+      ==================================================================================
+    -->
+    <application
+        android:name=".DMA02App"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.DMA02">
+        <!-- ↑ după `>` putem pune comentarii: sunt între elemente, nu în interiorul
+             tag-ului. În interiorul unui tag XML, între atribute, un comentariu ar
+             face documentul invalid. -->
+
+        <!--
+          ==================================================================================
+          ACTIVITATEA PRINCIPALĂ
+          ==================================================================================
+          android:name=".MainActivity"        ← clasa care se instanțiază
+          android:exported="true"             ← obligatoriu: launcher-ul e altă aplicație
+          android:windowSoftInputMode="..."   ← comportamentul la tastatură (inert aici)
+          ==================================================================================
+        -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
+            <!-- ↑ activitatea care apare în launcher și care are layout-ul din 25.4. -->
+
+            <!--
+              FILTRUL 1: MAIN + LAUNCHER
+              MAIN      = „acesta e punctul de intrare"
+              LAUNCHER  = „arată-mă în launcher"
+            -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- ↑ fără acest filtru, aplicația nu apare în launcher. -->
+
+            <!--
+              FILTRUL 2: SEND + DEFAULT + text/plain
+              SEND       = „primesc conținut trimis de alte aplicații"
+              DEFAULT    = obligatoriu pentru rezolvarea implicită
+              text/plain = doar text simplu
+              → aplicația apare în share sheet-ul propriu și al altora.
+            -->
+                <intent-filter>
+                    <action android:name="android.intent.action.SEND" />
+                    <category android:name="android.intent.category.DEFAULT" />
+                    <data android:mimeType="text/plain" />
+                </intent-filter>
+            <!-- ↑ indentarea inconsistentă (16 spații) e în repo; nu schimbă nimic. -->
+
+
+        </activity>
+    </application>
+
+</manifest>

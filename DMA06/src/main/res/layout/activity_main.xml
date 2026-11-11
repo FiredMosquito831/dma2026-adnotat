@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ==================================================================================
+     FIȘIER: activity_main.xml
+     ==================================================================================
+     LOCAȚIE:  DMA06/src/main/res/layout/activity_main.xml
+     ROL:      layout-ul meniului: două texte (titlu + subtitlu) și trei butoane.
+     CONȚINE:  2 × TextView, 3 × MaterialButton
+     ID-URI:   btnStep1, btnStep2, btnStep3   ← singurele atinse din cod
+     ================================================================================== -->
+
+<!-- De ce XML-ul are nevoie de antet: un layout se citește rar de sus în jos; de obicei
+     îl cauți după un id. Antetul îți spune în trei linii ce id-uri există, ca să nu
+     derulezi 40 de linii ca să afli dacă butonul se numește btnStep1 sau button1. -->
+
+<!-- Rădăcina: coloană verticală, cu grupul de copii centrat pe verticală și padding pe toate laturile. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_vertical"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <!-- Titlul ecranului: „From ListView to RecyclerView" (din strings.xml) -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/main_heading"
+        android:textAppearance="?attr/textAppearanceHeadlineSmall" />
+
+    <!-- Subtitlul: „The numbers from 1 to 100, displayed in three steps." -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="24dp"
+        android:text="@string/main_description"
+        android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+    <!-- Butonul 1: id-ul btnStep1 este căutat în MainActivity.openOnClick -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnStep1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/step1_title" />
+
+    <!-- Butonul 2: 8dp sub primul -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnStep2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/step2_title" />
+
+    <!-- Butonul 3: 8dp sub al doilea -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnStep3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/step3_title" />
+</LinearLayout>
+
+<!-- ======================================================================================
+     CE TREBUIE REȚINUT DIN FIȘIER
+     ======================================================================================
+     orientation="vertical"      copiii se așază unul sub altul, în ordinea din fișier
+     gravity="center_vertical"   centrează GRUPUL de copii, nu fiecare copil
+     layout_gravity              ar poziționa view-ul în părintele lui — alt atribut!
+     padding="24dp"              margine interioară pe toate cele patru laturi
+     match_parent pe butoane     late cât ecranul; wrap_content le-ar face inegale
+     @+id/btnStep1               `+` = creează id-ul dacă nu există
+     MaterialButton              nume complet, pentru că nu e în android.widget
+     ?attr/...                   atribut rezolvat din tema curentă (Material3)
+     @string/...                 text dintr-un fișier de resurse, traductibil
+     layout_marginTop="8dp"      spațiu între butoane, nu padding în ele
+     ====================================================================================== -->

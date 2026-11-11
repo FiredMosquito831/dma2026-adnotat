@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Adapters Demo</string>
+    <string name="main_heading">From ListView to RecyclerView</string>
+    <string name="main_description">The numbers from 1 to 100, displayed in three steps.</string>
+    <string name="step1_title">Step 1: ListView</string>
+    <string name="step2_title">Step 2: Two columns</string>
+    <string name="step3_title">Step 3: RecyclerView</string>
+    <string name="decimal">Decimal</string>
+    <string name="binary">Binary</string>
+</resources>
