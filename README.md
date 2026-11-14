@@ -5,12 +5,24 @@ The **DMA2026** course project with **53 annotated files** — the code commente
 > **Source:** [`mihaidoinea/dma2026`](https://github.com/mihaidoinea/dma2026), commit `d719ffc`.
 > The code is **byte-identical**. The only difference from the original repo is the comment lines.
 
+## What is new — 2026-11-14
+
+The folder **`G1098-14.11.2026(week7-full)/`** holds the **updated** version of the app, brought in on 14 November: `RecyclerView`, a custom adapter with a `ViewHolder`, a click callback through the `IMovieListener` interface, and a new screen (`PlaceCiocanul`).
+
+It is a **separate project** with its own `settings.gradle.kts` (`include(":app")`) — it is not part of the eight modules. You open it on its own:
+
+*File → Open* → pick the `G1098-14.11.2026(week7-full)` folder (not the repo root).
+
+Its package is `com.example.group1098`, exactly as it was exported.
+
 ## Two languages, two branches
 
 | Branch | The comments are in |
 |---|---|
 | **`main`** (default) | **Romanian** |
 | **`english`** (this one) | **English** |
+| **`archive-2026-11-11`** | the 2026-11-11 version, **without** the new folder (RO) |
+| **`archive-2026-11-11-en`** | the 2026-11-11 version, **without** the new folder (EN) |
 
 Same files, same code, only the comments differ. Switch the branch and Android Studio reloads:
 

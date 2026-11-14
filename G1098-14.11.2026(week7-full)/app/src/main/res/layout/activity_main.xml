@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ====================================================================================== -->
+<!-- FILE: activity_main.xml — THE LIST SCREEN                                             -->
+<!-- ====================================================================================== -->
+<!-- WHAT IT IS: a FrameLayout with three children: RecyclerView (fills everything), the    -->
+<!--   insert FAB (bottom-right) and the FAB towards the test screen (bottom-left).         -->
+<!-- WHY IT EXISTS: it is the only layout that contains the list. The complexity of a row   -->
+<!--   is in movie_item.xml; here there is only the skeleton.                               -->
+<!-- WHO DEPENDS ON IT: MainActivity — through R.layout.activity_main and three IDs:        -->
+<!--   main, rvMovies, floatingActionButton.                                               -->
+<!-- WHAT IT DOES NOT DO: it does not define what a row looks like (that comes from movie_item.xml)
+<!--   and does not set the order (LinearLayoutManager does that).                          -->
+<!-- WHAT BREAKS WITHOUT IT: setContentView would have nothing to load; findViewById(R.id.main) -->
+<!--   would return null and the insets listener would throw a NullPointerException.        -->
+<!-- ====================================================================================== -->
+<!-- FRAMELAYOUT — the root container. -->
+<!-- WHY FrameLayout and not LinearLayout: the children must OVERLAP. The buttons          -->
+<!--   float over the list; a LinearLayout would put them one next to the other (or one under -->
+<!--   the other), and the FABs would no longer float.                                      -->
+<!-- WHY not ConstraintLayout: for three children, FrameLayout is enough and                -->
+<!--   cheaper to read.                                                                    -->
+<!-- THE ORDER OF THE CHILDREN IS MEANINGFUL: each child is drawn over the previous one.    -->
+<!--   RecyclerView is FIRST, so it sits underneath; the FABs come over it.                -->
+<!-- ATTRIBUTES: xmlns:android = framework; xmlns:app = libraries (Material); xmlns:tools   -->
+<!--   = preview only, removed at build.                                                    -->
+<!-- android:id="@+id/main" — the container on which the insets padding is applied.          -->
+<!--   @+id/ CREATES the ID; @id/ would REFER to an existing one.                           -->
+<!-- android:orientation="horizontal" — INVALID ATTRIBUTE on FrameLayout: `orientation`     -->
+<!--   exists only on LinearLayout. It is IGNORED by Android and produces a lint warning    -->
+<!--   (“Unknown attribute”). Harmless noise, left over from a previous LinearLayout. It    -->
+<!--   changes nothing at runtime and is not worth “fixing” unless you are explicitly asked. -->
+<!-- tools:context — only for the preview: which activity lends its theme in the editor.    -->
+<!-- WHY android:id="@+id/main" IS MANDATORY: the code calls findViewById(R.id.main)        -->
+<!--   for the insets listener. Without an ID, the call would return null and               -->
+<!--   setOnApplyWindowInsetsListener(null, ...) would throw a NullPointerException.        -->
+<!-- ====================================================================================== -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    tools:context=".activities.MainActivity">
+
+    <!-- RECYCLERVIEW — the list. -->
+    <!-- The class's full name is mandatory: RecyclerView is not part of the
+    <!--   framework widgets, but of the AndroidX library. In XML you write the
+    <!--   class's full path. -->
+    <!-- android:id="@+id/rvMovies" — looked up in initControls, where it receives
+    <!--   a LayoutManager and an adapter. -->
+    <!-- layout_width/height = match_parent — the list fills the screen, including the area under
+    <!--   the buttons. The buttons are drawn OVER it, not next to it. -->
+    <!-- WHAT IT DOES NOT HAVE, UNLIKE LISTVIEW: -->
+    <!--   - no android:entries: RecyclerView does not know how to build its own
+    <!--     rows from resources; it needs an adapter; -->
+    <!--   - no tools:listitem: the preview attribute that would show in the editor what
+    <!--     a row looks like. Without it, the preview appears empty. It does not affect runtime. -->
+    <!-- RISK: because the list stretches over the whole screen, and the buttons are drawn over -->
+    <!--   it, the last row can sit under the FABs. The correct remedy is paddingBottom on -->
+    <!--   the list + clipToPadding="false". -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvMovies"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- FAB 1 — the insert. -->
+    <!-- layout_gravity="bottom|end" — bottom, right. `end` respects the reading direction;
+    <!--   in RTL it becomes left. `right` would be fixed and wrong in RTL. -->
+    <!-- layout_margin="16dp" — 16dp from the safe area (the insets padding is applied
+    <!--   on R.id.main, not on the FAB). -->
+    <!-- contentDescription="Add" — the text read by TalkBack. Mandatory for a button
+    <!--   with no visible text; without it, lint gives the “ContentDescription” error. -->
+    <!-- app:srcCompat — the compatible variant for vector images; it supports vectors
+    <!--   on all versions, unlike android:src. -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floatingActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:contentDescription="Add"
+        app:srcCompat="@drawable/outline_add_24" />
+
+    <!-- FAB 2 — btnVlad, the button towards the test screen. -->
+    <!-- It is NEW compared with the old version. It sits on the opposite side from the first:
+    <!--   bottom|start — bottom, left. -->
+    <!-- android:clickable="true" — redundant: FloatingActionButton is clickable by
+    <!--   construction. It does not appear on the first FAB; here it was added explicitly. -->
+    <!-- contentDescription="Ciocan" — again, for TalkBack. -->
+    <!-- app:srcCompat="@drawable/buton_ciocan" — the project's own icon. -->
+    <!-- WHY it exists: it opens PlaceCiocanul, the test screen (38.4). The binding is done
+    <!--   in initSecondListener, through the same launcher. -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnVlad"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:layout_margin="16dp"
+        android:contentDescription="Ciocan"
+        android:layout_gravity="bottom|start"
+        app:srcCompat="@drawable/buton_ciocan"/>
+</FrameLayout>

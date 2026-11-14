@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ====================================================================================== -->
+<!-- FILE: movie_item.xml — THE CARD OF A SINGLE MOVIE                                       -->
+<!-- ====================================================================================== -->
+<!-- WHAT IT IS: the layout of a list row. It is inflated once for each visible row         -->
+<!--   and re-bound with data on every reappearance (recycling — see 38.2).                 -->
+<!-- WHY IT EXISTS: RecyclerView needs an XML to repeat. This is it. -->
+<!-- WHAT IT DEPENDS ON: the Material theme (MaterialCardView, the Chip.Suggestion styles)  -->
+<!--   and the @string/chip_ciocan_name resource. It depends on no Java class.              -->
+<!-- WHO DEPENDS ON IT: MovieAdapter — through R.layout.movie_item and nine IDs from here.   -->
+<!-- WHAT IT DOES NOT DO: it does not display real data by itself. The android:text values  -->
+<!--   below are PLACEHOLDERS that are seen at runtime if the adapter does not overwrite them. -->
+<!-- WHAT BREAKS WITHOUT IT: inflate(R.layout.movie_item, ...) would not compile; the list   -->
+<!--   would remain without rows, although the adapter would have something to display.     -->
+<!-- ====================================================================================== -->
+<!-- THE TREE STRUCTURE (11 IDs declared, 9 used by the code):                              -->
+<!--   MaterialCardView                          root = itemView (the whole card)            -->
+<!--     +- LinearLayout, horizontal, padding 12dp                                         -->
+<!--         +- ImageView    moviePoster         96 x 140dp                                -->
+<!--         +- LinearLayout, vertical, 0dp + weight 1                                      -->
+<!--             +- TextView   movieTitle        20sp, bold, max 2 lines                    -->
+<!--             +- TextView   movieSubtitle     14sp, grey                                 -->
+<!--             +- LinearLayout, horizontal                                                -->
+<!--             |    +- RatingBar  movieRating      5 stars, indicator                     -->
+<!--             |    +- TextView   movieRatingValue “4.5”                                  -->
+<!--             +- TextView   movieFacts        “142 min · $160M”                          -->
+<!--             +- ChipGroup  movieStatusGroup                                            -->
+<!--                 +- Chip   chipApproval      “Approved”                                 -->
+<!--                 +- Chip   chipWatched       “Watched” + icon                           -->
+<!--                 +- Chip   chipWatchlist     “Watchlist”                                -->
+<!--                 +- Chip   chipCiocan        @string/chip_ciocan_name                  -->
+<!-- ====================================================================================== -->
+<!-- MATERIALCARDVIEW — the row's root.                                                     -->
+<!-- WHY A CARD and not a LinearLayout: each row is an independent visual unit, with        -->
+<!--   its own corners and shadow. A plain LinearLayout would look like a table.            -->
+<!-- layout_width="match_parent" — the row takes the list's full width.                     -->
+<!-- layout_height="wrap_content" — the content gives the height (the 140dp poster).        -->
+<!-- layout_marginHorizontal="12dp" / layout_marginVertical="6dp" — air around the card.    -->
+<!-- RISK: marginHorizontal and marginVertical were introduced in API 26. With minSdk 24     -->
+<!--   (from build.gradle.kts), on Android 7.0–7.1 they are ignored: the card touches the edges. -->
+<!-- cardCornerRadius="16dp" — rounded corners; cardElevation="3dp" — shadow.              -->
+<!-- cardUseCompatPadding="true" — internal padding so the shadow is not clipped on old APIs. -->
+<!-- NOTE: the root has NO android:id. It does not need one: itemView in the ViewHolder is   -->
+<!--   this very card, and the adapter does not look it up with findViewById.               -->
+<!-- ====================================================================================== -->
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="6dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="3dp"
+    app:cardUseCompatPadding="true">
+
+    <!-- HORIZONTAL LINEARLAYOUT — poster on the left, information on the right. -->
+    <!-- padding="12dp" — the content does not touch the card's edge. -->
+    <!-- WHY horizontal: the poster and the text column sit side by side, as in a poster. -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp">
+
+        <!-- Poster -->
+        <!-- IMAGEVIEW — the movie's poster. -->
+        <!-- 96 x 140dp — ratio ~2:3, like a poster. FIXED dimensions: the poster does not  -->
+        <!--   change size according to the text on the right.                              -->
+        <!-- background="#11000000" — black with alpha 0x11 (~7% opacity). The format is     -->
+        <!--   #AARRGGBB: alpha first, then red, green, blue.                               -->
+        <!-- scaleType="centerCrop" — fills the 96x140dp cropping the edges, without        -->
+        <!--   distorting. fitXY would stretch the image; centerInside would leave empty bands. -->
+        <!-- contentDescription="Movie poster" — the text read by TalkBack. -->
+        <!-- src="@android:drawable/ic_menu_gallery" — a provisional image, from the system  -->
+        <!--   resources, not from the project.                                             -->
+        <!-- RISK: the adapter looks this view up in the holder (the `poster` field) but NEVER -->
+        <!--   fills it. On screen the gallery icon always appears, for any movie.           -->
+        <ImageView
+            android:id="@+id/moviePoster"
+            android:layout_width="96dp"
+            android:layout_height="140dp"
+            android:background="#11000000"
+            android:scaleType="centerCrop"
+            android:contentDescription="Movie poster"
+            android:src="@android:drawable/ic_menu_gallery" />
+
+        <!-- Info column -->
+        <!-- THE INFORMATION COLUMN — 0dp + weight 1. -->
+        <!-- WHY 0dp: the width is not fixed; it takes all the rest left after the poster. -->
+        <!-- WHY weight="1": the only child with weight receives all the free space. Without -->
+        <!--   it, 0dp would mean zero width and the text would disappear. -->
+        <!-- marginStart="12dp" — separates the text from the poster; `start` respects RTL. -->
+        <!-- orientation="vertical" — the elements flow from top to bottom. -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="12dp"
+            android:orientation="vertical">
+
+            <!-- THE TITLE — movieTitle. -->
+            <!-- textSize="20sp" + textStyle="bold" — a strong hierarchy; the title is -->
+            <!--   the row's main element. -->
+            <!-- maxLines="2" — at most two lines. -->
+            <!-- ellipsize="end" — if it does not fit, it is cut with “...” at the end. Without it, -->
+            <!--   the text would be cut brutally at the edge. -->
+            <!-- android:text="Movie title" — PLACEHOLDER. Here the adapter writes -->
+            <!--   movie.getTitle(), so the XML value is not seen at runtime. -->
+            <TextView
+                android:id="@+id/movieTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Movie title"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end" />
+
+            <!-- genre · release year, e.g. "Sci-Fi · 2021" -->
+            <!-- THE SUBTITLE — movieSubtitle. -->
+            <!-- textSize="14sp" — secondary to the title; marginTop="2dp" — glued to it. -->
+            <!-- textColor="#757575" — a hardcoded grey. The correct way would be ?attr/colorOnSurfaceVariant, -->
+            <!--   so that it adapts to dark mode. Here it is a fixed colour. -->
+            <!-- PLACEHOLDER: the adapter writes “genre. year” — with a dot, not with “·” as in the XML. -->
+            <TextView
+                android:id="@+id/movieSubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Genre · Year"
+                android:textSize="14sp"
+                android:textColor="#757575" />
+
+            <!-- Rating -->
+            <!-- THE RATING ROW — horizontal, vertically centred. -->
+            <!-- gravity="center_vertical" — the stars and the number line up on the middle -->
+            <!--   of the height, not at the top. -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <!-- RATINGBAR — the stars. -->
+                <!-- style="?android:attr/ratingBarStyleSmall" — the small variant, with stars -->
+                <!--   of ~14dp; a system style, not Material. -->
+                <!-- numStars="5" — five stars; stepSize="0.5" — half stars. -->
+                <!-- isIndicator="true" — it only displays, it cannot be changed by -->
+                <!--   touch. Without it, the user would change each row's score. -->
+                <!-- RISK: there is no android:rating and the adapter sets nothing, so -->
+                <!--   ALL the rows show zero stars, whatever the score in the model. -->
+                <RatingBar
+                    android:id="@+id/movieRating"
+                    style="?android:attr/ratingBarStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:numStars="5"
+                    android:stepSize="0.5"
+                    android:isIndicator="true" />
+
+                <!-- THE NUMERIC VALUE — movieRatingValue, the number to the right of the stars. -->
+                <!-- textSize="13sp", grey; marginStart="6dp" — separates it from the stars. -->
+                <!-- BUG: the value is the static “4.5” from the XML and is not written by -->
+                <!--   the adapter. All the rows show 4.5, regardless of the movie. -->
+                <TextView
+                    android:id="@+id/movieRatingValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="4.5"
+                    android:textSize="13sp"
+                    android:textColor="#757575" />
+            </LinearLayout>
+
+            <!-- Facts: duration + budget -->
+            <!-- “FACTS” — the duration and the budget, on a single line of text. -->
+            <!-- The example in the XML: “142 min  ·  $160M” (two spaces before the separator). -->
+            <!-- textSize="13sp", light grey (#9E9E9E) — the most secondary information. -->
+            <!-- BUG: this text is static too. The adapter does not write it, so all
+            <!--   three movies display the same duration and the same budget. -->
+            <TextView
+                android:id="@+id/movieFacts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="142 min  ·  $160M"
+                android:textSize="13sp"
+                android:textColor="#9E9E9E" />
+
+            <!-- Status chips: approval, watched, watchlist -->
+            <!-- CHIPGROUP — the labels' container. -->
+            <!-- match_parent — it has the column's full width; marginTop="8dp" — separates it from -->
+            <!--   the text above. -->
+            <!-- chipSpacingHorizontal="6dp" — 6dp between the labels. -->
+            <!-- singleLine="false" — if they do not fit on one line, they wrap to the next. -->
+            <!-- NOTE: the group has an ID (movieStatusGroup) but the adapter does NOT look it up. -->
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/movieStatusGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:chipSpacingHorizontal="6dp"
+                app:singleLine="false">
+
+                <!-- CHIP 1 — the parental guidance (“Approved”). -->
+                <!-- style="@style/Widget.Material3.Chip.Suggestion" — the Material 3 style -->
+                <!--   for suggestion labels: a discreet background, no outline. -->
+                <!-- android:text="Approved" — static text. Here -->
+                <!--   movie.getApproval() should appear: “PG-13”, “R”, “G”. -->
+                <!-- android:clickable="false" — the label is not pressed. WHY IT MATTERS: -->
+                <!--   without it, the Chip would consume the touch, and the row click (bound -->
+                <!--   on itemView) would no longer fire when you press exactly on the label. -->
+                <!-- chipMinHeight="28dp" — shorter than the standard (32dp by default). -->
+                <!-- ensureMinTouchTargetSize="false" — it accepts a touch target below 48dp. -->
+                <!--   Here that is fine: the label is not pressed anyway. -->
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipApproval"
+                    style="@style/Widget.Material3.Chip.Suggestion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Approved"
+                    android:clickable="false"
+                    app:chipMinHeight="28dp"
+                    app:ensureMinTouchTargetSize="false" />
+
+                <!-- CHIP 2 — “Watched”. -->
+                <!-- The only difference from the first: app:chipIcon, a tick from the system -->
+                <!--   resources (@android:drawable/checkbox_on_background). -->
+                <!-- Static text: it should depend on movie.isWatched(). -->
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipWatched"
+                    style="@style/Widget.Material3.Chip.Suggestion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Watched"
+                    android:clickable="false"
+                    app:chipMinHeight="28dp"
+                    app:chipIcon="@android:drawable/checkbox_on_background"
+                    app:ensureMinTouchTargetSize="false" />
+
+                <!-- CHIP 3 — “Watchlist”. -->
+                <!-- Static text: it should depend on movie.isOnWatchlist(). -->
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipWatchlist"
+                    style="@style/Widget.Material3.Chip.Suggestion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Watchlist"
+                    android:clickable="false"
+                    app:chipMinHeight="28dp"
+                    app:ensureMinTouchTargetSize="false" />
+
+                <!-- CHIP 4 — chipCiocan. -->
+                <!-- The text comes from @string/chip_ciocan_name — a text resource, not a -->
+                <!--   literal. It is the only chip without text written directly in the layout. -->
+                <!-- NOTE: the ID does not appear in MovieViewHolder, so this chip is never -->
+                <!--   modified from code. It is a fourth decorative label. -->
+                <!-- WATCH the spacing: "false"/> — no space before />. It is -->
+                <!--   the only chip written like this; the file is exactly as it was saved. -->
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipCiocan"
+                    style="@style/Widget.Material3.Chip.Suggestion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/chip_ciocan_name"
+                    android:clickable="false"
+                    app:chipMinHeight="28dp"
+                    app:ensureMinTouchTargetSize="false"/>
+            </com.google.android.material.chip.ChipGroup>
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

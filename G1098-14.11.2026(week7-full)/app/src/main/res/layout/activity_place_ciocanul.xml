@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ====================================================================================== -->
+<!-- FILE: activity_place_ciocanul.xml — THE TEST SCREEN                                    -->
+<!-- ====================================================================================== -->
+<!-- WHAT IT IS: the layout of the PlaceCiocanul screen. It contains a RecyclerView without an ID, a FAB, -->
+<!--   a narrow ProgressBar and nothing else.                                               -->
+<!-- WHY IT EXISTS: it is the skeleton of the new screen brought in version 2. Two views     -->
+<!--   are used from it: the main container (for the insets) and the FAB (for the Toast).   -->
+<!-- WHO DEPENDS ON IT: PlaceCiocanul.java — through R.layout.activity_place_ciocanul,       -->
+<!--   R.id.main and R.id.floatingActionButton2.                                            -->
+<!-- WHAT IT DOES NOT DO: it displays no list (the RecyclerView has no ID, so it cannot be  -->
+<!--   configured from code) and displays no progress (the ProgressBar is bound to          -->
+<!--   nothing).                                                                            -->
+<!-- WHAT BREAKS WITHOUT IT: setContentView(R.layout.activity_place_ciocanul) would not compile. -->
+<!-- ====================================================================================== -->
+<!-- RELATIVELAYOUT — the root container. -->
+<!-- WHY RelativeLayout: the children are positioned through relative rules (“above      -->
+<!--   X”, “to the right of the parent”). Here, however, NO rule is used, so                -->
+<!--   it is a container without a purpose — a FrameLayout would be equivalent.             -->
+<!-- android:id="@+id/main" — used by findViewById(R.id.main) for the insets.               -->
+<!-- android:orientation="vertical" — INVALID ATTRIBUTE on RelativeLayout: it exists only on -->
+<!--   LinearLayout. Ignored at runtime; noise, exactly as in activity_main.xml.            -->
+<!-- tools:context — only for the preview.                                                 -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.PlaceCiocanul"
+    android:orientation="vertical">
+
+    <!-- RECYCLERVIEW WITHOUT AN ID — skeleton. -->
+    <!-- wrap_content / wrap_content — if it had content, it would size itself after it;
+    <!--   like this, with zero rows, it is 0x0. -->
+    <!-- PROBLEM 1: it has no android:id. Without an ID it cannot be found with findViewById, so
+    <!--   no code can give it a LayoutManager or an adapter. -->
+    <!-- PROBLEM 2: without a LayoutManager, a RecyclerView draws nothing and writes to
+    <!--   Logcat “No layout manager attached; skipping layout”. -->
+    <!-- Conclusion: it is a space holder for a future screen, not a list. -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <!-- FAB — the only functional view. -->
+    <!-- android:id="@+id/floatingActionButton2" — looked up in onCreate as btn2. -->
+    <!-- android:clickable="true" — redundant, as at btnVlad on the main screen. -->
+    <!-- app:srcCompat="@drawable/outline_add_24" — the same icon as the insert
+    <!--   FAB. Here it adds nothing; it is inherited. -->
+    <!-- tools:layout_editor_absoluteX / absoluteY — editor-ONLY attributes: the guides
+    <!--   used by the layout editor to place the view on the canvas. They do NOT exist at runtime
+    <!--   and are removed at build. -->
+    <!-- RISK: because there is no layout_alignParent* / layout_center* and no
+    <!--   layout_gravity, the child is placed by default in the top-left corner (0,0) — not
+    <!--   where the preview shows it (334dp, 655dp). -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floatingActionButton2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        app:srcCompat="@drawable/outline_add_24"
+        tools:layout_editor_absoluteX="334dp"
+        tools:layout_editor_absoluteY="655dp" />
+
+    <!-- PROGRESSBAR — skeleton. -->
+    <!-- style="?android:attr/progressBarStyle" — the system's default style: an animated,
+    <!--   indeterminate circle. -->
+    <!-- layout_width="6dp" — the width is 6dp, while the height is wrap_content.
+    <!--   The result: a squashed circle, almost invisible. The correct way would be wrap_content on
+    <!--   both axes. -->
+    <!-- It is bound to no code: it has no ID and is not started/stopped from anywhere. -->
+    <ProgressBar
+        style="?android:attr/progressBarStyle"
+        android:layout_width="6dp"
+        android:layout_height="wrap_content" />
+
+</RelativeLayout>
