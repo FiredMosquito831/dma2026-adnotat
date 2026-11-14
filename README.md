@@ -5,12 +5,24 @@ Proiectul **DMA2026** de la curs, cu **53 de fișiere adnotate** — codul comen
 > **Sursa:** [`mihaidoinea/dma2026`](https://github.com/mihaidoinea/dma2026), commitul `d719ffc`.
 > Codul este **identic, byte cu byte**. Singura diferență față de repo-ul original sunt liniile de comentariu.
 
+## Ce e nou — 14.11.2026
+
+Folderul **`G1098-14.11.2026(week7-full)/`** conține versiunea **actualizată** a aplicației, adusă pe 14 noiembrie: `RecyclerView`, adaptor propriu cu `ViewHolder`, callback de click prin interfață `IMovieListener` și un ecran nou (`PlaceCiocanul`).
+
+E un **proiect separat**, cu `settings.gradle.kts` propriu (`include(":app")`) — nu face parte din cele 8 module. Îl deschizi separat:
+
+*File → Open* → alegi folderul `G1098-14.11.2026(week7-full)` (nu rădăcina repo-ului).
+
+Pachetul lui e `com.example.group1098`, exact cum a fost exportat.
+
 ## Două limbi, două branch-uri
 
 | Branch | Comentariile |
 |---|---|
 | **`main`** (default) | în **română** |
 | **`english`** | în **engleză** |
+| **`archive-2026-11-11`** | versiunea din 11.11, **fără** folderul nou (RO) |
+| **`archive-2026-11-11-en`** | versiunea din 11.11, **fără** folderul nou (EN) |
 
 Aceleași fișiere, același cod, doar comentariile diferă. Schimbi branch-ul și Android Studio reîncarcă:
 

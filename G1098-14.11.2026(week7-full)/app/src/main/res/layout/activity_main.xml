@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ====================================================================================== -->
+<!-- FIȘIER: activity_main.xml — ECRANUL CU LISTA                                           -->
+<!-- ====================================================================================== -->
+<!-- CE ESTE: un FrameLayout cu trei copii: RecyclerView (umple tot), FAB-ul de inserare   -->
+<!--   (jos-dreapta) și FAB-ul spre ecranul de test (jos-stânga).                          -->
+<!-- DE CE EXISTĂ: este singurul layout care conține lista. Complexitatea unui rând este   -->
+<!--   în movie_item.xml; aici este doar scheletul.                                         -->
+<!-- CINE DEPINDE DE EL: MainActivity — prin R.layout.activity_main și trei ID-uri:         -->
+<!--   main, rvMovies, floatingActionButton.                                                -->
+<!-- CE NU FACE: nu definește cum arată un rând (acesta vine din movie_item.xml) și nu     -->
+<!--   stabilește ordinea (o face LinearLayoutManager).                                     -->
+<!-- CE S-AR RUPE FĂRĂ EL: setContentView nu ar avea ce încărca; findViewById(R.id.main)   -->
+<!--   ar întoarce null și listener-ul de insets ar arunca NullPointerException.            -->
+<!-- ====================================================================================== -->
+<!-- FRAMELAYOUT — containerul rădăcină. -->
+<!-- DE CE FrameLayout și nu LinearLayout: copiii trebuie să se SUPRApună. Butoanele       -->
+<!--   plutesc peste listă; un LinearLayout le-ar pune unul lângă altul (sau unul sub       -->
+<!--   altul), iar FAB-urile nu ar mai pluti.                                               -->
+<!-- DE CE nu ConstraintLayout: pentru trei copii, FrameLayout este suficient și mai       -->
+<!--   ieftin de citit.                                                                     -->
+<!-- ORDINEA COPIILOR ESTE SEMNIFICAȚIE: fiecare copil este desenat peste cel anterior.     -->
+<!--   RecyclerView este PRIMUL, deci stă dedesubt; FAB-urile vin peste el.                -->
+<!-- ATRIBUTE: xmlns:android = framework; xmlns:app = biblioteci (Material); xmlns:tools   -->
+<!--   = doar preview, eliminate la build.                                                  -->
+<!-- android:id="@+id/main" — containerul pe care se aplică padding-ul de insets.           -->
+<!--   @+id/ CREEAZĂ ID-ul; @id/ l-ar REFERI pe unul existent.                              -->
+<!-- android:orientation="horizontal" — ATRIBUT INVALID pe FrameLayout: `orientation`      -->
+<!--   există doar pe LinearLayout. Este IGNORAT de Android și produce un warning de lint   -->
+<!--   („Unknown attribute"). Zgomot inofensiv, rămas de la un LinearLayout anterior. Nu    -->
+<!--   schimbă nimic la runtime și nu merită „reparat" decât dacă ți se cere explicit.      -->
+<!-- tools:context — doar pentru preview: ce activitate împrumută tema în editor.           -->
+<!-- DE CE android:id="@+id/main" ESTE OBLIGATORIU: codul face findViewById(R.id.main)      -->
+<!--   pentru listener-ul de insets. Fără ID, apelul ar întoarce null și                   -->
+<!--   setOnApplyWindowInsetsListener(null, ...) ar arunca NullPointerException.            -->
+<!-- ====================================================================================== -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    tools:context=".activities.MainActivity">
+
+    <!-- RECYCLERVIEW — lista. -->
+    <!-- Numele complet al clasei este obligatoriu: RecyclerView nu face parte din -->
+    <!--   widget-urile framework-ului, ci din biblioteca AndroidX. În XML se scrie -->
+    <!--   calea completă a clasei. -->
+    <!-- android:id="@+id/rvMovies" — căutat în initControls, unde primește -->
+    <!--   LayoutManager și adaptor. -->
+    <!-- layout_width/height = match_parent — lista umple ecranul, inclusiv zona de sub -->
+    <!--   butoane. Butoanele sunt desenate PESTE ea, nu lângă ea. -->
+    <!-- CE NU ARE, SPRE DEOSEBIRE DE LISTVIEW: -->
+    <!--   - nu are android:entries: RecyclerView nu știe să își construiască singur -->
+    <!--     rândurile din resurse; are nevoie de un adaptor; -->
+    <!--   - nu are tools:listitem: atributul de preview care ar arăta în editor cum arată -->
+    <!--     un rând. Fără el, preview-ul apare gol. Nu afectează runtime-ul. -->
+    <!-- RISC: pentru că lista se întinde pe tot ecranul, iar butoanele sunt desenate peste -->
+    <!--   ea, ultimul rând poate sta sub FAB-uri. Remediul corect este paddingBottom pe -->
+    <!--   listă + clipToPadding="false". -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvMovies"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- FAB 1 — inserarea. -->
+    <!-- layout_gravity="bottom|end" — jos, dreapta. `end` respectă direcția de citire; -->
+    <!--   în RTL devine stânga. `right` ar fi fix și greșit în RTL. -->
+    <!-- layout_margin="16dp" — 16dp față de zona sigură (padding-ul de insets se aplică -->
+    <!--   pe R.id.main, nu pe FAB). -->
+    <!-- contentDescription="Add" — textul citit de TalkBack. Obligatoriu pentru un buton -->
+    <!--   fără text vizibil; fără el, lint-ul dă eroare „ContentDescription". -->
+    <!-- app:srcCompat — varianta compatibilă pentru imagini vectoriale; suportă vectori -->
+    <!--   pe toate versiunile, spre deosebire de android:src. -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floatingActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:contentDescription="Add"
+        app:srcCompat="@drawable/outline_add_24" />
+
+    <!-- FAB 2 — btnVlad, butonul către ecranul de test. -->
+    <!-- Este NOU față de versiunea veche. Stă în partea opusă față de primul: -->
+    <!--   bottom|start — jos, stânga. -->
+    <!-- android:clickable="true" — redundant: FloatingActionButton este clickable din -->
+    <!--   construcție. Pe primul FAB nu apare; aici a fost adăugat explicit. -->
+    <!-- contentDescription="Ciocan" — din nou, pentru TalkBack. -->
+    <!-- app:srcCompat="@drawable/buton_ciocan" — iconiță proprie proiectului. -->
+    <!-- DE CE există: deschide PlaceCiocanul, ecranul de test (38.4). Legarea se face -->
+    <!--   în initSecondListener, prin același launcher. -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnVlad"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:layout_margin="16dp"
+        android:contentDescription="Ciocan"
+        android:layout_gravity="bottom|start"
+        app:srcCompat="@drawable/buton_ciocan"/>
+</FrameLayout>
